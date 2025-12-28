@@ -42,413 +42,529 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen> {
             const SizedBox.shrink(), // Hiding back button as it's a modal-like full screen
         leadingWidth: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Search settings, integrations...',
-                prefixIcon: const Icon(
-                  LucideIcons.search,
-                  color: AppTheme.textMuted,
-                ),
-                filled: true,
-                fillColor: AppTheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            const Text(
-              'NOTIFICATION PREFERENCES',
-              style: TextStyle(
-                color: AppTheme.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.surfaceHighlight),
-              ),
-              child: Column(
-                children: [
-                  _buildSettingsTile(
-                    context,
-                    title: 'Alert Policies',
-                    subtitle: 'Critical alerts: PagerDuty',
-                    icon: LucideIcons.bell,
-                    iconColor: AppTheme.primary,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const NotificationPreferencesScreen(),
-                      ),
-                    ),
-                  ),
-                  const Divider(height: 1, color: AppTheme.surfaceHighlight),
-                  _buildSettingsTile(
-                    context,
-                    title: 'Delivery Channels',
-                    subtitle: 'Email, Slack, SMS enabled',
-                    icon: LucideIcons.mail,
-                    iconColor: Colors.deepPurpleAccent,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const NotificationPreferencesScreen(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'AUTOMATION SAFETY',
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10b981).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'Active',
-                    style: TextStyle(
-                      color: Color(0xFF10b981),
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.surfaceHighlight),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.2),
-                          shape: BoxShape.circle,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < AppTheme.mobileBreakpoint;
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search settings, integrations...',
+                        prefixIcon: const Icon(
+                          LucideIcons.search,
+                          color: AppTheme.textMuted,
                         ),
-                        child: const Icon(
-                          LucideIcons.shieldAlert,
-                          color: Colors.orange,
+                        filled: true,
+                        fillColor: AppTheme.surface,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Guardrails',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                    ),
+                    const SizedBox(height: 24),
+
+                    const Text(
+                      'NOTIFICATION PREFERENCES',
+                      style: TextStyle(
+                        color: AppTheme.textMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.surfaceHighlight),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildSettingsTile(
+                            context,
+                            title: 'Alert Policies',
+                            subtitle: 'Critical alerts: PagerDuty',
+                            icon: LucideIcons.bell,
+                            iconColor: AppTheme.primary,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const NotificationPreferencesScreen(),
                               ),
                             ),
-                            Text(
-                              'Production environments',
-                              style: TextStyle(
-                                color: AppTheme.textMuted.withOpacity(0.8),
-                                fontSize: 12,
+                          ),
+                          const Divider(
+                            height: 1,
+                            color: AppTheme.surfaceHighlight,
+                          ),
+                          _buildSettingsTile(
+                            context,
+                            title: 'Delivery Channels',
+                            subtitle: 'Email, Slack, SMS enabled',
+                            icon: LucideIcons.mail,
+                            iconColor: Colors.deepPurpleAccent,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const NotificationPreferencesScreen(),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      Switch(
-                        value: _guardrailsEnabled,
-                        onChanged: (v) =>
-                            setState(() => _guardrailsEnabled = v),
-                        activeColor: AppTheme.primary,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Safety Level',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Standard',
-                        style: TextStyle(
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      trackHeight: 6,
-                      activeTrackColor: AppTheme.surfaceHighlight,
-                      inactiveTrackColor: AppTheme.surfaceHighlight,
-                      thumbColor: AppTheme.primary,
-                      overlayShape: const RoundSliderOverlayShape(
-                        overlayRadius: 0,
-                      ),
-                      thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 8,
+                          ),
+                        ],
                       ),
                     ),
-                    child: Slider(
-                      value: 1,
-                      min: 0,
-                      max: 2,
-                      divisions: 2,
-                      onChanged: (v) {},
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 4.0),
-                    child: Row(
+
+                    const SizedBox(height: 32),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Permissive',
+                        const Text(
+                          'AUTOMATION SAFETY',
                           style: TextStyle(
-                            fontSize: 10,
                             color: AppTheme.textMuted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
                           ),
                         ),
-                        Text(
-                          'Standard',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: AppTheme.textMuted,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
                           ),
-                        ),
-                        Text(
-                          'Strict',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: AppTheme.textMuted,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10b981).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'Active',
+                            style: TextStyle(
+                              color: Color(0xFF10b981),
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.background,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: RichText(
-                      text: const TextSpan(
-                        style: TextStyle(fontSize: 12, height: 1.4),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.surfaceHighlight),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TextSpan(
-                            text: 'Standard Mode: ',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  LucideIcons.shieldAlert,
+                                  color: Colors.orange,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Guardrails',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Production environments',
+                                      style: TextStyle(
+                                        color: AppTheme.textMuted.withOpacity(
+                                          0.8,
+                                        ),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Switch(
+                                value: _guardrailsEnabled,
+                                onChanged: (v) =>
+                                    setState(() => _guardrailsEnabled = v),
+                                activeColor: AppTheme.primary,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Safety Level',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                'Standard',
+                                style: TextStyle(
+                                  color: AppTheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              trackHeight: 6,
+                              activeTrackColor: AppTheme.surfaceHighlight,
+                              inactiveTrackColor: AppTheme.surfaceHighlight,
+                              thumbColor: AppTheme.primary,
+                              overlayShape: const RoundSliderOverlayShape(
+                                overlayRadius: 0,
+                              ),
+                              thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 8,
+                              ),
+                            ),
+                            child: Slider(
+                              value: 1,
+                              min: 0,
+                              max: 2,
+                              divisions: 2,
+                              onChanged: (v) {},
                             ),
                           ),
-                          TextSpan(
-                            text:
-                                'Manual approval required for destructive actions on ',
-                            style: TextStyle(color: AppTheme.textMuted),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Permissive',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
+                                Text(
+                                  'Standard',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
+                                Text(
+                                  'Strict',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          TextSpan(
-                            text: 'production databases.',
-                            style: TextStyle(color: AppTheme.textMuted),
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppTheme.background,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: RichText(
+                              text: const TextSpan(
+                                style: TextStyle(fontSize: 12, height: 1.4),
+                                children: [
+                                  TextSpan(
+                                    text: 'Standard Mode: ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        'Manual approval required for destructive actions on ',
+                                    style: TextStyle(color: AppTheme.textMuted),
+                                  ),
+                                  TextSpan(
+                                    text: 'production databases.',
+                                    style: TextStyle(color: AppTheme.textMuted),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
 
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'INTEGRATIONS',
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                TextButton(onPressed: () {}, child: const Text('Manage')),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildIntegrationCard(
-                    'GitHub',
-                    'Connected',
-                    LucideIcons.github,
-                    const Color(0xFF10b981),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildIntegrationCard(
-                    'AWS',
-                    'Synced (2m ago)',
-                    LucideIcons.cloud,
-                    const Color(0xFF10b981),
-                    iconColor: Colors.purple,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildIntegrationCard(
-                    'Jira',
-                    'Re-auth needed',
-                    LucideIcons.bug,
-                    Colors.amber,
-                    iconColor: Colors.red,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const IntegrationsManagerScreen(),
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'INTEGRATIONS',
+                          style: TextStyle(
+                            color: AppTheme.textMuted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text('Manage'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    if (isMobile)
+                      Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: _buildIntegrationCard(
+                              'GitHub',
+                              'Connected',
+                              LucideIcons.github,
+                              const Color(0xFF10b981),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: _buildIntegrationCard(
+                              'AWS',
+                              'Synced (2m ago)',
+                              LucideIcons.cloud,
+                              const Color(0xFF10b981),
+                              iconColor: Colors.purple,
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildIntegrationCard(
+                              'GitHub',
+                              'Connected',
+                              LucideIcons.github,
+                              const Color(0xFF10b981),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildIntegrationCard(
+                              'AWS',
+                              'Synced (2m ago)',
+                              LucideIcons.cloud,
+                              const Color(0xFF10b981),
+                              iconColor: Colors.purple,
+                            ),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 12),
+                    const SizedBox(height: 12),
+                    if (isMobile)
+                      Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: _buildIntegrationCard(
+                              'Jira',
+                              'Re-auth needed',
+                              LucideIcons.bug,
+                              Colors.amber,
+                              iconColor: Colors.red,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const IntegrationsManagerScreen(),
+                              ),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              height: 110,
+                              decoration: BoxDecoration(
+                                color: AppTheme.surface.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppTheme.primary,
+                                  // style: BorderStyle.dashed, TODO: find a way to make it work
+                                  style: BorderStyle.solid,
+                                ),
+                              ),
+                              child: const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 18,
+                                    backgroundColor: AppTheme.primary,
+                                    child: Icon(
+                                      LucideIcons.plus,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Add Service',
+                                    style: TextStyle(
+                                      color: AppTheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildIntegrationCard(
+                              'Jira',
+                              'Re-auth needed',
+                              LucideIcons.bug,
+                              Colors.amber,
+                              iconColor: Colors.red,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const IntegrationsManagerScreen(),
+                                ),
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                height: 110,
+                                decoration: BoxDecoration(
+                                  color: AppTheme.surface.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: AppTheme.primary,
+                                    // style: BorderStyle.dashed, TODO: find a way to make it work
+                                    style: BorderStyle.solid,
+                                  ),
+                                ),
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 18,
+                                      backgroundColor: AppTheme.primary,
+                                      child: Icon(
+                                        LucideIcons.plus,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Add Service',
+                                      style: TextStyle(
+                                        color: AppTheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                    const SizedBox(height: 32),
+                    const Text(
+                      'ENVIRONMENTS',
+                      style: TextStyle(
+                        color: AppTheme.textMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
                       ),
                     ),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      height: 110,
-                      decoration: BoxDecoration(
-                        color: AppTheme.surface.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppTheme.primary,
-                          // style: BorderStyle.dashed, TODO: find a way to make it work
-                          style: BorderStyle.solid,
+                    const SizedBox(height: 12),
+                    _buildEnvironmentTile(
+                      context,
+                      'Production (US-East)',
+                      'v4.2.0 • 12 Nodes',
+                      const Color(0xFF10b981),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildEnvironmentTile(
+                      context,
+                      'Staging',
+                      'v4.2.1-rc • 4 Nodes',
+                      Colors.amber,
+                    ),
+
+                    const SizedBox(height: 32),
+                    OutlinedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(LucideIcons.refreshCw, size: 16),
+                      label: const Text('Reset to Defaults'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.error,
+                        side: BorderSide(
+                          color: AppTheme.error.withOpacity(0.5),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        minimumSize: const Size(double.infinity, 50),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Center(
+                      child: Text(
+                        'System Version 2.4.0 (Build 8921)',
+                        style: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 12,
                         ),
                       ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 18,
-                            backgroundColor: AppTheme.primary,
-                            child: Icon(LucideIcons.plus, color: Colors.white),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Add Service',
-                            style: TextStyle(
-                              color: AppTheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
-                  ),
+                    const SizedBox(height: 32),
+                  ],
                 ),
-              ],
-            ),
-
-            const SizedBox(height: 32),
-            const Text(
-              'ENVIRONMENTS',
-              style: TextStyle(
-                color: AppTheme.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
               ),
             ),
-            const SizedBox(height: 12),
-            _buildEnvironmentTile(
-              context,
-              'Production (US-East)',
-              'v4.2.0 • 12 Nodes',
-              const Color(0xFF10b981),
-            ),
-            const SizedBox(height: 8),
-            _buildEnvironmentTile(
-              context,
-              'Staging',
-              'v4.2.1-rc • 4 Nodes',
-              Colors.amber,
-            ),
-
-            const SizedBox(height: 32),
-            OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(LucideIcons.refreshCw, size: 16),
-              label: const Text('Reset to Defaults'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.error,
-                side: BorderSide(color: AppTheme.error.withOpacity(0.5)),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                minimumSize: const Size(double.infinity, 50),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Center(
-              child: Text(
-                'System Version 2.4.0 (Build 8921)',
-                style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-              ),
-            ),
-            const SizedBox(height: 32),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

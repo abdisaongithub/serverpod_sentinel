@@ -9,6 +9,10 @@ class AppTheme {
     0xFF334155,
   ); // Slate 700 (borders/hover)
 
+  // Breakpoints
+  static const double mobileBreakpoint = 400;
+  static const double tabletBreakpoint = 1200;
+
   static const Color primary = Color(0xFF2563EB); // Blue 600
   static const Color primaryDark = Color(0xFF1D4ED8); // Blue 700
 

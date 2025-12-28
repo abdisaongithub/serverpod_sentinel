@@ -37,191 +37,196 @@ class PlaybooksScreen extends StatelessWidget {
           const SizedBox(width: 16),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search playbooks by name, ID, or trigger...',
-                prefixIcon: const Icon(
-                  LucideIcons.search,
-                  color: AppTheme.textMuted,
-                ),
-                fillColor: AppTheme.surface,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search playbooks by name, ID, or trigger...',
+                    prefixIcon: const Icon(
+                      LucideIcons.search,
+                      color: AppTheme.textMuted,
+                    ),
+                    fillColor: AppTheme.surface,
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                _buildFilterChip('All', true),
-                const SizedBox(width: 8),
-                _buildFilterChip('Active', false),
-                const SizedBox(width: 8),
-                _buildFilterChip('Drafts', false),
-                const SizedBox(width: 8),
-                _buildFilterChip('Mode: Auto', false),
-                const SizedBox(width: 8),
-                _buildFilterChip('Mode: Manual', false),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'PRODUCTION',
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    letterSpacing: 1.2,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    _buildFilterChip('All', true),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Active', false),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Drafts', false),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Mode: Auto', false),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Mode: Manual', false),
+                  ],
                 ),
-                const Text(
-                  '3 Active',
-                  style: TextStyle(
-                    color: AppTheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'PRODUCTION',
+                      style: TextStyle(
+                        color: AppTheme.textMuted,
+                        letterSpacing: 1.2,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Text(
+                      '3 Active',
+                      style: TextStyle(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _buildPlaybookCard(
-                  context,
-                  title: 'Scale DB Read Replicas',
-                  id: '#P-1024',
-                  version: 'v2.4.1',
-                  status: 'Active',
-                  trigger: 'High Latency (>500ms)',
-                  action: 'Scale AWS RDS Instance',
-                  lastRun: '2h ago',
-                  mode: 'Automatic Mode',
-                  modeColor: AppTheme.primary,
-                  triggerIcon: LucideIcons.zap,
-                  actionIcon: LucideIcons.database,
-                ),
-                const SizedBox(height: 16),
-                _buildPlaybookCard(
-                  context,
-                  title: 'Emergency Cache Flush',
-                  id: '#P-1025',
-                  version: 'v0.1.0',
-                  status: 'Draft',
-                  statusColor: Colors.orange,
-                  trigger: 'Manual Invocation',
-                  action: 'Flush Redis Cluster',
-                  lastRun: 'Edited: 10m ago',
-                  mode: 'Manual Approval',
-                  modeColor: AppTheme.textMuted,
-                  triggerIcon: LucideIcons.mousePointer,
-                  actionIcon: LucideIcons.trash2,
-                ),
-                const SizedBox(height: 16),
-                _buildPlaybookCard(
-                  context,
-                  title: 'IP Rate Limiting',
-                  id: '#P-1088',
-                  version: 'v1.2.0',
-                  status: 'Active',
-                  trigger: 'DDoS Pattern Detected',
-                  action: 'Block Subnet via WAF',
-                  lastRun: '1d ago',
-                  mode: 'Automatic Mode',
-                  modeColor: AppTheme.primary,
-                  triggerIcon: LucideIcons.shieldAlert,
-                  actionIcon: LucideIcons.ban,
-                ),
-                const SizedBox(height: 32),
-                const Text(
-                  'ARCHIVE',
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    letterSpacing: 1.2,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    _buildPlaybookCard(
+                      context,
+                      title: 'Scale DB Read Replicas',
+                      id: '#P-1024',
+                      version: 'v2.4.1',
+                      status: 'Active',
+                      trigger: 'High Latency (>500ms)',
+                      action: 'Scale AWS RDS Instance',
+                      lastRun: '2h ago',
+                      mode: 'Automatic Mode',
+                      modeColor: AppTheme.primary,
+                      triggerIcon: LucideIcons.zap,
+                      actionIcon: LucideIcons.database,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildPlaybookCard(
+                      context,
+                      title: 'Emergency Cache Flush',
+                      id: '#P-1025',
+                      version: 'v0.1.0',
+                      status: 'Draft',
+                      statusColor: Colors.orange,
+                      trigger: 'Manual Invocation',
+                      action: 'Flush Redis Cluster',
+                      lastRun: 'Edited: 10m ago',
+                      mode: 'Manual Approval',
+                      modeColor: AppTheme.textMuted,
+                      triggerIcon: LucideIcons.mousePointer,
+                      actionIcon: LucideIcons.trash2,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildPlaybookCard(
+                      context,
+                      title: 'IP Rate Limiting',
+                      id: '#P-1088',
+                      version: 'v1.2.0',
+                      status: 'Active',
+                      trigger: 'DDoS Pattern Detected',
+                      action: 'Block Subnet via WAF',
+                      lastRun: '1d ago',
+                      mode: 'Automatic Mode',
+                      modeColor: AppTheme.primary,
+                      triggerIcon: LucideIcons.shieldAlert,
+                      actionIcon: LucideIcons.ban,
+                    ),
+                    const SizedBox(height: 32),
+                    const Text(
+                      'ARCHIVE',
+                      style: TextStyle(
+                        color: AppTheme.textMuted,
+                        letterSpacing: 1.2,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surface.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Legacy DB Backup',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: AppTheme.textMuted,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppTheme.surfaceHighlight,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              'Deprecated',
-                              style: TextStyle(
-                                fontSize: 10,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Legacy DB Backup',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: AppTheme.textMuted,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.surfaceHighlight,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'Deprecated',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
+                              ),
+                              const Icon(
+                                LucideIcons.moreVertical,
                                 color: AppTheme.textMuted,
                               ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            '#P-0042 • v1.0.0',
+                            style: TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 12,
                             ),
                           ),
-                          const Icon(
-                            LucideIcons.moreVertical,
-                            color: AppTheme.textMuted,
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Replaced by #P-1024. This playbook is read-only.',
+                            style: TextStyle(color: AppTheme.textMuted),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        '#P-0042 • v1.0.0',
-                        style: TextStyle(
-                          color: AppTheme.textMuted,
-                          fontSize: 12,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Replaced by #P-1024. This playbook is read-only.',
-                        style: TextStyle(color: AppTheme.textMuted),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: AppTheme.background,

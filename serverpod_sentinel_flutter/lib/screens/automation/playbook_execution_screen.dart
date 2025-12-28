@@ -35,188 +35,196 @@ class PlaybookExecutionScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Stats
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildExecStat('TIME', '02:14', LucideIcons.clock),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildExecStat(
-                    'STATUS',
-                    'Running',
-                    LucideIcons.refreshCw,
-                    valueColor: AppTheme.primary,
-                    hasDot: true,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildExecStat('USER', 'j.doe', LucideIcons.user),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'EXECUTION STEPS',
-                style: TextStyle(
-                  color: AppTheme.textMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              // Stats
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildExecStat('TIME', '02:14', LucideIcons.clock),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildExecStat(
+                        'STATUS',
+                        'Running',
+                        LucideIcons.refreshCw,
+                        valueColor: AppTheme.primary,
+                        hasDot: true,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildExecStat('USER', 'j.doe', LucideIcons.user),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
 
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _buildStepItem(
-                  title: 'Initialize Environment',
-                  desc: 'Environment variables loaded. Network check passed.',
-                  status: 'Success',
-                  isFirst: true,
-                ),
-                _buildStepItem(
-                  title: 'Backup Current DB',
-                  desc: 'Snapshot created: snap_v2_3_final',
-                  status: 'Success',
-                  showRollback: true,
-                ),
-                _buildStepItem(
-                  title: 'Apply Schema Changes',
-                  desc:
-                      'Migrating user tables to new v2.4 structure. This may take a few minutes.',
-                  status: 'Running',
-                  isRunning: true,
-                  content: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(8),
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'EXECUTION STEPS',
+                    style: TextStyle(
+                      color: AppTheme.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
                     ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    _buildStepItem(
+                      title: 'Initialize Environment',
+                      desc:
+                          'Environment variables loaded. Network check passed.',
+                      status: 'Success',
+                      isFirst: true,
+                    ),
+                    _buildStepItem(
+                      title: 'Backup Current DB',
+                      desc: 'Snapshot created: snap_v2_3_final',
+                      status: 'Success',
+                      showRollback: true,
+                    ),
+                    _buildStepItem(
+                      title: 'Apply Schema Changes',
+                      desc:
+                          'Migrating user tables to new v2.4 structure. This may take a few minutes.',
+                      status: 'Running',
+                      isRunning: true,
+                      content: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              LucideIcons.terminal,
-                              size: 12,
-                              color: AppTheme.textMuted,
+                            Row(
+                              children: [
+                                Icon(
+                                  LucideIcons.terminal,
+                                  size: 12,
+                                  color: AppTheme.textMuted,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'STDOUT',
+                                  style: TextStyle(
+                                    color: AppTheme.textMuted,
+                                    fontSize: 10,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(width: 8),
+                            Divider(color: AppTheme.surfaceHighlight),
                             Text(
-                              'STDOUT',
+                              '> connecting to host 192.168.1.5...',
                               style: TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 12,
                                 color: AppTheme.textMuted,
-                                fontSize: 10,
-                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            Text(
+                              '> verifying connection...',
+                              style: TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 12,
+                                color: AppTheme.textMuted,
+                              ),
+                            ),
+                            Text(
+                              '> connection established.',
+                              style: TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 12,
+                                color: AppTheme.success,
+                              ),
+                            ),
+                            Text(
+                              '> applying patch_user_table.sql...',
+                              style: TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 12,
+                                color: AppTheme.primary,
                               ),
                             ),
                           ],
                         ),
-                        Divider(color: AppTheme.surfaceHighlight),
-                        Text(
-                          '> connecting to host 192.168.1.5...',
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 12,
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                        Text(
-                          '> verifying connection...',
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 12,
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                        Text(
-                          '> connection established.',
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 12,
-                            color: AppTheme.success,
-                          ),
-                        ),
-                        Text(
-                          '> applying patch_user_table.sql...',
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 12,
-                            color: AppTheme.primary,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    _buildStepItem(
+                      title: 'Verify Integrity',
+                      desc: 'Post-migration data consistency check.',
+                      status: 'Pending',
+                      isLast: true,
+                    ),
+                  ],
                 ),
-                _buildStepItem(
-                  title: 'Verify Integrity',
-                  desc: 'Post-migration data consistency check.',
-                  status: 'Pending',
-                  isLast: true,
-                ),
-              ],
-            ),
-          ),
+              ),
 
-          // Bottom Controls
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(LucideIcons.rotateCcw, size: 18),
-                    label: const Text('Rollback'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      side: const BorderSide(color: AppTheme.surfaceHighlight),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              // Bottom Controls
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(LucideIcons.rotateCcw, size: 18),
+                        label: const Text('Rollback'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          side: const BorderSide(
+                            color: AppTheme.surfaceHighlight,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(LucideIcons.pause, size: 18),
-                    label: const Text('Pause'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(LucideIcons.pause, size: 18),
+                        label: const Text('Pause'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -94,329 +94,428 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Health Circle
-              Center(
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.surfaceHighlight),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < AppTheme.mobileBreakpoint;
+          return SingleChildScrollView(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Simulated progress ring
-                      SizedBox(
-                        width: 180,
-                        height: 180,
-                        child: CircularProgressIndicator(
-                          value: 0.992,
-                          strokeWidth: 12,
-                          backgroundColor: AppTheme.surfaceHighlight,
-                          color: AppTheme.success,
+                      // Health Circle
+                      Center(
+                        child: Container(
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: AppTheme.surface,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppTheme.surfaceHighlight,
+                            ),
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Simulated progress ring
+                              SizedBox(
+                                width: 180,
+                                height: 180,
+                                child: CircularProgressIndicator(
+                                  value: 0.992,
+                                  strokeWidth: 12,
+                                  backgroundColor: AppTheme.surfaceHighlight,
+                                  color: AppTheme.success,
+                                ),
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '99.2%',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displaySmall
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    'HEALTH',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: AppTheme.success,
+                                          letterSpacing: 1.2,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      const SizedBox(height: 16),
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.success.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                LucideIcons.checkCircle,
+                                size: 16,
+                                color: AppTheme.success,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'All Systems Operational',
+                                style: TextStyle(
+                                  color: AppTheme.success,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Active Incidents Alert
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFF450a0a),
+                              AppTheme.surface,
+                            ], // Dark red to surface
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppTheme.error.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.error.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                LucideIcons.alertTriangle,
+                                color: AppTheme.error,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    '3 Active Incidents',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Requires immediate attention',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.7),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const IncidentsScreen(),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.error,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 0,
+                                ),
+                                minimumSize: const Size(0, 36),
+                              ),
+                              child: const Text('Resolve'),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+                      Text(
+                        'ENVIRONMENT STATUS',
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: AppTheme.textMuted,
+                              letterSpacing: 1.2,
+                            ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Env Grid
+                      if (isMobile)
+                        Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: _buildEnvCard(
+                                context,
+                                name: 'Production',
+                                region: 'us-east-1',
+                                icon: LucideIcons.rocket,
+                                isHealthy: true,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildSmallStatusCard(
+                                    'Staging',
+                                    'Building',
+                                    Colors.blue,
+                                    LucideIcons.flaskConical,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildSmallStatusCard(
+                                    'Dev',
+                                    'Degraded',
+                                    Colors.orange,
+                                    LucideIcons.code,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      else
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: _buildEnvCard(
+                                context,
+                                name: 'Production',
+                                region: 'us-east-1',
+                                icon: LucideIcons.rocket,
+                                isHealthy: true,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 1,
+                              child: _buildSmallStatusCard(
+                                'Staging',
+                                'Building',
+                                Colors.blue,
+                                LucideIcons.flaskConical,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 1,
+                              child: _buildSmallStatusCard(
+                                'Dev',
+                                'Degraded',
+                                Colors.orange,
+                                LucideIcons.code,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      const SizedBox(height: 24),
+                      Text(
+                        'SERVICES AT RISK',
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: AppTheme.textMuted,
+                              letterSpacing: 1.2,
+                            ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      if (isMobile)
+                        Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: _buildRiskCard(
+                                'Main DB',
+                                '88%',
+                                'CPU Usage',
+                                Colors.orange,
+                                LucideIcons.database,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: _buildRiskCard(
+                                'Payment API',
+                                '4.2%',
+                                '5xx Errors',
+                                AppTheme.error,
+                                LucideIcons.creditCard,
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildRiskCard(
+                                'Main DB',
+                                '88%',
+                                'CPU Usage',
+                                Colors.orange,
+                                LucideIcons.database,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildRiskCard(
+                                'Payment API',
+                                '4.2%',
+                                '5xx Errors',
+                                AppTheme.error,
+                                LucideIcons.creditCard,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '99.2%',
-                            style: Theme.of(context).textTheme.displaySmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            'HEALTH',
-                            style: Theme.of(context).textTheme.labelSmall
+                            'LIVE ACTIVITY',
+                            style: Theme.of(context).textTheme.labelMedium
                                 ?.copyWith(
-                                  color: AppTheme.success,
+                                  color: AppTheme.textMuted,
                                   letterSpacing: 1.2,
                                 ),
                           ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: AppTheme.surfaceHighlight,
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Row(
+                              children: [
+                                Text(
+                                  'Last 24h',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                                Icon(LucideIcons.chevronDown, size: 14),
+                              ],
+                            ),
+                          ),
                         ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Filter Chips
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildFilterChip('All', true),
+                            _buildFilterChip(
+                              'Critical',
+                              false,
+                              dotColor: AppTheme.error,
+                            ),
+                            _buildFilterChip(
+                              'Warning',
+                              false,
+                              dotColor: Colors.orange,
+                            ),
+                            _buildFilterChip(
+                              'Deploys',
+                              false,
+                              icon: LucideIcons.rocket,
+                            ),
+                            _buildFilterChip(
+                              'Infra',
+                              false,
+                              icon: LucideIcons.server,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+                      // Activity Feed List
+                      _buildActivityItem(
+                        'Sarah Jenkins',
+                        'initiated rollback on',
+                        'Production',
+                        '10:42 AM • v2.4.1 -> v2.4.0',
+                        LucideIcons.user,
+                      ),
+                      _buildActivityItem(
+                        'CPU usage spike detected on',
+                        '',
+                        'Node-4',
+                        '10:40 AM • Alert Rule #829',
+                        LucideIcons.zap,
+                        iconColor: AppTheme.error,
+                      ),
+                      _buildActivityItem(
+                        'Auto-scaling group stabilized',
+                        '',
+                        '',
+                        '10:35 AM • Capacity at 12 instances',
+                        LucideIcons.cloud,
+                        iconColor: AppTheme.success,
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.success.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        LucideIcons.checkCircle,
-                        size: 16,
-                        color: AppTheme.success,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'All Systems Operational',
-                        style: TextStyle(
-                          color: AppTheme.success,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Active Incidents Alert
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFF450a0a),
-                      AppTheme.surface,
-                    ], // Dark red to surface
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.error.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        LucideIcons.alertTriangle,
-                        color: AppTheme.error,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            '3 Active Incidents',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            'Requires immediate attention',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const IncidentsScreen(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.error,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 0,
-                        ),
-                        minimumSize: const Size(0, 36),
-                      ),
-                      child: const Text('Resolve'),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-              Text(
-                'ENVIRONMENT STATUS',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: AppTheme.textMuted,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Env Grid
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: _buildEnvCard(
-                      context,
-                      name: 'Production',
-                      region: 'us-east-1',
-                      icon: LucideIcons.rocket,
-                      isHealthy: true,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 1,
-                    child: _buildSmallStatusCard(
-                      'Staging',
-                      'Building',
-                      Colors.blue,
-                      LucideIcons.flaskConical,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 1,
-                    child: _buildSmallStatusCard(
-                      'Dev',
-                      'Degraded',
-                      Colors.orange,
-                      LucideIcons.code,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-              Text(
-                'SERVICES AT RISK',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: AppTheme.textMuted,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildRiskCard(
-                      'Main DB',
-                      '88%',
-                      'CPU Usage',
-                      Colors.orange,
-                      LucideIcons.database,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildRiskCard(
-                      'Payment API',
-                      '4.2%',
-                      '5xx Errors',
-                      AppTheme.error,
-                      LucideIcons.creditCard,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'LIVE ACTIVITY',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: AppTheme.textMuted,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.surfaceHighlight),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Row(
-                      children: [
-                        Text('Last 24h', style: TextStyle(fontSize: 12)),
-                        Icon(LucideIcons.chevronDown, size: 14),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Filter Chips
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterChip('All', true),
-                    _buildFilterChip(
-                      'Critical',
-                      false,
-                      dotColor: AppTheme.error,
-                    ),
-                    _buildFilterChip('Warning', false, dotColor: Colors.orange),
-                    _buildFilterChip(
-                      'Deploys',
-                      false,
-                      icon: LucideIcons.rocket,
-                    ),
-                    _buildFilterChip('Infra', false, icon: LucideIcons.server),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-              // Activity Feed List
-              _buildActivityItem(
-                'Sarah Jenkins',
-                'initiated rollback on',
-                'Production',
-                '10:42 AM • v2.4.1 -> v2.4.0',
-                LucideIcons.user,
-              ),
-              _buildActivityItem(
-                'CPU usage spike detected on',
-                '',
-                'Node-4',
-                '10:40 AM • Alert Rule #829',
-                LucideIcons.zap,
-                iconColor: AppTheme.error,
-              ),
-              _buildActivityItem(
-                'Auto-scaling group stabilized',
-                '',
-                '',
-                '10:35 AM • Capacity at 12 instances',
-                LucideIcons.cloud,
-                iconColor: AppTheme.success,
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

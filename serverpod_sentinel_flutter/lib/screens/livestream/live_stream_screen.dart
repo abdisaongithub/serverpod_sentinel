@@ -53,184 +53,192 @@ class LiveStreamScreen extends StatelessWidget {
           const SizedBox(width: 16),
         ],
       ),
-      body: Column(
-        children: [
-          // Top Metrics
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                _buildMetricCard(
-                  context,
-                  'SYS UPTIME',
-                  '98.9%',
-                  '+0.1%',
-                  AppTheme.success,
-                  LucideIcons.server,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              // Top Metrics
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    _buildMetricCard(
+                      context,
+                      'SYS UPTIME',
+                      '98.9%',
+                      '+0.1%',
+                      AppTheme.success,
+                      LucideIcons.server,
+                    ),
+                    const SizedBox(width: 12),
+                    _buildMetricCard(
+                      context,
+                      'ACTIVE NODES',
+                      '124',
+                      '+2 New',
+                      AppTheme.success,
+                      LucideIcons.share2,
+                    ), // share2 as network nodes
+                    const SizedBox(width: 12),
+                    // Error rate card logic...
+                    _buildMetricCard(
+                      context,
+                      'ERROR RATE',
+                      '0.02%',
+                      '-0.01%',
+                      AppTheme.success,
+                      LucideIcons.alertOctagon,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                _buildMetricCard(
-                  context,
-                  'ACTIVE NODES',
-                  '124',
-                  '+2 New',
-                  AppTheme.success,
-                  LucideIcons.share2,
-                ), // share2 as network nodes
-                const SizedBox(width: 12),
-                // Error rate card logic...
-                _buildMetricCard(
-                  context,
-                  'ERROR RATE',
-                  '0.02%',
-                  '-0.01%',
-                  AppTheme.success,
-                  LucideIcons.alertOctagon,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+              ),
+              const SizedBox(height: 16),
 
-          // Filters
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                _buildFilterButton('ALL EVENTS', true, Colors.green),
-                const SizedBox(width: 12),
-                _buildFilterButton(
-                  'CRITICAL',
-                  false,
-                  AppTheme.error,
-                  hasDot: true,
+              // Filters
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    _buildFilterButton('ALL EVENTS', true, Colors.green),
+                    const SizedBox(width: 12),
+                    _buildFilterButton(
+                      'CRITICAL',
+                      false,
+                      AppTheme.error,
+                      hasDot: true,
+                    ),
+                    const SizedBox(width: 12),
+                    _buildFilterButton(
+                      'WARNINGS',
+                      false,
+                      Colors.orange,
+                      hasDot: true,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                _buildFilterButton(
-                  'WARNINGS',
-                  false,
-                  Colors.orange,
-                  hasDot: true,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+              ),
+              const SizedBox(height: 16),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'FEED',
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surfaceHighlight,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'UTC-0',
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // Stream List
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _buildTimelineItem(
-                  context,
-                  type: 'CRITICAL',
-                  time: '14:05:01.42',
-                  title: 'Database Connection Timeout',
-                  desc:
-                      'Connection to shard 04 timed out after 5000ms. Retrying connection pool...',
-                  color: AppTheme.error,
-                  tags: ['DATABASE-SHARD-04', 'us-east-1a'],
-                  showActions: true,
-                ),
-                _buildTimelineItem(
-                  context,
-                  type: 'WARNING',
-                  time: '14:04:55.10',
-                  title: 'Latency Spike Detected',
-                  desc: '95th percentile latency exceeded 300ms threshold.',
-                  color: Colors.orange,
-                  tags: ['API-GATEWAY'],
-                ),
-                _buildTimelineItem(
-                  context,
-                  type: 'DEPLOYMENT',
-                  time: '14:04:22.05',
-                  title: 'Deployment Successful',
-                  desc:
-                      'v2.4.1 deployed to 12 instances. Health checks passing.',
-                  color: const Color(0xFF3b82f6), // Blue
-                  tags: ['AUTH-SERVICE'],
-                  isSuccess: true,
-                ),
-                _buildTimelineItem(
-                  context,
-                  type: 'CRON JOB',
-                  time: '14:04:10.00',
-                  title: 'Daily Cleanup Completed',
-                  desc: 'Temp files removed. 4.2GB space reclaimed.',
-                  color: AppTheme.textMuted,
-                  tags: ['SYSTEM'],
-                ),
-                _buildTimelineItem(
-                  context,
-                  type: 'AUTO SCALE',
-                  time: '14:03:55.88',
-                  title: 'Scale Down Event',
-                  desc: 'Worker nodes scaled from 15 to 12.',
-                  color: AppTheme.textMuted,
-                  isMinimal: true,
-                ),
-                const SizedBox(height: 32),
-                const Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        LucideIcons.refreshCw,
-                        size: 24,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'FEED',
+                      style: TextStyle(
                         color: AppTheme.textMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
                       ),
-                      SizedBox(height: 8),
-                      Text(
-                        'LISTENING FOR EVENTS...',
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceHighlight,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'UTC-0',
                         style: TextStyle(
-                          color: AppTheme.textMuted,
                           fontSize: 10,
-                          letterSpacing: 1.5,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 8),
+
+              // Stream List
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    _buildTimelineItem(
+                      context,
+                      type: 'CRITICAL',
+                      time: '14:05:01.42',
+                      title: 'Database Connection Timeout',
+                      desc:
+                          'Connection to shard 04 timed out after 5000ms. Retrying connection pool...',
+                      color: AppTheme.error,
+                      tags: ['DATABASE-SHARD-04', 'us-east-1a'],
+                      showActions: true,
+                    ),
+                    _buildTimelineItem(
+                      context,
+                      type: 'WARNING',
+                      time: '14:04:55.10',
+                      title: 'Latency Spike Detected',
+                      desc: '95th percentile latency exceeded 300ms threshold.',
+                      color: Colors.orange,
+                      tags: ['API-GATEWAY'],
+                    ),
+                    _buildTimelineItem(
+                      context,
+                      type: 'DEPLOYMENT',
+                      time: '14:04:22.05',
+                      title: 'Deployment Successful',
+                      desc:
+                          'v2.4.1 deployed to 12 instances. Health checks passing.',
+                      color: const Color(0xFF3b82f6), // Blue
+                      tags: ['AUTH-SERVICE'],
+                      isSuccess: true,
+                    ),
+                    _buildTimelineItem(
+                      context,
+                      type: 'CRON JOB',
+                      time: '14:04:10.00',
+                      title: 'Daily Cleanup Completed',
+                      desc: 'Temp files removed. 4.2GB space reclaimed.',
+                      color: AppTheme.textMuted,
+                      tags: ['SYSTEM'],
+                    ),
+                    _buildTimelineItem(
+                      context,
+                      type: 'AUTO SCALE',
+                      time: '14:03:55.88',
+                      title: 'Scale Down Event',
+                      desc: 'Worker nodes scaled from 15 to 12.',
+                      color: AppTheme.textMuted,
+                      isMinimal: true,
+                    ),
+                    const SizedBox(height: 32),
+                    const Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            LucideIcons.refreshCw,
+                            size: 24,
+                            color: AppTheme.textMuted,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'LISTENING FOR EVENTS...',
+                            style: TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 10,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},

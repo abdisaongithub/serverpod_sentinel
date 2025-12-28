@@ -24,316 +24,324 @@ class IncidentDetailScreen extends StatelessWidget {
           IconButton(icon: const Icon(LucideIcons.share2), onPressed: () {}),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Status Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.surfaceHighlight),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'CURRENT STATUS',
-                        style: TextStyle(
-                          color: AppTheme.textMuted,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.error.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color: AppTheme.error.withOpacity(0.5),
-                          ),
-                        ),
-                        child: const Text(
-                          'Critical',
-                          style: TextStyle(
-                            color: AppTheme.error,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Status Card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.surfaceHighlight),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
+                  child: Column(
                     children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.error,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Investigating',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(color: AppTheme.surfaceHighlight),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              Icon(
-                                LucideIcons.clock,
-                                size: 12,
-                                color: AppTheme.textMuted,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Duration',
-                                style: TextStyle(
-                                  color: AppTheme.textMuted,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 4),
                           Text(
-                            '45m 12s',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            'CURRENT STATUS',
+                            style: TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.error.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: AppTheme.error.withOpacity(0.5),
+                              ),
+                            ),
+                            child: const Text(
+                              'Critical',
+                              style: TextStyle(
+                                color: AppTheme.error,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(height: 8),
+                      Row(
                         children: [
-                          Row(
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: const BoxDecoration(
+                              color: AppTheme.error,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Investigating',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Divider(color: AppTheme.surfaceHighlight),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                LucideIcons.users,
-                                size: 12,
-                                color: AppTheme.textMuted,
+                              Row(
+                                children: [
+                                  Icon(
+                                    LucideIcons.clock,
+                                    size: 12,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Duration',
+                                    style: TextStyle(
+                                      color: AppTheme.textMuted,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 4),
+                              SizedBox(height: 4),
                               Text(
-                                'Responders',
-                                style: TextStyle(
-                                  color: AppTheme.textMuted,
-                                  fontSize: 10,
-                                ),
+                                '45m 12s',
+                                style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
-                          SizedBox(height: 4),
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CircleAvatar(
-                                radius: 10,
-                                backgroundImage: NetworkImage(
-                                  'https://i.pravatar.cc/150?img=1',
-                                ),
-                              ),
-                              SizedBox(width: -8),
-                              CircleAvatar(
-                                radius: 10,
-                                backgroundImage: NetworkImage(
-                                  'https://i.pravatar.cc/150?img=2',
-                                ),
-                              ),
-                              SizedBox(width: -8),
-                              CircleAvatar(
-                                radius: 10,
-                                backgroundColor: AppTheme.surfaceHighlight,
-                                child: Text(
-                                  '+3',
-                                  style: TextStyle(
-                                    fontSize: 8,
-                                    color: Colors.white,
+                              Row(
+                                children: [
+                                  Icon(
+                                    LucideIcons.users,
+                                    size: 12,
+                                    color: AppTheme.textMuted,
                                   ),
-                                ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Responders',
+                                    style: TextStyle(
+                                      color: AppTheme.textMuted,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 10,
+                                    backgroundImage: NetworkImage(
+                                      'https://i.pravatar.cc/150?img=1',
+                                    ),
+                                  ),
+                                  SizedBox(width: -8),
+                                  CircleAvatar(
+                                    radius: 10,
+                                    backgroundImage: NetworkImage(
+                                      'https://i.pravatar.cc/150?img=2',
+                                    ),
+                                  ),
+                                  SizedBox(width: -8),
+                                  CircleAvatar(
+                                    radius: 10,
+                                    backgroundColor: AppTheme.surfaceHighlight,
+                                    child: Text(
+                                      '+3',
+                                      style: TextStyle(
+                                        fontSize: 8,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Mini Chart
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Error Rate (5xx)',
-                        style: TextStyle(
-                          color: AppTheme.textMuted,
-                          fontSize: 10,
-                        ),
-                      ),
-                      const Spacer(),
-                      _buildBar(10, AppTheme.primary.withOpacity(0.3)),
-                      _buildBar(15, AppTheme.primary.withOpacity(0.3)),
-                      _buildBar(12, AppTheme.primary.withOpacity(0.3)),
-                      _buildBar(18, AppTheme.primary.withOpacity(0.3)),
-                      _buildBar(30, AppTheme.primary),
-                      _buildBar(45, AppTheme.primary),
-                      _buildBar(60, AppTheme.error),
-                      _buildBar(55, AppTheme.error),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            const Text(
-              'Incident Summary',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'High latency observed in the US-East region API gateway. Error rates elevated by 15% affecting checkout services. Engineering team is currently isolating the problematic microservice.',
-              style: TextStyle(color: AppTheme.textMuted, height: 1.5),
-            ),
-            const SizedBox(height: 24),
-
-            const Text(
-              'Timeline of Events',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            _buildTimelineEvent(
-              time: '10:45 AM',
-              title: 'Alert Triggered',
-              desc: '"Latency > 500ms" alert fired for US-East Gateway.',
-              icon: LucideIcons.bell,
-              color: AppTheme.error,
-              meta: 'System Monitor',
-            ),
-            _buildTimelineEvent(
-              time: '10:48 AM',
-              title: 'Investigating Started',
-              desc:
-                  'J. Doe acknowledged the incident and started diagnostic runbook.',
-              icon: LucideIcons.user,
-              color: AppTheme.primary,
-              meta: 'J. Doe',
-              metaImage: 'https://i.pravatar.cc/150?img=3',
-            ),
-            _buildTimelineEvent(
-              time: '10:55 AM',
-              title: 'Status Update',
-              desc:
-                  'Database connection pool exhaustion identified on primary shard.',
-              icon: LucideIcons.layoutList,
-              color: AppTheme.surfaceHighlight,
-              isLast: true,
-            ),
-
-            const SizedBox(height: 24),
-            const Text(
-              'Actions Taken',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            _buildActionItem('Automatic scale-up triggered', isDone: true),
-            _buildActionItem('Read replicas promoted', isDone: true),
-            _buildActionItem(
-              'Cache invalidation (Pending)',
-              isDone: false,
-              color: AppTheme.textMuted,
-            ),
-
-            const SizedBox(height: 24),
-            const Text(
-              'Suggested Next Steps',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primary,
-                padding: const EdgeInsets.all(16),
-              ),
-              child: Row(
-                children: [
-                  const Icon(LucideIcons.rotateCcw),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Rollback Deployment',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                      const SizedBox(height: 16),
+                      // Mini Chart
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Error Rate (5xx)',
+                            style: TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 10,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Revert to v4.2.0',
-                          style: TextStyle(fontSize: 12, color: Colors.white70),
-                        ),
-                      ],
-                    ),
+                          const Spacer(),
+                          _buildBar(10, AppTheme.primary.withOpacity(0.3)),
+                          _buildBar(15, AppTheme.primary.withOpacity(0.3)),
+                          _buildBar(12, AppTheme.primary.withOpacity(0.3)),
+                          _buildBar(18, AppTheme.primary.withOpacity(0.3)),
+                          _buildBar(30, AppTheme.primary),
+                          _buildBar(45, AppTheme.primary),
+                          _buildBar(60, AppTheme.error),
+                          _buildBar(55, AppTheme.error),
+                        ],
+                      ),
+                    ],
                   ),
-                  const Icon(LucideIcons.chevronRight),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                leading: const Icon(
-                  LucideIcons.megaphone,
-                  color: Colors.orange,
                 ),
-                title: const Text(
-                  'Escalate Incident',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                const SizedBox(height: 24),
+
+                const Text(
+                  'Incident Summary',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                subtitle: const Text(
-                  'Notify Level 3 SRE Team',
-                  style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                const SizedBox(height: 8),
+                const Text(
+                  'High latency observed in the US-East region API gateway. Error rates elevated by 15% affecting checkout services. Engineering team is currently isolating the problematic microservice.',
+                  style: TextStyle(color: AppTheme.textMuted, height: 1.5),
                 ),
-                trailing: const Icon(
-                  LucideIcons.chevronRight,
+                const SizedBox(height: 24),
+
+                const Text(
+                  'Timeline of Events',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                _buildTimelineEvent(
+                  time: '10:45 AM',
+                  title: 'Alert Triggered',
+                  desc: '"Latency > 500ms" alert fired for US-East Gateway.',
+                  icon: LucideIcons.bell,
+                  color: AppTheme.error,
+                  meta: 'System Monitor',
+                ),
+                _buildTimelineEvent(
+                  time: '10:48 AM',
+                  title: 'Investigating Started',
+                  desc:
+                      'J. Doe acknowledged the incident and started diagnostic runbook.',
+                  icon: LucideIcons.user,
+                  color: AppTheme.primary,
+                  meta: 'J. Doe',
+                  metaImage: 'https://i.pravatar.cc/150?img=3',
+                ),
+                _buildTimelineEvent(
+                  time: '10:55 AM',
+                  title: 'Status Update',
+                  desc:
+                      'Database connection pool exhaustion identified on primary shard.',
+                  icon: LucideIcons.layoutList,
+                  color: AppTheme.surfaceHighlight,
+                  isLast: true,
+                ),
+
+                const SizedBox(height: 24),
+                const Text(
+                  'Actions Taken',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                _buildActionItem('Automatic scale-up triggered', isDone: true),
+                _buildActionItem('Read replicas promoted', isDone: true),
+                _buildActionItem(
+                  'Cache invalidation (Pending)',
+                  isDone: false,
                   color: AppTheme.textMuted,
                 ),
-                onTap: () {},
-              ),
+
+                const SizedBox(height: 24),
+                const Text(
+                  'Suggested Next Steps',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    padding: const EdgeInsets.all(16),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(LucideIcons.rotateCcw),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Rollback Deployment',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Revert to v4.2.0',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(LucideIcons.chevronRight),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    leading: const Icon(
+                      LucideIcons.megaphone,
+                      color: Colors.orange,
+                    ),
+                    title: const Text(
+                      'Escalate Incident',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: const Text(
+                      'Notify Level 3 SRE Team',
+                      style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                    ),
+                    trailing: const Icon(
+                      LucideIcons.chevronRight,
+                      color: AppTheme.textMuted,
+                    ),
+                    onTap: () {},
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

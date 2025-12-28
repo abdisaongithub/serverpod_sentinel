@@ -28,104 +28,104 @@ class _DefineRulesScreenState extends State<DefineRulesScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const OnboardingStepper(
-                currentStep: 3,
-                steps: ['Env', 'Service', 'Agent', 'Rules'],
-              ),
-              const SizedBox(height: 32),
-
-              Text(
-                "Let's automate your first workflow",
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                "Choose a starter rule to help your team save time immediately. You can edit this later.",
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 32),
-
-              Text(
-                'Popular Templates',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 16),
-
-              _buildTemplateCard(
-                title: 'Auto-Assign Reviewers',
-                description:
-                    'Round-robin assignment for new PRs to distribute workload evenly.',
-                icon: LucideIcons.users,
-                color: const Color(0xFF3B82F6), // Blue
-              ),
-              const SizedBox(height: 16),
-              _buildTemplateCard(
-                title: 'Block Deploys on Failure',
-                description:
-                    'Automatically stop production deploys if critical tests fail.',
-                icon: LucideIcons.ban, // close-circle
-                // Note: using slash/ban/circle-off as rough approximation for 'block'
-                color: const Color(0xFFEF4444), // Red
-              ),
-              const SizedBox(height: 16),
-              _buildTemplateCard(
-                title: 'Slack Notifications',
-                description:
-                    'Post to #dev-ops channel immediately when incidents occur.',
-                icon: LucideIcons.bell,
-                color: const Color(0xFFEAB308), // Yellow
-              ),
-              const SizedBox(height: 16),
-              _buildTemplateCard(
-                title: 'Stale Branch Cleanup',
-                description:
-                    'Delete merged branches older than 7 days to keep repo clean.',
-                icon: LucideIcons.trash2, // broom or trash
-                color: const Color(0xFF10B981), // Green
-              ),
-
-              const SizedBox(height: 48),
-
-              PrimaryButton(
-                label: 'Enable Rule & Finish',
-                icon: LucideIcons.arrowRight,
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DashboardScreen(),
-                    ),
-                    (route) => false,
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const DashboardScreen(),
-                      ),
-                      (route) => false,
-                    );
-                  },
-                  child: const Text(
-                    'Skip for now',
-                    style: TextStyle(color: AppTheme.textMuted),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const OnboardingStepper(
+                    currentStep: 3,
+                    steps: ['Env', 'Service', 'Agent', 'Rules'],
                   ),
-                ),
+                  const SizedBox(height: 32),
+                  Text(
+                    "Let's automate your first workflow",
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Choose a starter rule to help your team save time immediately. You can edit this later.",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 32),
+                  Text(
+                    'Popular Templates',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTemplateCard(
+                    title: 'Auto-Assign Reviewers',
+                    description:
+                        'Round-robin assignment for new PRs to distribute workload evenly.',
+                    icon: LucideIcons.users,
+                    color: const Color(0xFF3B82F6), // Blue
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTemplateCard(
+                    title: 'Block Deploys on Failure',
+                    description:
+                        'Automatically stop production deploys if critical tests fail.',
+                    icon: LucideIcons.ban, // close-circle
+                    // Note: using slash/ban/circle-off as rough approximation for 'block'
+                    color: const Color(0xFFEF4444), // Red
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTemplateCard(
+                    title: 'Slack Notifications',
+                    description:
+                        'Post to #dev-ops channel immediately when incidents occur.',
+                    icon: LucideIcons.bell,
+                    color: const Color(0xFFEAB308), // Yellow
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTemplateCard(
+                    title: 'Stale Branch Cleanup',
+                    description:
+                        'Delete merged branches older than 7 days to keep repo clean.',
+                    icon: LucideIcons.trash2, // broom or trash
+                    color: const Color(0xFF10B981), // Green
+                  ),
+                  const SizedBox(height: 48),
+                  PrimaryButton(
+                    label: 'Enable Rule & Finish',
+                    icon: LucideIcons.arrowRight,
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DashboardScreen(),
+                        ),
+                        (route) => false,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DashboardScreen(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                      child: const Text(
+                        'Skip for now',
+                        style: TextStyle(color: AppTheme.textMuted),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

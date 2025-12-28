@@ -21,290 +21,313 @@ class ServiceDetailScreen extends StatelessWidget {
           IconButton(icon: const Icon(LucideIcons.settings), onPressed: () {}),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Header Shield
-            Center(
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1e3a8a).withOpacity(0.3), // Dark blue
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFF1e3a8a)),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    const Icon(
-                      LucideIcons.shieldCheck,
-                      size: 48,
-                      color: Color(0xFF3b82f6),
-                    ), // Blue 500
-                    Positioned(
-                      right: 12,
-                      bottom: 12,
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: AppTheme.success,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppTheme.background,
-                            width: 2,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                // Header Shield
+                Center(
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: const Color(
+                        0xFF1e3a8a,
+                      ).withOpacity(0.3), // Dark blue
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: const Color(0xFF1e3a8a)),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(
+                          LucideIcons.shieldCheck,
+                          size: 48,
+                          color: Color(0xFF3b82f6),
+                        ), // Blue 500
+                        Positioned(
+                          right: 12,
+                          bottom: 12,
+                          child: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: AppTheme.success,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppTheme.background,
+                                width: 2,
+                              ),
+                            ),
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '99.99% Uptime',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'us-east-1a • Production',
+                  style: TextStyle(color: AppTheme.textMuted),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.success.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppTheme.success.withOpacity(0.3),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        LucideIcons.checkCircle,
+                        size: 14,
+                        color: AppTheme.success,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'SYSTEM HEALTHY',
+                        style: TextStyle(
+                          color: AppTheme.success,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Live Metrics
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Live Metrics',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      'View History',
+                      style: TextStyle(color: AppTheme.primary, fontSize: 12),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 160,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      _buildMetricCard(
+                        context,
+                        'CPU',
+                        '45%',
+                        'Avg 42% last hr',
+                        LucideIcons.cpu,
+                        const Color(0xFF3b82f6),
+                      ),
+                      const SizedBox(width: 12),
+                      _buildMetricCard(
+                        context,
+                        'RAM',
+                        '1.2_GB',
+                        'Peak 1.5GB',
+                        LucideIcons.server,
+                        const Color(0xFFa855f7),
+                      ), // Purple
+                      const SizedBox(width: 12),
+                      _buildMetricCard(
+                        context,
+                        'RPS',
+                        '0.8_k',
+                        'Warnings 2',
+                        LucideIcons.activity,
+                        AppTheme.success,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Tabs (Alerts/Incidents)
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.surfaceHighlight),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: AppTheme.surfaceHighlight,
+                            borderRadius: BorderRadius.circular(11),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Active Alerts',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'Recent Incidents',
+                            style: TextStyle(color: AppTheme.textMuted),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                _buildAlertItem(
+                  'High Latency Warning',
+                  'Pod-452 • 2 mins ago',
+                  LucideIcons.alertTriangle,
+                  AppTheme.error,
+                ),
+                _buildAlertItem(
+                  'API Throttling 90%',
+                  'Gateway • 15 mins ago',
+                  LucideIcons.alertTriangle,
+                  Colors.orange,
+                ),
+
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'QUICK PLAYBOOKS',
+                      style: const TextStyle(
+                        color: AppTheme.textMuted,
+                        fontSize: 12,
+                        letterSpacing: 1,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Icon(
+                      LucideIcons.moreHorizontal,
+                      color: AppTheme.textMuted,
+                      size: 16,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: OutlinedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(
+                          LucideIcons.rotateCcw,
+                          size: 16,
+                          color: AppTheme.error,
+                        ),
+                        label: const Text(
+                          'Restart',
+                          style: TextStyle(color: AppTheme.error),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: AppTheme.error.withOpacity(0.5),
+                          ),
+                          backgroundColor: AppTheme.error.withOpacity(0.1),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(LucideIcons.terminal, size: 16),
+                        label: const Text('View Logs & Traces'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '99.99% Uptime',
-              style: Theme.of(
-                context,
-              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'us-east-1a • Production',
-              style: TextStyle(color: AppTheme.textMuted),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppTheme.success.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppTheme.success.withOpacity(0.3)),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    LucideIcons.checkCircle,
-                    size: 14,
-                    color: AppTheme.success,
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  SizedBox(width: 8),
-                  Text(
-                    'SYSTEM HEALTHY',
-                    style: TextStyle(
-                      color: AppTheme.success,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Live Metrics
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Live Metrics',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                Text(
-                  'View History',
-                  style: TextStyle(color: AppTheme.primary, fontSize: 12),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 160,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildMetricCard(
-                    context,
-                    'CPU',
-                    '45%',
-                    'Avg 42% last hr',
-                    LucideIcons.cpu,
-                    const Color(0xFF3b82f6),
-                  ),
-                  const SizedBox(width: 12),
-                  _buildMetricCard(
-                    context,
-                    'RAM',
-                    '1.2_GB',
-                    'Peak 1.5GB',
-                    LucideIcons.server,
-                    const Color(0xFFa855f7),
-                  ), // Purple
-                  const SizedBox(width: 12),
-                  _buildMetricCard(
-                    context,
-                    'RPS',
-                    '0.8_k',
-                    'Warnings 2',
-                    LucideIcons.activity,
-                    AppTheme.success,
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Tabs (Alerts/Incidents)
-            Container(
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.surfaceHighlight),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.surfaceHighlight,
-                        borderRadius: BorderRadius.circular(11),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Active Alerts',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Recent Incidents',
-                        style: TextStyle(color: AppTheme.textMuted),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            _buildAlertItem(
-              'High Latency Warning',
-              'Pod-452 • 2 mins ago',
-              LucideIcons.alertTriangle,
-              AppTheme.error,
-            ),
-            _buildAlertItem(
-              'API Throttling 90%',
-              'Gateway • 15 mins ago',
-              LucideIcons.alertTriangle,
-              Colors.orange,
-            ),
-
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'QUICK PLAYBOOKS',
-                  style: const TextStyle(
-                    color: AppTheme.textMuted,
-                    fontSize: 12,
-                    letterSpacing: 1,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Icon(
-                  LucideIcons.moreHorizontal,
-                  color: AppTheme.textMuted,
-                  size: 16,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(
-                      LucideIcons.rotateCcw,
-                      size: 16,
-                      color: AppTheme.error,
-                    ),
-                    label: const Text(
-                      'Restart',
-                      style: TextStyle(color: AppTheme.error),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppTheme.error.withOpacity(0.5)),
-                      backgroundColor: AppTheme.error.withOpacity(0.1),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(LucideIcons.terminal, size: 16),
-                    label: const Text('View Logs & Traces'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  _buildInfoRow('Owner', 'Team Security'),
-                  const Divider(color: AppTheme.surfaceHighlight, height: 24),
-                  _buildInfoRow(
-                    'Repository',
-                    'github.com/org/auth',
-                    isLink: true,
-                  ),
-                  const Divider(color: AppTheme.surfaceHighlight, height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
                     children: [
-                      Text(
-                        'View Dependencies',
-                        style: TextStyle(
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      _buildInfoRow('Owner', 'Team Security'),
+                      const Divider(
+                        color: AppTheme.surfaceHighlight,
+                        height: 24,
                       ),
-                      Icon(
-                        LucideIcons.externalLink,
-                        size: 16,
-                        color: AppTheme.primary,
+                      _buildInfoRow(
+                        'Repository',
+                        'github.com/org/auth',
+                        isLink: true,
+                      ),
+                      const Divider(
+                        color: AppTheme.surfaceHighlight,
+                        height: 24,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'View Dependencies',
+                            style: TextStyle(
+                              color: AppTheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Icon(
+                            LucideIcons.externalLink,
+                            size: 16,
+                            color: AppTheme.primary,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

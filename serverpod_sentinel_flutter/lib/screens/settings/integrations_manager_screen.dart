@@ -20,74 +20,79 @@ class IntegrationsManagerScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text(
-            'CONNECTED SERVICES',
-            style: TextStyle(
-              color: AppTheme.textMuted,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildIntegrationItem(
-            'GitHub',
-            'Source Control',
-            true,
-            LucideIcons.github,
-            const Color(0xFF10b981),
-          ),
-          _buildIntegrationItem(
-            'AWS',
-            'Cloud Provider',
-            true,
-            LucideIcons.cloud,
-            Colors.orange,
-          ),
-          _buildIntegrationItem(
-            'Slack',
-            'Notifications',
-            true,
-            LucideIcons.messageSquare,
-            Colors.pink,
-          ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const Text(
+                'CONNECTED SERVICES',
+                style: TextStyle(
+                  color: AppTheme.textMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildIntegrationItem(
+                'GitHub',
+                'Source Control',
+                true,
+                LucideIcons.github,
+                const Color(0xFF10b981),
+              ),
+              _buildIntegrationItem(
+                'AWS',
+                'Cloud Provider',
+                true,
+                LucideIcons.cloud,
+                Colors.orange,
+              ),
+              _buildIntegrationItem(
+                'Slack',
+                'Notifications',
+                true,
+                LucideIcons.messageSquare,
+                Colors.pink,
+              ),
 
-          const SizedBox(height: 32),
-          const Text(
-            'AVAILABLE INTEGRATIONS',
-            style: TextStyle(
-              color: AppTheme.textMuted,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
+              const SizedBox(height: 32),
+              const Text(
+                'AVAILABLE INTEGRATIONS',
+                style: TextStyle(
+                  color: AppTheme.textMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildIntegrationItem(
+                'Jira',
+                'Issue Tracking',
+                false,
+                LucideIcons.bug,
+                Colors.blue,
+              ),
+              _buildIntegrationItem(
+                'Datadog',
+                'Monitoring',
+                false,
+                LucideIcons.activity,
+                Colors.purple,
+              ),
+              _buildIntegrationItem(
+                'Kubernetes',
+                'Orchestration',
+                false,
+                LucideIcons.container,
+                Colors.blueAccent,
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          _buildIntegrationItem(
-            'Jira',
-            'Issue Tracking',
-            false,
-            LucideIcons.bug,
-            Colors.blue,
-          ),
-          _buildIntegrationItem(
-            'Datadog',
-            'Monitoring',
-            false,
-            LucideIcons.activity,
-            Colors.purple,
-          ),
-          _buildIntegrationItem(
-            'Kubernetes',
-            'Orchestration',
-            false,
-            LucideIcons.container,
-            Colors.blueAccent,
-          ),
-        ],
+        ),
       ),
     );
   }

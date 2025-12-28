@@ -47,113 +47,57 @@ class AuditLogScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search by ID, User, or Event...',
-                prefixIcon: const Icon(
-                  LucideIcons.search,
-                  color: AppTheme.textMuted,
-                ),
-                filled: true,
-                fillColor: AppTheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search by ID, User, or Event...',
+                    prefixIcon: const Icon(
+                      LucideIcons.search,
+                      color: AppTheme.textMuted,
+                    ),
+                    filled: true,
+                    fillColor: AppTheme.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
 
-          // Filters
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildDropdown('Last 24h', LucideIcons.calendar),
+              // Filters
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildDropdown('Last 24h', LucideIcons.calendar),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildDropdown('Who: All', LucideIcons.user),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildDropdown('What: All', LucideIcons.box),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Expanded(child: _buildDropdown('Who: All', LucideIcons.user)),
-                const SizedBox(width: 8),
-                Expanded(child: _buildDropdown('What: All', LucideIcons.box)),
-              ],
-            ),
-          ),
+              ),
 
-          const SizedBox(height: 24),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Text(
-                  'TODAY, OCT 27',
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                Expanded(
-                  child: Divider(indent: 12, color: AppTheme.surfaceHighlight),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Timeline List
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _buildTimelineItem(
-                  userImage: 'https://i.pravatar.cc/150?img=9',
-                  userName: 'Sarah Jenkins',
-                  action: 'Service XYZ Deployed',
-                  target: 'US-East-1',
-                  time: '14:03:22 UTC',
-                  details: _buildCodeBlock(
-                    'commit: 8f32a9 | image: sha256:e3b0c442...',
-                  ),
-                ),
-                _buildTimelineItem(
-                  userIcon: LucideIcons.bot,
-                  userName: 'System Bot',
-                  userColor: Colors.purple,
-                  action: 'Auto-scaling Triggered',
-                  target: 'Cluster-Alpha',
-                  time: '13:45:10 UTC',
-                  details: _buildCodeBlock(
-                    'SCALED_UP nodes: 3 -> 5',
-                    isTag: true,
-                  ),
-                ),
-                _buildTimelineItem(
-                  userIcon: LucideIcons.x,
-                  userName: 'Unknown User',
-                  userColor: AppTheme.error,
-                  action: 'Unusual Login Attempt',
-                  target: 'Auth Service',
-                  time: '12:12:05 UTC',
-                  titleColor: AppTheme.error,
-                  details: _buildCodeBlock(
-                    '''IP: 192.168.1.XX
-Status: BLOCKED_BY_FIREWALL''',
-                    isMultiLine: true,
-                    fontColor: AppTheme.error,
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-                const Row(
+              const SizedBox(height: 24),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
                   children: [
                     Text(
-                      'YESTERDAY, OCT 26',
+                      'TODAY, OCT 27',
                       style: TextStyle(
                         color: AppTheme.textMuted,
                         fontSize: 12,
@@ -169,24 +113,92 @@ Status: BLOCKED_BY_FIREWALL''',
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+              ),
+              const SizedBox(height: 16),
 
-                _buildTimelineItem(
-                  userImage: 'https://i.pravatar.cc/150?img=11',
-                  userName: 'Mark Chen',
-                  action: 'Updated Load Balancer',
-                  target: 'Infra-Net',
-                  time: '23:55:01 UTC',
-                  details: _buildCodeBlock(
-                    'modified: /etc/lb/config.yaml',
-                    isWarning: true,
-                  ),
-                  isLast: true,
+              // Timeline List
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    _buildTimelineItem(
+                      userImage: 'https://i.pravatar.cc/150?img=9',
+                      userName: 'Sarah Jenkins',
+                      action: 'Service XYZ Deployed',
+                      target: 'US-East-1',
+                      time: '14:03:22 UTC',
+                      details: _buildCodeBlock(
+                        'commit: 8f32a9 | image: sha256:e3b0c442...',
+                      ),
+                    ),
+                    _buildTimelineItem(
+                      userIcon: LucideIcons.bot,
+                      userName: 'System Bot',
+                      userColor: Colors.purple,
+                      action: 'Auto-scaling Triggered',
+                      target: 'Cluster-Alpha',
+                      time: '13:45:10 UTC',
+                      details: _buildCodeBlock(
+                        'SCALED_UP nodes: 3 -> 5',
+                        isTag: true,
+                      ),
+                    ),
+                    _buildTimelineItem(
+                      userIcon: LucideIcons.x,
+                      userName: 'Unknown User',
+                      userColor: AppTheme.error,
+                      action: 'Unusual Login Attempt',
+                      target: 'Auth Service',
+                      time: '12:12:05 UTC',
+                      titleColor: AppTheme.error,
+                      details: _buildCodeBlock(
+                        '''IP: 192.168.1.XX
+Status: BLOCKED_BY_FIREWALL''',
+                        isMultiLine: true,
+                        fontColor: AppTheme.error,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+                    const Row(
+                      children: [
+                        Text(
+                          'YESTERDAY, OCT 26',
+                          style: TextStyle(
+                            color: AppTheme.textMuted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            indent: 12,
+                            color: AppTheme.surfaceHighlight,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildTimelineItem(
+                      userImage: 'https://i.pravatar.cc/150?img=11',
+                      userName: 'Mark Chen',
+                      action: 'Updated Load Balancer',
+                      target: 'Infra-Net',
+                      time: '23:55:01 UTC',
+                      details: _buildCodeBlock(
+                        'modified: /etc/lb/config.yaml',
+                        isWarning: true,
+                      ),
+                      isLast: true,
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

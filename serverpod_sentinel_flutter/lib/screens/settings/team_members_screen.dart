@@ -36,165 +36,176 @@ class TeamMembersScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Search by name or email...',
-                prefixIcon: const Icon(
-                  LucideIcons.search,
-                  color: AppTheme.textMuted,
-                ),
-                filled: true,
-                fillColor: AppTheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search by name or email...',
+                    prefixIcon: const Icon(
+                      LucideIcons.search,
+                      color: AppTheme.textMuted,
+                    ),
+                    filled: true,
+                    fillColor: AppTheme.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Role Overview',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text('Manage Roles'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildRoleCard(
+                        '3 Admins',
+                        'Full system access & logs',
+                        'TIER 1',
+                        AppTheme.primary,
+                        LucideIcons.shieldAlert,
+                      ),
+                      const SizedBox(width: 12),
+                      _buildRoleCard(
+                        '12 Operators',
+                        'Can trigger pipelines',
+                        '',
+                        const Color(0xFF10b981), // Emerald
+                        LucideIcons.settings,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
                 const Text(
-                  'Role Overview',
+                  'All Users',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                TextButton(onPressed: () {}, child: const Text('Manage Roles')),
-              ],
-            ),
-            const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildRoleCard(
-                    '3 Admins',
-                    'Full system access & logs',
-                    'TIER 1',
-                    AppTheme.primary,
-                    LucideIcons.shieldAlert,
-                  ),
-                  const SizedBox(width: 12),
-                  _buildRoleCard(
-                    '12 Operators',
-                    'Can trigger pipelines',
-                    '',
-                    const Color(0xFF10b981), // Emerald
-                    LucideIcons.settings,
-                  ),
-                ],
-              ),
-            ),
+                _buildUserCard(
+                  context,
+                  image: 'https://i.pravatar.cc/150?img=9',
+                  name: 'Sarah Jenkins',
+                  email: 'sarah.j@devops.co',
+                  badges: [
+                    _buildBadge('Admin', AppTheme.primary),
+                    const SizedBox(width: 8),
+                    _buildBadge(
+                      'Approver',
+                      const Color(0xFF334155),
+                      textColor: const Color(0xFF94a3b8),
+                      icon: LucideIcons.hammer,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildBadge(
+                      'Root',
+                      const Color(0xFF451a03),
+                      textColor: Colors.orange,
+                      icon: LucideIcons.key,
+                    ),
+                  ],
+                  isOnline: true,
+                ),
+                const SizedBox(height: 12),
+                _buildUserCard(
+                  context,
+                  image: 'https://i.pravatar.cc/150?img=11',
+                  name: 'Michael Chen',
+                  email: 'm.chen@devops.co',
+                  badges: [
+                    _buildBadge('Operator', const Color(0xFF10b981)),
+                    const SizedBox(width: 8),
+                    _buildBadge(
+                      'Deployer',
+                      const Color(0xFF334155),
+                      textColor: const Color(0xFF94a3b8),
+                      icon: LucideIcons.rocket,
+                    ),
+                  ],
+                  isOnline: true,
+                ),
+                const SizedBox(height: 12),
+                _buildUserCard(
+                  context,
+                  initials: 'AL',
+                  color: Colors.purple,
+                  name: 'Alex Liu',
+                  email: 'alex.liu@devops.co',
+                  badges: [
+                    _buildBadge('Operator', const Color(0xFF10b981)),
+                    const SizedBox(width: 8),
+                    _buildBadge(
+                      'Shell Access',
+                      const Color(0xFF334155),
+                      textColor: const Color(0xFF94a3b8),
+                      icon: LucideIcons.terminal,
+                    ),
+                  ],
+                  isOnline: false,
+                ),
 
-            const SizedBox(height: 32),
-            const Text(
-              'All Users',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-
-            _buildUserCard(
-              context,
-              image: 'https://i.pravatar.cc/150?img=9',
-              name: 'Sarah Jenkins',
-              email: 'sarah.j@devops.co',
-              badges: [
-                _buildBadge('Admin', AppTheme.primary),
-                const SizedBox(width: 8),
-                _buildBadge(
-                  'Approver',
-                  const Color(0xFF334155),
-                  textColor: const Color(0xFF94a3b8),
-                  icon: LucideIcons.hammer,
+                const SizedBox(height: 12),
+                _buildUserCard(
+                  context,
+                  image: 'https://i.pravatar.cc/150?img=5',
+                  name: 'Emma Wilson',
+                  email: 'e.wilson@devops.co',
+                  badges: [
+                    _buildBadge(
+                      'Viewer',
+                      const Color(0xFF334155),
+                      textColor: const Color(0xFF94a3b8),
+                    ),
+                  ],
+                  isOnline: false,
                 ),
-                const SizedBox(width: 8),
-                _buildBadge(
-                  'Root',
-                  const Color(0xFF451a03),
-                  textColor: Colors.orange,
-                  icon: LucideIcons.key,
-                ),
-              ],
-              isOnline: true,
-            ),
-            const SizedBox(height: 12),
-            _buildUserCard(
-              context,
-              image: 'https://i.pravatar.cc/150?img=11',
-              name: 'Michael Chen',
-              email: 'm.chen@devops.co',
-              badges: [
-                _buildBadge('Operator', const Color(0xFF10b981)),
-                const SizedBox(width: 8),
-                _buildBadge(
-                  'Deployer',
-                  const Color(0xFF334155),
-                  textColor: const Color(0xFF94a3b8),
-                  icon: LucideIcons.rocket,
+                const SizedBox(height: 12),
+                _buildUserCard(
+                  context,
+                  initials: 'JD',
+                  color: Colors.grey,
+                  name: 'John Doe',
+                  email: 'j.doe@devops.co',
+                  badges: [
+                    _buildBadge(
+                      'Viewer',
+                      const Color(0xFF334155),
+                      textColor: const Color(0xFF94a3b8),
+                    ),
+                  ],
+                  isOnline: false,
                 ),
               ],
-              isOnline: true,
             ),
-            const SizedBox(height: 12),
-            _buildUserCard(
-              context,
-              initials: 'AL',
-              color: Colors.purple,
-              name: 'Alex Liu',
-              email: 'alex.liu@devops.co',
-              badges: [
-                _buildBadge('Operator', const Color(0xFF10b981)),
-                const SizedBox(width: 8),
-                _buildBadge(
-                  'Shell Access',
-                  const Color(0xFF334155),
-                  textColor: const Color(0xFF94a3b8),
-                  icon: LucideIcons.terminal,
-                ),
-              ],
-              isOnline: false,
-            ),
-
-            const SizedBox(height: 12),
-            _buildUserCard(
-              context,
-              image: 'https://i.pravatar.cc/150?img=5',
-              name: 'Emma Wilson',
-              email: 'e.wilson@devops.co',
-              badges: [
-                _buildBadge(
-                  'Viewer',
-                  const Color(0xFF334155),
-                  textColor: const Color(0xFF94a3b8),
-                ),
-              ],
-              isOnline: false,
-            ),
-            const SizedBox(height: 12),
-            _buildUserCard(
-              context,
-              initials: 'JD',
-              color: Colors.grey,
-              name: 'John Doe',
-              email: 'j.doe@devops.co',
-              badges: [
-                _buildBadge(
-                  'Viewer',
-                  const Color(0xFF334155),
-                  textColor: const Color(0xFF94a3b8),
-                ),
-              ],
-              isOnline: false,
-            ),
-          ],
+          ),
         ),
       ),
     );

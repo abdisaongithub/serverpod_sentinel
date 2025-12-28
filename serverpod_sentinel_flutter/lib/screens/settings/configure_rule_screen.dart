@@ -42,352 +42,367 @@ class _ConfigureRuleScreenState extends State<ConfigureRuleScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'RULE NAME',
-              style: TextStyle(
-                color: AppTheme.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const CustomTextField(
-              hint: 'e.g. Prod CPU Spike Detection',
-              label: 'Prod CPU Spike Detection',
-              // label: '===== not set =====',
-            ),
-            const SizedBox(height: 24),
-
-            const Text(
-              'Scope',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.surfaceHighlight),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          LucideIcons.layoutGrid,
-                          size: 16,
-                          color: AppTheme.primary,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'Production-US-East',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Icon(
-                          LucideIcons.chevronDown,
-                          size: 16,
-                          color: AppTheme.textMuted,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.surfaceHighlight),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        LucideIcons.plus,
-                        size: 16,
-                        color: AppTheme.textMuted,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Add Tag',
-                        style: TextStyle(color: AppTheme.textMuted),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Conditions',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'ALL MATCH',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                      color: AppTheme.primary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Condition 1
-            _buildConditionCard(
-              index: 0,
-              metric: 'CPU Utilization',
-              operator: '>',
-              threshold: '85',
-              unit: '%',
-              icon: LucideIcons.cpu,
-            ),
-
-            // Connector
-            Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.textMuted),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  'AND',
+                  'RULE NAME',
                   style: TextStyle(
-                    fontSize: 10,
                     color: AppTheme.textMuted,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ),
-
-            // Condition 2
-            _buildConditionCard(
-              index: 1,
-              metric: 'Memory Free',
-              operator: '<',
-              threshold: '200',
-              unit: 'MB',
-              icon: LucideIcons.hardDrive,
-              color: Colors.purple,
-            ),
-
-            const SizedBox(height: 16),
-
-            // Duration Slider
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.surfaceHighlight),
-              ),
-              child: Row(
-                children: [
-                  const Icon(LucideIcons.clock, color: AppTheme.textMuted),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Sustained for',
-                          style: TextStyle(
-                            color: AppTheme.textMuted,
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          '${_duration.toInt()} minutes',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: AppTheme.primary,
-                        inactiveTrackColor: AppTheme.surfaceHighlight,
-                        thumbColor: AppTheme.primary,
-                        overlayColor: AppTheme.primary.withOpacity(0.2),
-                      ),
-                      child: Slider(
-                        value: _duration,
-                        min: 1,
-                        max: 60,
-                        onChanged: (v) => setState(() => _duration = v),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-            Center(
-              child: OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(LucideIcons.plusCircle),
-                label: const Text('Add Condition'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.textMuted,
-                  side: const BorderSide(
-                    // style: BorderStyle.dashed, : TODO: find a way to make this work
-                    style: BorderStyle.solid,
-                    color: AppTheme.textMuted,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                const SizedBox(height: 8),
+                const CustomTextField(
+                  hint: 'e.g. Prod CPU Spike Detection',
+                  label: 'Prod CPU Spike Detection',
+                  // label: '===== not set =====',
                 ),
-              ),
-            ),
+                const SizedBox(height: 24),
 
-            const SizedBox(height: 32),
-            const Text(
-              'Action',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.surfaceHighlight),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'THEN TRIGGER SEVERITY',
-                    style: TextStyle(
-                      color: AppTheme.textMuted,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _buildSeverityBtn('Critical', false),
-                      const SizedBox(width: 8),
-                      _buildSeverityBtn('Warning', true, color: Colors.orange),
-                      const SizedBox(width: 8),
-                      _buildSeverityBtn('Info', false),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  const Text(
-                    'AND NOTIFY',
-                    style: TextStyle(
-                      color: AppTheme.textMuted,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Chip(
-                        label: const Text(
-                          'SRE Team',
-                          style: TextStyle(color: AppTheme.primary),
+                const Text(
+                  'Scope',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        avatar: const CircleAvatar(
-                          backgroundColor: AppTheme.primary,
-                          child: Text(
-                            '\$',
-                            style: TextStyle(fontSize: 10, color: Colors.white),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surface,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppTheme.surfaceHighlight),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(
+                              LucideIcons.layoutGrid,
+                              size: 16,
+                              color: AppTheme.primary,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Production-US-East',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Spacer(),
+                            Icon(
+                              LucideIcons.chevronDown,
+                              size: 16,
+                              color: AppTheme.textMuted,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surface,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppTheme.surfaceHighlight),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(
+                            LucideIcons.plus,
+                            size: 16,
+                            color: AppTheme.textMuted,
                           ),
-                        ),
-                        backgroundColor: AppTheme.primary.withOpacity(0.1),
-                        deleteIcon: const Icon(
-                          LucideIcons.x,
-                          size: 14,
+                          SizedBox(width: 8),
+                          Text(
+                            'Add Tag',
+                            style: TextStyle(color: AppTheme.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Conditions',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'ALL MATCH',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
                           color: AppTheme.primary,
                         ),
-                        onDeleted: () {},
-                        side: BorderSide.none,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Condition 1
+                _buildConditionCard(
+                  index: 0,
+                  metric: 'CPU Utilization',
+                  operator: '>',
+                  threshold: '85',
+                  unit: '%',
+                  icon: LucideIcons.cpu,
+                ),
+
+                // Connector
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppTheme.textMuted),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'AND',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: AppTheme.textMuted,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Condition 2
+                _buildConditionCard(
+                  index: 1,
+                  metric: 'Memory Free',
+                  operator: '<',
+                  threshold: '200',
+                  unit: 'MB',
+                  icon: LucideIcons.hardDrive,
+                  color: Colors.purple,
+                ),
+
+                const SizedBox(height: 16),
+
+                // Duration Slider
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.surfaceHighlight),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(LucideIcons.clock, color: AppTheme.textMuted),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Sustained for',
+                              style: TextStyle(
+                                color: AppTheme.textMuted,
+                                fontSize: 12,
+                              ),
+                            ),
+                            Text(
+                              '${_duration.toInt()} minutes',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Chip(
-                        label: const Text('Slack'),
-                        avatar: const Icon(
-                          LucideIcons.hash,
-                          size: 14,
-                          color: AppTheme.textMuted,
-                        ),
-                        backgroundColor: Colors.black,
-                        side: BorderSide.none,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppTheme.textMuted),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          LucideIcons.plus,
-                          size: 16,
-                          color: AppTheme.textMuted,
+                      Expanded(
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: AppTheme.primary,
+                            inactiveTrackColor: AppTheme.surfaceHighlight,
+                            thumbColor: AppTheme.primary,
+                            overlayColor: AppTheme.primary.withOpacity(0.2),
+                          ),
+                          child: Slider(
+                            value: _duration,
+                            min: 1,
+                            max: 60,
+                            onChanged: (v) => setState(() => _duration = v),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(height: 16),
+                Center(
+                  child: OutlinedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(LucideIcons.plusCircle),
+                    label: const Text('Add Condition'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.textMuted,
+                      side: const BorderSide(
+                        // style: BorderStyle.dashed, : TODO: find a way to make this work
+                        style: BorderStyle.solid,
+                        color: AppTheme.textMuted,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+                const Text(
+                  'Action',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.surfaceHighlight),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'THEN TRIGGER SEVERITY',
+                        style: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          _buildSeverityBtn('Critical', false),
+                          const SizedBox(width: 8),
+                          _buildSeverityBtn(
+                            'Warning',
+                            true,
+                            color: Colors.orange,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildSeverityBtn('Info', false),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      const Text(
+                        'AND NOTIFY',
+                        style: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Chip(
+                            label: const Text(
+                              'SRE Team',
+                              style: TextStyle(color: AppTheme.primary),
+                            ),
+                            avatar: const CircleAvatar(
+                              backgroundColor: AppTheme.primary,
+                              child: Text(
+                                '\$',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            backgroundColor: AppTheme.primary.withOpacity(0.1),
+                            deleteIcon: const Icon(
+                              LucideIcons.x,
+                              size: 14,
+                              color: AppTheme.primary,
+                            ),
+                            onDeleted: () {},
+                            side: BorderSide.none,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Chip(
+                            label: const Text('Slack'),
+                            avatar: const Icon(
+                              LucideIcons.hash,
+                              size: 14,
+                              color: AppTheme.textMuted,
+                            ),
+                            backgroundColor: Colors.black,
+                            side: BorderSide.none,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppTheme.textMuted),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              LucideIcons.plus,
+                              size: 16,
+                              color: AppTheme.textMuted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+              ],
             ),
-            const SizedBox(height: 32),
-          ],
+          ),
         ),
       ),
     );

@@ -20,39 +20,44 @@ class EnvironmentSettingsScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildInfoCard(),
-          const SizedBox(height: 24),
-          const Text(
-            'SCALING POLICY',
-            style: TextStyle(
-              color: AppTheme.textMuted,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: ListView(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.surfaceHighlight),
-            ),
-            child: Column(
-              children: [
-                _buildSettingRow('Min Instances', '2'),
-                const Divider(color: AppTheme.surfaceHighlight),
-                _buildSettingRow('Max Instances', '12'),
-                const Divider(color: AppTheme.surfaceHighlight),
-                _buildSettingRow('Target CPU %', '75%'),
-              ],
-            ),
+            children: [
+              _buildInfoCard(),
+              const SizedBox(height: 24),
+              const Text(
+                'SCALING POLICY',
+                style: TextStyle(
+                  color: AppTheme.textMuted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.surfaceHighlight),
+                ),
+                child: Column(
+                  children: [
+                    _buildSettingRow('Min Instances', '2'),
+                    const Divider(color: AppTheme.surfaceHighlight),
+                    _buildSettingRow('Max Instances', '12'),
+                    const Divider(color: AppTheme.surfaceHighlight),
+                    _buildSettingRow('Target CPU %', '75%'),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

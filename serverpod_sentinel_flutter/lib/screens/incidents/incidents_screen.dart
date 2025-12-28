@@ -19,181 +19,194 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      'https://i.pravatar.cc/150?img=11',
-                    ), // Placeholder
-                    radius: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: Column(
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
                     children: [
-                      Text(
-                        'Hello, Alex',
-                        style: TextStyle(
-                          color: AppTheme.textMuted,
-                          fontSize: 12,
+                      const CircleAvatar(
+                        backgroundImage: NetworkImage(
+                          'https://i.pravatar.cc/150?img=11',
+                        ), // Placeholder
+                        radius: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hello, Alex',
+                            style: TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const Text(
+                            'Incidents',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(LucideIcons.search),
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppTheme.surface,
+                          padding: const EdgeInsets.all(12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
-                      const Text(
-                        'Incidents',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(LucideIcons.plus),
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppTheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.all(12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(LucideIcons.search),
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppTheme.surface,
-                      padding: const EdgeInsets.all(12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                ),
+
+                // Stat Cards
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      _buildStatCard('ACTIVE', '12', '↑ 2', AppTheme.surface),
+                      const SizedBox(width: 12),
+                      _buildStatCard(
+                        'CRITICAL',
+                        '4',
+                        '+10%',
+                        AppTheme.surfaceHighlight,
+                        hasDot: true,
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(LucideIcons.plus),
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppTheme.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.all(12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Stat Cards
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  _buildStatCard('ACTIVE', '12', '↑ 2', AppTheme.surface),
-                  const SizedBox(width: 12),
-                  _buildStatCard(
-                    'CRITICAL',
-                    '4',
-                    '+10%',
-                    AppTheme.surfaceHighlight,
-                    hasDot: true,
-                  ),
-                  const SizedBox(width: 12),
-                  _buildStatCard('RESOLVED', '48', '+5%', AppTheme.surface),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Filters
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  _buildFilterChip('All', true),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('Critical', false, color: AppTheme.error),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('Major', false, color: Colors.orange),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('My Team', false, icon: LucideIcons.user),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Ongoing Incidents Title
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'ONGOING INCIDENTS',
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1,
+                      const SizedBox(width: 12),
+                      _buildStatCard('RESOLVED', '48', '+5%', AppTheme.surface),
+                    ],
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 12),
+                const SizedBox(height: 24),
 
-            // Incident List
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  _buildIncidentCard(
-                    context,
-                    id: '#INC-204',
-                    priority: 'CRITICAL',
-                    title: 'Database Latency Spike',
-                    service: 'Payment Service',
-                    time: '00:24:12',
-                    color: AppTheme.error,
+                // Filters
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      _buildFilterChip('All', true),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        'Critical',
+                        false,
+                        color: AppTheme.error,
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Major', false, color: Colors.orange),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        'My Team',
+                        false,
+                        icon: LucideIcons.user,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  _buildIncidentCard(
-                    context,
-                    id: '#INC-203',
-                    priority: 'MAJOR',
-                    title: 'API 500 Errors',
-                    service: 'Auth Service',
-                    time: '01:12:45',
-                    color: Colors.orange,
-                    status: 'Acknowledged',
-                    isLocked: true,
-                  ),
-                  const SizedBox(height: 32),
-                  const Text(
-                    'RESOLVED RECENTLY',
-                    style: TextStyle(
-                      color: AppTheme.textMuted,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
+                ),
+                const SizedBox(height: 24),
+
+                // Ongoing Incidents Title
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'ONGOING INCIDENTS',
+                      style: TextStyle(
+                        color: AppTheme.textMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  _buildResolvedCard(
-                    context,
-                    id: '#INC-198',
-                    title: 'High Memory Usage',
-                    service: 'Image Processor',
-                    duration: '45m duration',
+                ),
+                const SizedBox(height: 12),
+
+                // Incident List
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      _buildIncidentCard(
+                        context,
+                        id: '#INC-204',
+                        priority: 'CRITICAL',
+                        title: 'Database Latency Spike',
+                        service: 'Payment Service',
+                        time: '00:24:12',
+                        color: AppTheme.error,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildIncidentCard(
+                        context,
+                        id: '#INC-203',
+                        priority: 'MAJOR',
+                        title: 'API 500 Errors',
+                        service: 'Auth Service',
+                        time: '01:12:45',
+                        color: Colors.orange,
+                        status: 'Acknowledged',
+                        isLocked: true,
+                      ),
+                      const SizedBox(height: 32),
+                      const Text(
+                        'RESOLVED RECENTLY',
+                        style: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildResolvedCard(
+                        context,
+                        id: '#INC-198',
+                        title: 'High Memory Usage',
+                        service: 'Image Processor',
+                        duration: '45m duration',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildResolvedCard(
+                        context,
+                        id: '#INC-197',
+                        title: 'Frontend Build Failure',
+                        service: 'CI/CD Pipeline',
+                        duration: '12m duration',
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  _buildResolvedCard(
-                    context,
-                    id: '#INC-197',
-                    title: 'Frontend Build Failure',
-                    service: 'CI/CD Pipeline',
-                    duration: '12m duration',
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(

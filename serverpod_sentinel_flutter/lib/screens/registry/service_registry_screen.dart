@@ -30,171 +30,176 @@ class ServiceRegistryScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                prefixIcon: const Icon(
-                  LucideIcons.search,
-                  color: AppTheme.textMuted,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TextField(
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(
+                      LucideIcons.search,
+                      color: AppTheme.textMuted,
+                    ),
+                    hintText: 'Search services by name or ID',
+                    filled: true,
+                    fillColor: AppTheme.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  ),
                 ),
-                hintText: 'Search services by name or ID',
-                filled: true,
-                fillColor: AppTheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
-            ),
-          ),
 
-          // Filters
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                _buildDropdownFilter('Env: All'),
-                const SizedBox(width: 8),
-                _buildDropdownFilter('Health: All'),
-                const SizedBox(width: 16),
-                Container(
-                  height: 24,
-                  width: 1,
-                  color: AppTheme.surfaceHighlight,
+              // Filters
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    _buildDropdownFilter('Env: All'),
+                    const SizedBox(width: 8),
+                    _buildDropdownFilter('Health: All'),
+                    const SizedBox(width: 16),
+                    Container(
+                      height: 24,
+                      width: 1,
+                      color: AppTheme.surfaceHighlight,
+                    ),
+                    const SizedBox(width: 16),
+                    _buildFilterChip(
+                      'Critical',
+                      true,
+                      dotColor: AppTheme.error,
+                      bgColor: AppTheme.error.withOpacity(0.2),
+                      borderColor: AppTheme.error,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Prod', false),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                _buildFilterChip(
-                  'Critical',
-                  true,
-                  dotColor: AppTheme.error,
-                  bgColor: AppTheme.error.withOpacity(0.2),
-                  borderColor: AppTheme.error,
-                ),
-                const SizedBox(width: 8),
-                _buildFilterChip('Prod', false),
-              ],
-            ),
-          ),
+              ),
 
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'REGISTERED SERVICES (5)',
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    fontSize: 12,
-                    letterSpacing: 1,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'View All',
-                  style: TextStyle(
-                    color: AppTheme.primary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // List
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildServiceCard(
-                  context,
-                  name: 'Auth-Service',
-                  id: '#srv-001',
-                  team: 'Team Alpha',
-                  time: '2m ago',
-                  status: 'Healthy',
-                  env: 'Prod',
-                  icon: LucideIcons.checkCircle,
-                  color: AppTheme.success,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ServiceDetailScreen(),
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'REGISTERED SERVICES (5)',
+                      style: TextStyle(
+                        color: AppTheme.textMuted,
+                        fontSize: 12,
+                        letterSpacing: 1,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  },
+                    ),
+                    Text(
+                      'View All',
+                      style: TextStyle(
+                        color: AppTheme.primary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-                _buildServiceCard(
-                  context,
-                  name: 'Payment-Gateway',
-                  id: 'High Latency', // Using ID slot for status desc
-                  team: 'FinOps',
-                  time: '10s ago',
-                  status: 'Warning',
-                  env: 'Prod',
-                  icon: LucideIcons.alertTriangle,
-                  color: Colors.orange,
-                  leftBorderHighlight: true,
-                ),
-                _buildServiceCard(
-                  context,
-                  name: 'Email-Worker',
-                  id: 'Connection Refused',
-                  team: 'Comm Team',
-                  time: '5h ago',
-                  status: 'Critical',
-                  env: 'Staging',
-                  icon: LucideIcons.alertOctagon,
-                  color: AppTheme.error,
-                  envColor: const Color(0xFF6366f1), // Indigo
-                  hasRefresh: true,
-                ),
-                _buildServiceCard(
-                  context,
-                  name: 'Analytics-Stream',
-                  id: 'Maintenance Mode',
-                  team: 'Data Eng',
-                  time: '1d ago',
-                  status: 'Maintenance',
-                  env: 'Prod',
-                  icon: LucideIcons.wrench,
-                  color: AppTheme.textMuted,
-                ),
-                _buildServiceCard(
-                  context,
-                  name: 'User-Profile',
-                  id: 'Healthy',
-                  team: 'Team Alpha',
-                  time: '1h ago',
-                  status: 'Healthy',
-                  env: 'Dev',
-                  icon: LucideIcons.checkCircle,
-                  color: AppTheme.success,
-                  envColor: AppTheme.success,
-                ),
+              ),
+              const SizedBox(height: 12),
 
-                const SizedBox(height: 24),
-                const Center(
-                  child: Text(
-                    'End of list',
-                    style: TextStyle(color: AppTheme.textDim),
-                  ),
+              // List
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _buildServiceCard(
+                      context,
+                      name: 'Auth-Service',
+                      id: '#srv-001',
+                      team: 'Team Alpha',
+                      time: '2m ago',
+                      status: 'Healthy',
+                      env: 'Prod',
+                      icon: LucideIcons.checkCircle,
+                      color: AppTheme.success,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ServiceDetailScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildServiceCard(
+                      context,
+                      name: 'Payment-Gateway',
+                      id: 'High Latency', // Using ID slot for status desc
+                      team: 'FinOps',
+                      time: '10s ago',
+                      status: 'Warning',
+                      env: 'Prod',
+                      icon: LucideIcons.alertTriangle,
+                      color: Colors.orange,
+                      leftBorderHighlight: true,
+                    ),
+                    _buildServiceCard(
+                      context,
+                      name: 'Email-Worker',
+                      id: 'Connection Refused',
+                      team: 'Comm Team',
+                      time: '5h ago',
+                      status: 'Critical',
+                      env: 'Staging',
+                      icon: LucideIcons.alertOctagon,
+                      color: AppTheme.error,
+                      envColor: const Color(0xFF6366f1), // Indigo
+                      hasRefresh: true,
+                    ),
+                    _buildServiceCard(
+                      context,
+                      name: 'Analytics-Stream',
+                      id: 'Maintenance Mode',
+                      team: 'Data Eng',
+                      time: '1d ago',
+                      status: 'Maintenance',
+                      env: 'Prod',
+                      icon: LucideIcons.wrench,
+                      color: AppTheme.textMuted,
+                    ),
+                    _buildServiceCard(
+                      context,
+                      name: 'User-Profile',
+                      id: 'Healthy',
+                      team: 'Team Alpha',
+                      time: '1h ago',
+                      status: 'Healthy',
+                      env: 'Dev',
+                      icon: LucideIcons.checkCircle,
+                      color: AppTheme.success,
+                      envColor: AppTheme.success,
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Center(
+                      child: Text(
+                        'End of list',
+                        style: TextStyle(color: AppTheme.textDim),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: AppTheme.surface,

@@ -35,276 +35,290 @@ class AIInsightsScreen extends StatelessWidget {
           IconButton(onPressed: () {}, icon: const Icon(LucideIcons.filter)),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.surfaceHighlight),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppTheme.surfaceHighlight),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'SYSTEM HEALTH',
-                              style: TextStyle(
-                                color: AppTheme.textMuted,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'SYSTEM HEALTH',
+                                  style: TextStyle(
+                                    color: AppTheme.textMuted,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  LucideIcons.checkCircle,
+                                  size: 16,
+                                  color: Color(0xFF10b981),
+                                ),
+                              ],
                             ),
-                            Icon(
-                              LucideIcons.checkCircle,
-                              size: 16,
-                              color: Color(0xFF10b981),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                const Text(
+                                  '94%',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '+2%',
+                                  style: TextStyle(
+                                    color: const Color(0xFF10b981),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Row(
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppTheme.surfaceHighlight),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              '94%',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'ANOMALIES',
+                                  style: TextStyle(
+                                    color: AppTheme.textMuted,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  LucideIcons.alertTriangle,
+                                  size: 16,
+                                  color: Colors.orange,
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '+2%',
-                              style: TextStyle(
-                                color: const Color(0xFF10b981),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                const Text(
+                                  '3',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '+1 New',
+                                  style: TextStyle(
+                                    color: Colors.orange,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.surfaceHighlight),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'ANOMALIES',
-                              style: TextStyle(
-                                color: AppTheme.textMuted,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Icon(
-                              LucideIcons.alertTriangle,
-                              size: 16,
-                              color: Colors.orange,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            const Text(
-                              '3',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '+1 New',
-                              style: TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
 
-            const SizedBox(height: 32),
-            Row(
-              children: [
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    const Text(
+                      'Suggested Root Causes',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'PRIORITY',
+                        style: TextStyle(
+                          color: AppTheme.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                _buildInsightCard(
+                  title: 'Database Latency Spike',
+                  subtitle: 'Service: Order-API-v2',
+                  confidence: '92%',
+                  icon: LucideIcons.database,
+                  iconColor: AppTheme.error,
+                  content: Column(
+                    children: [
+                      _buildAnalysisItem(
+                        'Unoptimized query detected in',
+                        'GET /products',
+                        'from v2.4 deployment.',
+                        actionLabel: 'View Query Logs',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildInsightCard(
+                  title: 'API Timeout Error',
+                  subtitle: 'Region: US-East-1',
+                  confidence: '85%',
+                  icon: LucideIcons.cloudOff,
+                  iconColor: Colors.orange,
+                  content: Column(
+                    children: [
+                      _buildAnalysisItem(
+                        'Abnormal traffic surge detected from 2 IP ranges correlating with recent marketing blast.',
+                        '',
+                        '',
+                        actionLabel: 'Analyze Traffic Source',
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Risk Predictions',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Next 24h',
+                      style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                SizedBox(
+                  height: 160,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      _buildRiskCard(
+                        'Disk Exhaustion',
+                        'Node-cluster-04',
+                        'MEDIUM RISK',
+                        'Projected to reach 95% capacity in 4 hours.',
+                        Colors.orange,
+                        0.7,
+                      ),
+                      const SizedBox(width: 16),
+                      _buildRiskCard(
+                        'Memory Leak',
+                        'Service: Payment-Gateway',
+                        'HIGH RISK',
+                        'Heap usage increasing linearly; OOM predicted in 2 hours.',
+                        AppTheme.error,
+                        0.9,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
                 const Text(
-                  'Suggested Root Causes',
+                  'Recommended Actions',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'PRIORITY',
-                    style: TextStyle(
-                      color: AppTheme.primary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
+                const SizedBox(height: 16),
+
+                _buildActionCard(
+                  'Execute Rollback',
+                  'Reverting to last stable build (v2.3.9) is 95% likely to resolve the latency spike.',
+                  LucideIcons.rotateCcw,
+                  AppTheme.primary,
+                  'Rollback Service',
+                ),
+                const SizedBox(height: 16),
+                _buildActionCard(
+                  'Scale Resources',
+                  'Pre-empt memory leak crash by scaling Payment-Gateway to 10 replicas temporarily.',
+                  LucideIcons.rocket,
+                  const Color(0xFF10b981),
+                  'Scale to 10',
+                ),
+
+                const SizedBox(height: 32),
+                const Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        LucideIcons.shieldCheck,
+                        size: 14,
+                        color: AppTheme.textMuted,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'AI Insights verified by OpsGuard Engine v4.0',
+                        style: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 32),
               ],
             ),
-            const SizedBox(height: 16),
-
-            _buildInsightCard(
-              title: 'Database Latency Spike',
-              subtitle: 'Service: Order-API-v2',
-              confidence: '92%',
-              icon: LucideIcons.database,
-              iconColor: AppTheme.error,
-              content: Column(
-                children: [
-                  _buildAnalysisItem(
-                    'Unoptimized query detected in',
-                    'GET /products',
-                    'from v2.4 deployment.',
-                    actionLabel: 'View Query Logs',
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildInsightCard(
-              title: 'API Timeout Error',
-              subtitle: 'Region: US-East-1',
-              confidence: '85%',
-              icon: LucideIcons.cloudOff,
-              iconColor: Colors.orange,
-              content: Column(
-                children: [
-                  _buildAnalysisItem(
-                    'Abnormal traffic surge detected from 2 IP ranges correlating with recent marketing blast.',
-                    '',
-                    '',
-                    actionLabel: 'Analyze Traffic Source',
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Risk Predictions',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'Next 24h',
-                  style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            SizedBox(
-              height: 160,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildRiskCard(
-                    'Disk Exhaustion',
-                    'Node-cluster-04',
-                    'MEDIUM RISK',
-                    'Projected to reach 95% capacity in 4 hours.',
-                    Colors.orange,
-                    0.7,
-                  ),
-                  const SizedBox(width: 16),
-                  _buildRiskCard(
-                    'Memory Leak',
-                    'Service: Payment-Gateway',
-                    'HIGH RISK',
-                    'Heap usage increasing linearly; OOM predicted in 2 hours.',
-                    AppTheme.error,
-                    0.9,
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-            const Text(
-              'Recommended Actions',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            _buildActionCard(
-              'Execute Rollback',
-              'Reverting to last stable build (v2.3.9) is 95% likely to resolve the latency spike.',
-              LucideIcons.rotateCcw,
-              AppTheme.primary,
-              'Rollback Service',
-            ),
-            const SizedBox(height: 16),
-            _buildActionCard(
-              'Scale Resources',
-              'Pre-empt memory leak crash by scaling Payment-Gateway to 10 replicas temporarily.',
-              LucideIcons.rocket,
-              const Color(0xFF10b981),
-              'Scale to 10',
-            ),
-
-            const SizedBox(height: 32),
-            const Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    LucideIcons.shieldCheck,
-                    size: 14,
-                    color: AppTheme.textMuted,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'AI Insights verified by OpsGuard Engine v4.0',
-                    style: TextStyle(color: AppTheme.textMuted, fontSize: 10),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-          ],
+          ),
         ),
       ),
     );

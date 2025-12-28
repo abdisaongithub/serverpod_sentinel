@@ -35,115 +35,120 @@ class WelcomeScreen extends StatelessWidget {
           const SizedBox(width: 8),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Hero Image Placeholder
-              Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppTheme.surfaceHighlight),
-                  // Placeholder for the network graphic
-                  image: const DecorationImage(
-                    image: AssetImage(
-                      'assets/images/network_placeholder.png',
-                    ), // Will fail gracefully if missing
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    LucideIcons.rocket,
-                    size: 64,
-                    color: AppTheme.primary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              Text(
-                'Welcome to OpsPilot',
-                style: Theme.of(context).textTheme.headlineLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Streamline your infrastructure in 4 simple steps. Automate workflows and gain full visibility instantly.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.textMuted,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 48),
-
-              // Steps List
-              _buildStepItem(
-                context,
-                '1',
-                'Create Environment',
-                'Set up your workspace boundaries to organize your resources.',
-                isActive: true,
-              ),
-              _buildStepItem(
-                context,
-                '2',
-                'Register Service',
-                'Connect your first repository or application service.',
-              ),
-              _buildStepItem(
-                context,
-                '3',
-                'Install Agent',
-                'Deploy the listener to your server for real-time monitoring.',
-              ),
-              _buildStepItem(
-                context,
-                '4',
-                'Define First Rule',
-                'Automate your first response action to a trigger.',
-              ),
-
-              const SizedBox(height: 48),
-
-              PrimaryButton(
-                label: 'Initialize Setup',
-                icon: LucideIcons.arrowRight,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CreateEnvScreen(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () {},
-                child: RichText(
-                  text: const TextSpan(
-                    text: 'Already have an environment? ',
-                    style: TextStyle(color: AppTheme.textMuted),
-                    children: [
-                      TextSpan(
-                        text: 'Log in',
-                        style: TextStyle(
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Hero Image Placeholder
+                  Container(
+                    height: 200,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: AppTheme.surfaceHighlight),
+                      // Placeholder for the network graphic
+                      image: const DecorationImage(
+                        image: AssetImage(
+                          'assets/images/network_placeholder.png',
+                        ), // Will fail gracefully if missing
+                        fit: BoxFit.cover,
                       ),
-                    ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        LucideIcons.rocket,
+                        size: 64,
+                        color: AppTheme.primary,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 32),
+
+                  Text(
+                    'Welcome to OpsPilot',
+                    style: Theme.of(context).textTheme.headlineLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Streamline your infrastructure in 4 simple steps. Automate workflows and gain full visibility instantly.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.textMuted,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+
+                  // Steps List
+                  _buildStepItem(
+                    context,
+                    '1',
+                    'Create Environment',
+                    'Set up your workspace boundaries to organize your resources.',
+                    isActive: true,
+                  ),
+                  _buildStepItem(
+                    context,
+                    '2',
+                    'Register Service',
+                    'Connect your first repository or application service.',
+                  ),
+                  _buildStepItem(
+                    context,
+                    '3',
+                    'Install Agent',
+                    'Deploy the listener to your server for real-time monitoring.',
+                  ),
+                  _buildStepItem(
+                    context,
+                    '4',
+                    'Define First Rule',
+                    'Automate your first response action to a trigger.',
+                  ),
+
+                  const SizedBox(height: 48),
+
+                  PrimaryButton(
+                    label: 'Initialize Setup',
+                    icon: LucideIcons.arrowRight,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CreateEnvScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {},
+                    child: RichText(
+                      text: const TextSpan(
+                        text: 'Already have an environment? ',
+                        style: TextStyle(color: AppTheme.textMuted),
+                        children: [
+                          TextSpan(
+                            text: 'Log in',
+                            style: TextStyle(
+                              color: AppTheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

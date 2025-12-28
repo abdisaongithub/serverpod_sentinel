@@ -31,81 +31,86 @@ class SettingsScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text(
-            'Verification Links (Batch 3)',
-            style: TextStyle(
-              color: AppTheme.textMuted,
-              fontWeight: FontWeight.bold,
-            ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const Text(
+                'Verification Links (Batch 3)',
+                style: TextStyle(
+                  color: AppTheme.textMuted,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildNavTile(
+                context,
+                'Team Members',
+                LucideIcons.users,
+                const TeamMembersScreen(),
+              ),
+              _buildNavTile(
+                context,
+                'Audit Log',
+                LucideIcons.fileText,
+                const AuditLogScreen(),
+              ),
+              _buildNavTile(
+                context,
+                'Configure Rule',
+                LucideIcons.settings,
+                const ConfigureRuleScreen(),
+              ),
+              _buildNavTile(
+                context,
+                'Incident Report',
+                LucideIcons.clipboardList,
+                const IncidentReportScreen(),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Verification Links (Batch 4)',
+                style: TextStyle(
+                  color: AppTheme.textMuted,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildNavTile(
+                context,
+                'System Settings',
+                LucideIcons.settings,
+                const SystemSettingsScreen(),
+              ),
+              _buildNavTile(
+                context,
+                'Notification Prefs',
+                LucideIcons.bellRing,
+                NotificationPreferencesScreen(),
+              ),
+              _buildNavTile(
+                context,
+                'AI Insights',
+                LucideIcons.sparkles,
+                const AIInsightsScreen(),
+              ),
+              _buildNavTile(
+                context,
+                'Integrations',
+                LucideIcons.toyBrick, // TODO: find blocks icon
+                const IntegrationsManagerScreen(),
+              ),
+              _buildNavTile(
+                context,
+                'Env Settings',
+                LucideIcons.server,
+                const EnvironmentSettingsScreen(),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          _buildNavTile(
-            context,
-            'Team Members',
-            LucideIcons.users,
-            const TeamMembersScreen(),
-          ),
-          _buildNavTile(
-            context,
-            'Audit Log',
-            LucideIcons.fileText,
-            const AuditLogScreen(),
-          ),
-          _buildNavTile(
-            context,
-            'Configure Rule',
-            LucideIcons.settings,
-            const ConfigureRuleScreen(),
-          ),
-          _buildNavTile(
-            context,
-            'Incident Report',
-            LucideIcons.clipboardList,
-            const IncidentReportScreen(),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Verification Links (Batch 4)',
-            style: TextStyle(
-              color: AppTheme.textMuted,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildNavTile(
-            context,
-            'System Settings',
-            LucideIcons.settings,
-            const SystemSettingsScreen(),
-          ),
-          _buildNavTile(
-            context,
-            'Notification Prefs',
-            LucideIcons.bellRing,
-            NotificationPreferencesScreen(),
-          ),
-          _buildNavTile(
-            context,
-            'AI Insights',
-            LucideIcons.sparkles,
-            const AIInsightsScreen(),
-          ),
-          _buildNavTile(
-            context,
-            'Integrations',
-            LucideIcons.toyBrick, // TODO: find blocks icon
-            const IntegrationsManagerScreen(),
-          ),
-          _buildNavTile(
-            context,
-            'Env Settings',
-            LucideIcons.server,
-            const EnvironmentSettingsScreen(),
-          ),
-        ],
+        ),
       ),
     );
   }

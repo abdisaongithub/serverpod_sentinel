@@ -45,283 +45,304 @@ class _NotificationPreferencesScreenState
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'DELIVERY CHANNELS',
-              style: TextStyle(
-                color: AppTheme.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.surfaceHighlight),
-              ),
-              child: Column(
-                children: [
-                  _buildToggleTile(
-                    'Email Notifications',
-                    'Digest and alerts',
-                    LucideIcons.mail,
-                    AppTheme.primary,
-                    _emailEnabled,
-                    (v) => setState(() => _emailEnabled = v),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'DELIVERY CHANNELS',
+                  style: TextStyle(
+                    color: AppTheme.textMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
                   ),
-                  const Divider(height: 1, color: AppTheme.surfaceHighlight),
-                  _buildToggleTile(
-                    'Mobile Push',
-                    'Critical alerts only',
-                    LucideIcons.smartphone,
-                    Colors.deepPurple,
-                    _pushEnabled,
-                    (v) => setState(() => _pushEnabled = v),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.surfaceHighlight),
                   ),
-                  const Divider(height: 1, color: AppTheme.surfaceHighlight),
-                  _buildLinkTile(
-                    'Slack Integration',
-                    'Connected',
-                    LucideIcons.messageSquare,
-                    Colors.pink,
-                    isConnected: true,
-                  ),
-                  const Divider(height: 1, color: AppTheme.surfaceHighlight),
-                  _buildLinkTile(
-                    'PagerDuty',
-                    'Not configured',
-                    LucideIcons.asterisk,
-                    const Color(0xFF10b981),
-                    isConnected: false,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Third-party integrations require admin API keys.',
-              style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-            ),
-
-            const SizedBox(height: 32),
-            const Text(
-              'ALERT SEVERITY',
-              style: TextStyle(
-                color: AppTheme.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.surfaceHighlight),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
                     children: [
-                      const Text(
-                        'Notify me on',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      _buildToggleTile(
+                        'Email Notifications',
+                        'Digest and alerts',
+                        LucideIcons.mail,
+                        AppTheme.primary,
+                        _emailEnabled,
+                        (v) => setState(() => _emailEnabled = v),
                       ),
-                      Icon(
-                        LucideIcons.info,
-                        size: 16,
-                        color: AppTheme.textMuted,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppTheme.background,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(child: _buildSegmentBtn('All', false)),
-                        Expanded(child: _buildSegmentBtn('Incidents', false)),
-                        Expanded(child: _buildSegmentBtn('Critical', true)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppTheme.primary.withOpacity(0.3),
-                      ),
-                    ),
-                    child: const Text(
-                      'Critical Only: You will only receive push notifications for P1 outages and security breaches. All other logs will be emailed.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        height: 1.4,
-                        color: AppTheme.textMuted,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-            const Text(
-              'SCHEDULE',
-              style: TextStyle(
-                color: AppTheme.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.surfaceHighlight),
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.deepPurple.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            LucideIcons.moon,
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Quiet Hours',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                'Mute non-critical alerts',
-                                style: TextStyle(
-                                  color: AppTheme.textMuted,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Switch(
-                          value: _quietHoursEnabled,
-                          onChanged: (v) =>
-                              setState(() => _quietHoursEnabled = v),
-                          activeColor: AppTheme.primary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1, color: AppTheme.surfaceHighlight),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              const Text(
-                                'START',
-                                style: TextStyle(
-                                  color: AppTheme.textMuted,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                '10:00 PM',
-                                style: TextStyle(fontSize: 20),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 1,
-                        height: 60,
+                      const Divider(
+                        height: 1,
                         color: AppTheme.surfaceHighlight,
                       ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              const Text(
-                                'END',
-                                style: TextStyle(
-                                  color: AppTheme.textMuted,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                '7:00 AM',
-                                style: TextStyle(fontSize: 20),
-                              ),
-                            ],
+                      _buildToggleTile(
+                        'Mobile Push',
+                        'Critical alerts only',
+                        LucideIcons.smartphone,
+                        Colors.deepPurple,
+                        _pushEnabled,
+                        (v) => setState(() => _pushEnabled = v),
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: AppTheme.surfaceHighlight,
+                      ),
+                      _buildLinkTile(
+                        'Slack Integration',
+                        'Connected',
+                        LucideIcons.messageSquare,
+                        Colors.pink,
+                        isConnected: true,
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: AppTheme.surfaceHighlight,
+                      ),
+                      _buildLinkTile(
+                        'PagerDuty',
+                        'Not configured',
+                        LucideIcons.asterisk,
+                        const Color(0xFF10b981),
+                        isConnected: false,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Third-party integrations require admin API keys.',
+                  style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                ),
+
+                const SizedBox(height: 32),
+                const Text(
+                  'ALERT SEVERITY',
+                  style: TextStyle(
+                    color: AppTheme.textMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.surfaceHighlight),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Notify me on',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Icon(
+                            LucideIcons.info,
+                            size: 16,
+                            color: AppTheme.textMuted,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.background,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(child: _buildSegmentBtn('All', false)),
+                            Expanded(
+                              child: _buildSegmentBtn('Incidents', false),
+                            ),
+                            Expanded(child: _buildSegmentBtn('Critical', true)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppTheme.primary.withOpacity(0.3),
+                          ),
+                        ),
+                        child: const Text(
+                          'Critical Only: You will only receive push notifications for P1 outages and security breaches. All other logs will be emailed.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.4,
+                            color: AppTheme.textMuted,
                           ),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-            OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(LucideIcons.send, size: 16),
-              label: const Text('Send Test Notification'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: AppTheme.surface,
-                side: BorderSide.none,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
                 ),
-                minimumSize: const Size(double.infinity, 50),
-              ),
+
+                const SizedBox(height: 32),
+                const Text(
+                  'SCHEDULE',
+                  style: TextStyle(
+                    color: AppTheme.textMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.surfaceHighlight),
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.deepPurple.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                LucideIcons.moon,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Quiet Hours',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Mute non-critical alerts',
+                                    style: TextStyle(
+                                      color: AppTheme.textMuted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Switch(
+                              value: _quietHoursEnabled,
+                              onChanged: (v) =>
+                                  setState(() => _quietHoursEnabled = v),
+                              activeColor: AppTheme.primary,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(
+                        height: 1,
+                        color: AppTheme.surfaceHighlight,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  const Text(
+                                    'START',
+                                    style: TextStyle(
+                                      color: AppTheme.textMuted,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    '10:00 PM',
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 1,
+                            height: 60,
+                            color: AppTheme.surfaceHighlight,
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  const Text(
+                                    'END',
+                                    style: TextStyle(
+                                      color: AppTheme.textMuted,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    '7:00 AM',
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+                OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(LucideIcons.send, size: 16),
+                  label: const Text('Send Test Notification'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: AppTheme.surface,
+                    side: BorderSide.none,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                ),
+                const SizedBox(height: 32),
+              ],
             ),
-            const SizedBox(height: 32),
-          ],
+          ),
         ),
       ),
     );
