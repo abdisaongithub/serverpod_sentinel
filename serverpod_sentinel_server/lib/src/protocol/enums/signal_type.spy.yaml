@@ -1,0 +1,6 @@
+enum: SignalType
+values:
+  - METRIC
+  - LOG_PATTERN
+  - HEARTBEAT
+  - EXTERNAL

@@ -1,0 +1,5 @@
+enum: ServiceTier
+values:
+  - TIER_1
+  - TIER_2
+  - TIER_3

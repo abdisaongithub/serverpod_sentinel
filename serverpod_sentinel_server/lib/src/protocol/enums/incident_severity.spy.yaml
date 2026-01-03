@@ -1,0 +1,6 @@
+enum: IncidentSeverity
+values:
+  - CRITICAL
+  - HIGH
+  - MEDIUM
+  - LOW

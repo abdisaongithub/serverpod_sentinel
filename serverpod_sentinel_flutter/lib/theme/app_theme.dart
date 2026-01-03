@@ -2,27 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Colors pulled from the dark "OpsPilot" UI screenshots
-  static const Color background = Color(0xFF0F172A); // Slate 900
-  static const Color surface = Color(0xFF1E293B); // Slate 800
-  static const Color surfaceHighlight = Color(
-    0xFF334155,
-  ); // Slate 700 (borders/hover)
+  // New Colors from HTML
+  static const Color background = Color(0xFF101622); // background-dark
+  static const Color surface = Color(0xFF192233); // dark form background
+  static const Color surfaceHighlight = Color(0xFF324467); // borders
 
   // Breakpoints
   static const double mobileBreakpoint = 400;
-  static const double tabletBreakpoint = 1200;
+  static const double tabletBreakpoint =
+      1024; // Updated to match tailwind lg (1024px)
 
-  static const Color primary = Color(0xFF2563EB); // Blue 600
-  static const Color primaryDark = Color(0xFF1D4ED8); // Blue 700
+  static const Color primary = Color(0xFF135BEC); // #135bec
 
-  static const Color text = Color(0xFFF8FAFC); // Slate 50
-  static const Color textMuted = Color(0xFF94A3B8); // Slate 400
-  static const Color textDim = Color(0xFF64748B); // Slate 500
+  static const Color text = Color(0xFFFFFFFF);
+  static const Color textMuted = Color(0xFF92A4C9);
+  static const Color textDim = Color(0xFF64748B);
 
   // Semantic
-  static const Color success = Color(0xFF10B981); // Emerald 500
-  static const Color error = Color(0xFFEF4444); // Red 500
+  static const Color success = Color(0xFF34D399); // emerald-400
+  static const Color error = Color(0xFFEF4444);
 
   static ThemeData get darkTheme {
     return ThemeData(
@@ -33,48 +31,65 @@ class AppTheme {
 
       // Color Scheme
       colorScheme: const ColorScheme.dark(
-        background: background,
         surface: surface,
         primary: primary,
-        secondary: primary, // fallback
-        onBackground: text,
-        onSurface: text,
+        secondary: primary,
         error: error,
       ),
 
       // Typography
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme)
+      textTheme: GoogleFonts.notoSansTextTheme(ThemeData.dark().textTheme)
           .copyWith(
-            displayLarge: TextStyle(color: text, fontWeight: FontWeight.bold),
-            displayMedium: TextStyle(color: text, fontWeight: FontWeight.bold),
-            displaySmall: TextStyle(color: text, fontWeight: FontWeight.bold),
-            headlineLarge: TextStyle(color: text, fontWeight: FontWeight.w600),
-            headlineMedium: TextStyle(color: text, fontWeight: FontWeight.w600),
-            bodyLarge: TextStyle(color: text),
-            bodyMedium: TextStyle(color: textMuted),
-            titleMedium: TextStyle(color: text, fontWeight: FontWeight.w500),
+            displayLarge: GoogleFonts.manrope(
+              color: text,
+              fontWeight: FontWeight.w800,
+            ),
+            displayMedium: GoogleFonts.manrope(
+              color: text,
+              fontWeight: FontWeight.w800,
+            ),
+            displaySmall: GoogleFonts.manrope(
+              color: text,
+              fontWeight: FontWeight.w700,
+            ),
+            headlineLarge: GoogleFonts.manrope(
+              color: text,
+              fontWeight: FontWeight.w700,
+            ),
+            headlineMedium: GoogleFonts.manrope(
+              color: text,
+              fontWeight: FontWeight.w700,
+            ),
+            titleLarge: GoogleFonts.manrope(
+              color: text,
+              fontWeight: FontWeight.w600,
+            ),
+            bodyLarge: GoogleFonts.notoSans(color: text),
+            bodyMedium: GoogleFonts.notoSans(color: textMuted),
+            bodySmall: GoogleFonts.notoSans(color: textDim),
           ),
 
-      // Input Decoration (Text Fields)
+      // Input Decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surface,
-        hintStyle: TextStyle(color: textDim),
+        hintStyle: const TextStyle(color: textDim),
+        prefixIconColor: textDim,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 16,
+          vertical: 18,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: surfaceHighlight),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: surfaceHighlight),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: primary),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: primary, width: 2),
         ),
       ),
 
@@ -83,18 +98,18 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
           foregroundColor: Colors.white,
-          elevation: 0,
-          textStyle: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
+          elevation: 4,
+          shadowColor: primary.withOpacity(0.3),
+          textStyle: GoogleFonts.manrope(
+            fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
         ),
       ),
-
-      // Icon Theme
-      iconTheme: const IconThemeData(color: textMuted),
     );
   }
 }

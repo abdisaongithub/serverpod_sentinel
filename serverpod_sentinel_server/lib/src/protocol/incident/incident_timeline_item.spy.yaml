@@ -1,0 +1,18 @@
+### Represents an item in the timeline of an incident.
+class: IncidentTimelineItem
+table: incident_timeline_item
+fields:
+  incidentId: int
+  incident: Incident?, relation
+  authorId: int?
+  author: OpsUser?, relation
+  
+  type: TimelineItemType
+  content: String
+  metaData: String? # JSON Context
+  
+  createdAt: DateTime
+
+indexes:
+  timeline_incident_created_idx:
+    fields: incidentId, createdAt

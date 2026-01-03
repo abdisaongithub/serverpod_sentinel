@@ -1,0 +1,7 @@
+enum: ServiceStatus
+values:
+  - OPERATIONAL
+  - DEGRADED
+  - PARTIAL_OUTAGE
+  - MAJOR_OUTAGE
+  - MAINTENANCE

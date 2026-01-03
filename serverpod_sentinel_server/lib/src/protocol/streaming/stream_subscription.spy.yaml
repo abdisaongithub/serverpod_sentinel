@@ -1,0 +1,4 @@
+class: StreamSubscription
+fields:
+  type: StreamSubscriptionType
+  targetId: int?

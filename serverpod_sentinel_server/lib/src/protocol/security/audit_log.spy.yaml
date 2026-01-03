@@ -1,0 +1,18 @@
+### Immutable record of system-level changes.
+class: AuditLog
+table: audit_log
+fields:
+  actorId: int
+  actor: OpsUser?, relation
+  action: String
+  entityType: String
+  entityId: int
+  changes: String? # JSON diff of changes
+  ipAddress: String?
+  createdAt: DateTime
+
+indexes:
+  audit_entity_idx:
+    fields: entityType, entityId
+  audit_created_idx:
+    fields: createdAt

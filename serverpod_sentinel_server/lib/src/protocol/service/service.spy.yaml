@@ -1,0 +1,25 @@
+### Represents a logical monitoring target (e.g., API, Database, Worker).
+class: Service
+table: service
+fields:
+  name: String
+  description: String?
+  ownerId: int
+  owner: OpsUser?, relation
+  status: ServiceStatus
+  tier: ServiceTier
+  tags: List<String>
+  
+  # Relations
+  signals: List<HealthSignal>?, relation
+  rules: List<Rule>?, relation
+  incidents: List<Incident>?, relation
+  
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  service_status_idx:
+    fields: status
+  service_tier_idx:
+    fields: tier

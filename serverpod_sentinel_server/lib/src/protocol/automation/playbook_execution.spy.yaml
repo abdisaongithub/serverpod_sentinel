@@ -1,0 +1,22 @@
+### An instance of a playbook running against a specific incident.
+class: PlaybookExecution
+table: playbook_execution
+fields:
+  playbookId: int
+  playbook: Playbook?, relation
+  incidentId: int
+  incident: Incident?, relation
+  initiatorId: int
+  initiator: OpsUser?, relation
+  
+  status: ExecutionStatus
+  startedAt: DateTime
+  completedAt: DateTime?
+  
+  resultSummary: String? # JSON Result summary
+  
+indexes:
+  execution_incident_idx:
+    fields: incidentId
+  execution_status_idx:
+    fields: status

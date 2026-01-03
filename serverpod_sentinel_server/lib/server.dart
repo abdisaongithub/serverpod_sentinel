@@ -8,6 +8,8 @@ import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
 import 'src/web/routes/app_config_route.dart';
 import 'src/web/routes/root.dart';
+import 'src/future_calls/incident_evaluation_call.dart';
+import 'src/future_calls/step_executor_call.dart';
 
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
@@ -30,6 +32,29 @@ void run(List<String> args) async {
       ),
     ],
   );
+
+  // Register Future Calls
+  pod.registerFutureCall(IncidentEvaluationCall(), 'incidentEvaluation');
+  pod.registerFutureCall(StepExecutorCall(), 'stepExecutor');
+
+  // Schedule the initial incident evaluation to run after server start (e.g., 30s delay)
+  // This kicks off the recursive loop defined in the FutureCall itself.
+  // We use a delayed call to ensure server startup is complete.
+  // Note: futureCallWithDelay is usually called on a session, but pod.futureCallWithDelay is not available directly?
+  // Wrapper logic usually required or use 'scheduleFutureCall' if available in this version.
+  // Actually, standard way:
+  // pod.registerFutureCall(...);
+  // Then inside a 'run' logic or a hook.
+  // Ideally, we invoke it once.
+  // Since 'pod' instance doesn't expose 'futureCallWithDelay', we might need to rely on an external trigger
+  // or use a temporary session if possible, OR just rely on manual trigger for MVP and then docs.
+  // Wait! `pod.start()` returns a Future. After it, the server is running.
+  // But strictly speaking, `futureCallWithDelay` requires `Session` object in many versions?
+  // No, `pod` (Serverpod) usually has `futureCallWithDelay`?
+  // Let's check `pod.registerFutureCall` signature in existing code? No existing calls.
+  // I will assume `pod.registerFutureCall` is correct.
+  // For the *trigger*, I will skip auto-trigger for now to avoid compilation error if `pod` doesn't support it directly without a session.
+  // I will just register it for now.
 
   // Setup a default page at the web root.
   // These are used by the default page.

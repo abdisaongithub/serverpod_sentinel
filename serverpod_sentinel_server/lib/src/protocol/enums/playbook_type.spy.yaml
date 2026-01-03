@@ -1,0 +1,4 @@
+enum: PlaybookType
+values:
+  - MANUAL
+  - AUTOMATED

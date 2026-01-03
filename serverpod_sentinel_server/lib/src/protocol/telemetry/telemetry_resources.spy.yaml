@@ -1,0 +1,5 @@
+### Resource usage data for heartbeat.
+class: TelemetryResources
+fields:
+  cpuLoad: double
+  memoryUsagePercentage: double

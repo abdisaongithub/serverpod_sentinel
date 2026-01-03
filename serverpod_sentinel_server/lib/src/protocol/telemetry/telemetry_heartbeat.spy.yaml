@@ -1,0 +1,8 @@
+### Payload for agent heartbeat.
+class: TelemetryHeartbeat
+fields:
+  timestamp: DateTime
+  uptimeSeconds: int
+  version: String
+  status: ServiceStatus
+  resources: TelemetryResources?

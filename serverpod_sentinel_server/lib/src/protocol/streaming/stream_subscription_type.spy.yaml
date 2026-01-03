@@ -1,0 +1,5 @@
+enum: StreamSubscriptionType
+values:
+  - GLOBAL_SERVICE_UPDATES
+  - INCIDENT_ROOM
+  - PLAYBOOK_EXECUTION

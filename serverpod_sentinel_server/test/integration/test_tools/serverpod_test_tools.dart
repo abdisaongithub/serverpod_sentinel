@@ -130,6 +130,8 @@ class TestEndpoints {
 
   late final _JwtRefreshEndpoint jwtRefresh;
 
+  late final _StreamingEndpoint streaming;
+
   late final _GreetingEndpoint greeting;
 }
 
@@ -145,6 +147,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     jwtRefresh = _JwtRefreshEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    streaming = _StreamingEndpoint(
       endpoints,
       serializationManager,
     );
@@ -443,6 +449,13 @@ class _JwtRefreshEndpoint {
       }
     });
   }
+}
+
+class _StreamingEndpoint {
+  _StreamingEndpoint(
+    _endpointDispatch,
+    _serializationManager,
+  );
 }
 
 class _GreetingEndpoint {

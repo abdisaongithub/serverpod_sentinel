@@ -1,0 +1,33 @@
+### Represents a service disruption or alert.
+class: Incident
+table: incident
+fields:
+  title: String
+  summary: String?
+  
+  serviceId: int
+  service: Service?, relation
+  ruleId: int?
+  rule: Rule?, relation
+  
+  status: IncidentStatus
+  severity: IncidentSeverity
+  
+  commanderId: int?
+  commander: OpsUser?, relation
+  
+  timeline: List<IncidentTimelineItem>?, relation
+  executions: List<PlaybookExecution>?, relation
+  
+  startedAt: DateTime
+  resolvedAt: DateTime?
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  incident_status_idx:
+    fields: status
+  incident_severity_status_idx:
+    fields: severity, status
+  incident_started_idx:
+    fields: startedAt

@@ -1,0 +1,23 @@
+### A system operator or administrator.
+class: OpsUser
+table: ops_user
+fields:
+  userInfoId: int
+  # userInfo: auth.UserInfo?, relation
+  
+  roles: List<UserRole>?, relation
+  
+  # Reverse relations for domain
+  services: List<Service>?, relation
+  incidents: List<Incident>?, relation
+  timelineItems: List<IncidentTimelineItem>?, relation
+  playbookExecutions: List<PlaybookExecution>?, relation
+  auditLogs: List<AuditLog>?, relation
+  
+  createdAt: DateTime
+  updatedAt: DateTime
+  
+indexes:
+  ops_user_info_idx:
+    fields: userInfoId
+    unique: true

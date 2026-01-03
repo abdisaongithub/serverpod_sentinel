@@ -1,0 +1,27 @@
+### Defines a specific metric or health check for a service.
+class: HealthSignal
+table: health_signal
+fields:
+  serviceId: int
+  service: Service?, relation
+  name: String
+  identifier: String
+  type: SignalType
+  
+  # State
+  lastCheckedAt: DateTime?
+  isHealthy: bool
+  currentValue: double?
+  unit: String?
+  
+  # Config
+  endpoint: String?
+  metadata: String? # JSON Configuration
+  
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  health_signal_identifier_idx:
+    fields: serviceId, identifier
+    unique: true

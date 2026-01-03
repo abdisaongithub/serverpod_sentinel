@@ -1,0 +1,5 @@
+### Helper class for streaming timeline additions.
+class: StreamTimelineEvent
+fields:
+  incidentId: int
+  item: IncidentTimelineItem

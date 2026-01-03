@@ -1,0 +1,8 @@
+### Helper class for streaming service status changes.
+class: StreamServiceStatus
+fields:
+  serviceId: int
+  previousStatus: ServiceStatus
+  newStatus: ServiceStatus
+  timestamp: DateTime
+  triggeringSignalId: int?

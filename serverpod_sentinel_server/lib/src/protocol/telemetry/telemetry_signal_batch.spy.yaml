@@ -1,0 +1,5 @@
+### Batch payload for health signals.
+class: TelemetrySignalBatch
+fields:
+  timestamp: DateTime
+  signals: List<TelemetrySignalPayload>

@@ -1,0 +1,13 @@
+### A template for response procedures (manual checklists or automated scripts).
+class: Playbook
+table: playbook
+fields:
+  name: String
+  description: String?
+  type: PlaybookType
+  content: String # JSON Definition of steps/logic
+  
+  executions: List<PlaybookExecution>?, relation
+  
+  createdAt: DateTime
+  updatedAt: DateTime

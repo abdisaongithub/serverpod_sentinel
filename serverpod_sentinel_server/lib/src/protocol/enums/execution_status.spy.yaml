@@ -1,0 +1,7 @@
+enum: ExecutionStatus
+values:
+  - PENDING
+  - RUNNING
+  - COMPLETED
+  - FAILED
+  - CANCELLED

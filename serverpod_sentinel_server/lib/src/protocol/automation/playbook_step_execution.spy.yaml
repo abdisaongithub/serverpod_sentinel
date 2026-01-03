@@ -1,0 +1,17 @@
+### Tracks the execution status of a single step within a PlaybookExecution.
+class: PlaybookStepExecution
+table: playbook_step_execution
+fields:
+  executionId: int
+  execution: PlaybookExecution?, relation
+  stepId: String
+  status: ExecutionStatus
+  startedAt: DateTime
+  completedAt: DateTime?
+  logs: String?
+  output: String?
+
+indexes:
+  step_execution_unique_idx:
+    fields: executionId, stepId
+    unique: true

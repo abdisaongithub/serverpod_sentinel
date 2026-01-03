@@ -1,0 +1,17 @@
+### API credentials for Services (Agents).
+class: ServiceToken
+table: service_token
+fields:
+  name: String
+  token: String # Hashed in production, plain for now or manageable
+  serviceId: int
+  service: Service?, relation
+  
+  lastUsedAt: DateTime?
+  expiresAt: DateTime?
+  createdAt: DateTime
+
+indexes:
+  service_token_value_idx:
+    fields: token
+    unique: true

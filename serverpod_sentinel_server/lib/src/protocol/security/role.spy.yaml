@@ -1,0 +1,14 @@
+### A collection of permissions assignable to users.
+class: Role
+table: role
+fields:
+  name: String
+  description: String?
+  permissions: List<String>
+  
+  users: List<UserRole>?, relation
+
+indexes:
+  role_name_idx:
+    fields: name
+    unique: true

@@ -234,6 +234,14 @@ class EndpointJwtRefresh extends _i4.EndpointRefreshJwtTokens {
   );
 }
 
+/// {@category Endpoint}
+class EndpointStreaming extends _i2.EndpointRef {
+  EndpointStreaming(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'streaming';
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -294,6 +302,7 @@ class Client extends _i2.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    streaming = EndpointStreaming(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
@@ -301,6 +310,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointEmailIdp emailIdp;
 
   late final EndpointJwtRefresh jwtRefresh;
+
+  late final EndpointStreaming streaming;
 
   late final EndpointGreeting greeting;
 
@@ -310,6 +321,7 @@ class Client extends _i2.ServerpodClientShared {
   Map<String, _i2.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'streaming': streaming,
     'greeting': greeting,
   };
 

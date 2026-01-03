@@ -1,0 +1,8 @@
+### Individual signal update payload.
+class: TelemetrySignalPayload
+fields:
+  identifier: String
+  value: double
+  unit: String?
+  isHealthy: bool
+  errorMessage: String?

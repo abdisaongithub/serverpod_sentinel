@@ -1,268 +1,349 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
+import '../../routes.dart';
 
 class LiveStreamScreen extends StatelessWidget {
   const LiveStreamScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Live Stream',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.success,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
-            ),
-            const Text(
-              'OPS-PLATFORM-ALPHA',
-              style: TextStyle(
-                fontSize: 10,
-                color: AppTheme.textMuted,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          const Icon(LucideIcons.search, color: AppTheme.textMuted),
-          const SizedBox(width: 16),
-          const Icon(LucideIcons.settings, color: AppTheme.textMuted),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
+
+        return Scaffold(
+          backgroundColor: AppTheme.background,
+          body: Column(
             children: [
-              // Top Metrics
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    _buildMetricCard(
-                      context,
-                      'SYS UPTIME',
-                      '98.9%',
-                      '+0.1%',
-                      AppTheme.success,
-                      LucideIcons.server,
-                    ),
-                    const SizedBox(width: 12),
-                    _buildMetricCard(
-                      context,
-                      'ACTIVE NODES',
-                      '124',
-                      '+2 New',
-                      AppTheme.success,
-                      LucideIcons.share2,
-                    ), // share2 as network nodes
-                    const SizedBox(width: 12),
-                    // Error rate card logic...
-                    _buildMetricCard(
-                      context,
-                      'ERROR RATE',
-                      '0.02%',
-                      '-0.01%',
-                      AppTheme.success,
-                      LucideIcons.alertOctagon,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Filters
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    _buildFilterButton('ALL EVENTS', true, Colors.green),
-                    const SizedBox(width: 12),
-                    _buildFilterButton(
-                      'CRITICAL',
-                      false,
-                      AppTheme.error,
-                      hasDot: true,
-                    ),
-                    const SizedBox(width: 12),
-                    _buildFilterButton(
-                      'WARNINGS',
-                      false,
-                      Colors.orange,
-                      hasDot: true,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'FEED',
-                      style: TextStyle(
-                        color: AppTheme.textMuted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.surfaceHighlight,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        'UTC-0',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // Stream List
+              _Header(isDesktop: isDesktop),
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    _buildTimelineItem(
-                      context,
-                      type: 'CRITICAL',
-                      time: '14:05:01.42',
-                      title: 'Database Connection Timeout',
-                      desc:
-                          'Connection to shard 04 timed out after 5000ms. Retrying connection pool...',
-                      color: AppTheme.error,
-                      tags: ['DATABASE-SHARD-04', 'us-east-1a'],
-                      showActions: true,
-                    ),
-                    _buildTimelineItem(
-                      context,
-                      type: 'WARNING',
-                      time: '14:04:55.10',
-                      title: 'Latency Spike Detected',
-                      desc: '95th percentile latency exceeded 300ms threshold.',
-                      color: Colors.orange,
-                      tags: ['API-GATEWAY'],
-                    ),
-                    _buildTimelineItem(
-                      context,
-                      type: 'DEPLOYMENT',
-                      time: '14:04:22.05',
-                      title: 'Deployment Successful',
-                      desc:
-                          'v2.4.1 deployed to 12 instances. Health checks passing.',
-                      color: const Color(0xFF3b82f6), // Blue
-                      tags: ['AUTH-SERVICE'],
-                      isSuccess: true,
-                    ),
-                    _buildTimelineItem(
-                      context,
-                      type: 'CRON JOB',
-                      time: '14:04:10.00',
-                      title: 'Daily Cleanup Completed',
-                      desc: 'Temp files removed. 4.2GB space reclaimed.',
-                      color: AppTheme.textMuted,
-                      tags: ['SYSTEM'],
-                    ),
-                    _buildTimelineItem(
-                      context,
-                      type: 'AUTO SCALE',
-                      time: '14:03:55.88',
-                      title: 'Scale Down Event',
-                      desc: 'Worker nodes scaled from 15 to 12.',
-                      color: AppTheme.textMuted,
-                      isMinimal: true,
-                    ),
-                    const SizedBox(height: 32),
-                    const Center(
-                      child: Column(
-                        children: [
-                          Icon(
-                            LucideIcons.refreshCw,
-                            size: 24,
-                            color: AppTheme.textMuted,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'LISTENING FOR EVENTS...',
-                            style: TextStyle(
-                              color: AppTheme.textMuted,
-                              fontSize: 10,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(isDesktop ? 24 : 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _StatsRow(),
+                      const SizedBox(height: 24),
+                      const _FilterBar(),
+                      const SizedBox(height: 24),
+                      _EventGrid(isDesktop: isDesktop),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-        ),
+          bottomNavigationBar: isDesktop
+              ? null
+              : BottomNavigationBar(
+                  backgroundColor: const Color(0xFF111722),
+                  selectedItemColor: AppTheme.primary,
+                  unselectedItemColor: const Color(0xFF94A3B8),
+                  type: BottomNavigationBarType.fixed,
+                  currentIndex: 1,
+                  onTap: (index) {
+                    if (index == 0) {
+                      context.go(AppRoutes.dashboard);
+                    } else if (index == 2) {
+                      context.go(AppRoutes.serviceRegistry);
+                    } else if (index == 3) {
+                      context.go(AppRoutes.settings);
+                    }
+                  },
+                  items: const [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.dashboard),
+                      label: 'Dashboard',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.monitor_heart),
+                      label: 'Live',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.dns),
+                      label: 'Nodes',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.settings),
+                      label: 'Settings',
+                    ),
+                  ],
+                ),
+        );
+      },
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  final bool isDesktop;
+  const _Header({required this.isDesktop});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 64,
+      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111722).withOpacity(0.95),
+        border: const Border(bottom: BorderSide(color: Color(0xFF1E293B))),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppTheme.success,
-        child: const Icon(LucideIcons.pause, color: Colors.black),
+      child: Row(
+        children: [
+          if (!isDesktop)
+            IconButton(
+              icon: const Icon(Icons.arrow_back, color: Color(0xFF94A3B8)),
+              onPressed: () => context.pop(),
+            ),
+          Row(
+            children: [
+              const Text(
+                'Real-time Health Stream',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 12),
+              _PulsingDot(),
+            ],
+          ),
+          if (isDesktop) ...[
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: Colors.white.withOpacity(0.1)),
+              ),
+              child: const Text(
+                'OPS-PLATFORM-ALPHA',
+                style: TextStyle(
+                  color: Color(0xFF94A3B8),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ],
+          const Spacer(),
+          if (isDesktop)
+            Container(
+              width: 256,
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: const [
+                  Icon(Icons.search, color: Color(0xFF64748B), size: 18),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Filter stream...',
+                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(width: 16),
+          Container(width: 1, height: 24, color: Colors.white.withOpacity(0.1)),
+          const SizedBox(width: 16),
+          ElevatedButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.pause, color: Colors.black, size: 18),
+            label: Text(
+              isDesktop ? 'Pause Stream' : '',
+              style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary,
+              padding: EdgeInsets.symmetric(
+                horizontal: isDesktop ? 16 : 12,
+                vertical: 10,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              elevation: 4,
+              shadowColor: AppTheme.primary.withOpacity(0.2),
+            ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildMetricCard(
-    BuildContext context,
-    String title,
-    String value,
-    String changes,
-    Color changeColor,
-    IconData icon,
-  ) {
+class _PulsingDot extends StatefulWidget {
+  @override
+  State<_PulsingDot> createState() => _PulsingDotState();
+}
+
+class _PulsingDotState extends State<_PulsingDot>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 12,
+      height: 12,
+      child: Stack(
+        children: [
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (_, __) => Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withOpacity(
+                  0.75 * (1 - _controller.value),
+                ),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Center(
+            child: Container(
+              width: 12,
+              height: 12,
+              decoration: const BoxDecoration(
+                color: AppTheme.primary,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatsRow extends StatelessWidget {
+  const _StatsRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmall = constraints.maxWidth < 600;
+        final cardWidth = isSmall
+            ? (constraints.maxWidth - 16) / 2
+            : (constraints.maxWidth - 48) / 4;
+        return Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          children: [
+            _StatCard(
+              label: 'Sys Uptime',
+              value: '98.9%',
+              trend: '+0.1%',
+              trendUp: true,
+              icon: Icons.dns,
+              width: cardWidth,
+            ),
+            _StatCard(
+              label: 'Active Nodes',
+              value: '124',
+              trend: '+2 New',
+              trendUp: true,
+              icon: Icons.hub,
+              progress: 0.85,
+              width: cardWidth,
+            ),
+            _StatCard(
+              label: 'Error Rate',
+              value: '0.02%',
+              trend: '-0.01%',
+              trendUp: false,
+              icon: Icons.bug_report,
+              progress: 0.05,
+              color: AppTheme.success,
+              width: cardWidth,
+            ),
+            _StatCard(
+              label: 'Latency',
+              value: '345ms',
+              trend: 'Spiking',
+              trendUp: null,
+              icon: Icons.speed,
+              progress: 0.75,
+              color: const Color(0xFFF59E0B),
+              isWarning: true,
+              width: cardWidth,
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final String trend;
+  final bool? trendUp;
+  final IconData icon;
+  final double? progress;
+  final Color? color;
+  final bool isWarning;
+  final double? width;
+
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.trend,
+    this.trendUp,
+    required this.icon,
+    this.progress,
+    this.color,
+    this.isWarning = false,
+    this.width,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final primaryColor = color ?? AppTheme.success;
     return Container(
-      width: 140,
-      padding: const EdgeInsets.all(12),
+      width: width,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.surfaceHighlight),
+        color: isWarning
+            ? const Color(0xFFF59E0B).withOpacity(0.05)
+            : const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isWarning
+              ? const Color(0xFFF59E0B).withOpacity(0.2)
+              : Colors.white.withOpacity(0.05),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,264 +352,562 @@ class LiveStreamScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                title,
+                label.toUpperCase(),
                 style: TextStyle(
-                  color: AppTheme.textMuted,
+                  color: isWarning
+                      ? const Color(0xFFF59E0B)
+                      : const Color(0xFF94A3B8),
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
                 ),
               ),
-              Icon(icon, size: 16, color: AppTheme.textMuted.withOpacity(0.5)),
+              Icon(
+                icon,
+                color: isWarning
+                    ? const Color(0xFFF59E0B).withOpacity(0.5)
+                    : const Color(0xFF334155),
+                size: 20,
+              ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Icon(
-                changes.startsWith('+')
-                    ? LucideIcons.arrowUp
-                    : LucideIcons.arrowDown,
-                size: 12,
-                color: changeColor,
-              ),
               Text(
-                changes,
-                style: TextStyle(
-                  color: changeColor,
-                  fontSize: 12,
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
+                  fontFamily: 'monospace',
+                  letterSpacing: -1,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    if (trendUp != null)
+                      Icon(
+                        trendUp! ? Icons.arrow_upward : Icons.arrow_downward,
+                        color: primaryColor,
+                        size: 14,
+                      ),
+                    if (trendUp == null)
+                      Icon(
+                        Icons.warning,
+                        color: const Color(0xFFF59E0B),
+                        size: 14,
+                      ),
+                    const SizedBox(width: 2),
+                    Text(
+                      trend,
+                      style: TextStyle(
+                        color: trendUp == null
+                            ? const Color(0xFFF59E0B)
+                            : primaryColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
+          if (progress != null) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 4,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: LinearProgressIndicator(
+                  value: progress!,
+                  backgroundColor: const Color(0xFF334155),
+                  valueColor: AlwaysStoppedAnimation(primaryColor),
+                ),
+              ),
+            ),
+          ] else ...[
+            const SizedBox(height: 12),
+            Row(
+              children: List.generate(
+                5,
+                (i) => Expanded(
+                  child: Container(
+                    height: 4,
+                    margin: EdgeInsets.only(right: i < 4 ? 2 : 0),
+                    decoration: BoxDecoration(
+                      color: i < 4
+                          ? primaryColor
+                          : primaryColor.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
+}
 
-  Widget _buildFilterButton(
-    String label,
-    bool isSelected,
-    Color color, {
-    bool hasDot = false,
-  }) {
+class _FilterBar extends StatelessWidget {
+  const _FilterBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E293B),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.white.withOpacity(0.05)),
+          ),
+          child: Row(
+            children: [
+              _FilterTab(label: 'All Events', isActive: true),
+              _FilterTab(label: 'Critical', dotColor: const Color(0xFFEF4444)),
+              _FilterTab(label: 'Warnings', dotColor: const Color(0xFFF59E0B)),
+              _FilterTab(label: 'Info', dotColor: const Color(0xFF3B82F6)),
+            ],
+          ),
+        ),
+        Row(
+          children: [
+            Text(
+              'Last update: ',
+              style: TextStyle(
+                color: const Color(0xFF94A3B8),
+                fontSize: 12,
+                fontFamily: 'monospace',
+              ),
+            ),
+            const Text(
+              'Just now',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontFamily: 'monospace',
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
+              child: const Icon(
+                Icons.refresh,
+                color: Color(0xFF64748B),
+                size: 16,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _FilterTab extends StatelessWidget {
+  final String label;
+  final bool isActive;
+  final Color? dotColor;
+
+  const _FilterTab({required this.label, this.isActive = false, this.dotColor});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isSelected ? color : AppTheme.surface,
+        color: isActive ? Colors.white.withOpacity(0.1) : Colors.transparent,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: isSelected ? color : AppTheme.surfaceHighlight,
-        ),
+        boxShadow: isActive
+            ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)]
+            : null,
       ),
       child: Row(
         children: [
-          if (hasDot) ...[
+          if (dotColor != null) ...[
             Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: dotColor,
+                shape: BoxShape.circle,
+              ),
             ),
             const SizedBox(width: 8),
           ],
           Text(
-            label,
+            label.toUpperCase(),
             style: TextStyle(
-              color: isSelected ? Colors.black : AppTheme.textMuted,
+              color: isActive ? Colors.white : const Color(0xFF94A3B8),
+              fontSize: 10,
               fontWeight: FontWeight.bold,
-              fontSize: 12,
+              letterSpacing: 0.5,
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildTimelineItem(
-    BuildContext context, {
-    required String type,
-    required String time,
-    required String title,
-    required String desc,
-    required Color color,
-    List<String>? tags,
-    bool showActions = false,
-    bool isSuccess = false,
-    bool isMinimal = false,
-  }) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Timeline Line
-          Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 4),
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: color, width: 2),
-                  color: isSuccess ? color : Colors.transparent,
-                ),
-                child: isSuccess
-                    ? const Center(
-                        child: Icon(
-                          LucideIcons.check,
-                          size: 8,
-                          color: Colors.white,
-                        ),
-                      )
-                    : null,
+class _EventGrid extends StatelessWidget {
+  final bool isDesktop;
+  const _EventGrid({required this.isDesktop});
+
+  @override
+  Widget build(BuildContext context) {
+    final events = [
+      _EventData(
+        type: EventType.critical,
+        time: '14:05:01.42',
+        title: 'Database Connection Timeout',
+        description:
+            'Connection to shard 04 timed out after 5000ms. Retrying connection pool...',
+        tags: ['Database-Shard-04', 'us-east-1a'],
+        showActions: true,
+      ),
+      _EventData(
+        type: EventType.warning,
+        time: '14:04:55.10',
+        title: 'Latency Spike Detected',
+        description: '95th percentile latency exceeded 300ms threshold.',
+        tags: ['API-Gateway'],
+      ),
+      _EventData(
+        type: EventType.info,
+        time: '14:04:22.05',
+        title: 'Deployment Successful',
+        description: 'v2.4.1 deployed to 12 instances. Health checks passing.',
+        tags: ['Auth-Service'],
+      ),
+      _EventData(
+        type: EventType.system,
+        time: '14:04:10.00',
+        title: 'Daily Cleanup Completed',
+        description: 'Temp files removed. 4.2GB space reclaimed.',
+        tags: ['System'],
+      ),
+      _EventData(
+        type: EventType.system,
+        time: '14:03:55.88',
+        title: 'Scale Down Event',
+        description: 'Worker nodes scaled from 15 to 12.',
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        int crossAxisCount = 1;
+        if (constraints.maxWidth >= 1400)
+          crossAxisCount = 4;
+        else if (constraints.maxWidth >= 1000)
+          crossAxisCount = 3;
+        else if (constraints.maxWidth >= 600)
+          crossAxisCount = 2;
+
+        return Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          children: [
+            ...events.map(
+              (e) => SizedBox(
+                width:
+                    (constraints.maxWidth - (crossAxisCount - 1) * 16) /
+                    crossAxisCount,
+                child: _EventCard(data: e),
               ),
-              Expanded(
-                child: Container(width: 1, color: AppTheme.surfaceHighlight),
-              ),
-            ],
-          ),
-          const SizedBox(width: 16),
-          // Content
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.surface.withOpacity(
-                    0.3,
-                  ), // Very subtle background
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: color.withOpacity(0.2)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ),
+            SizedBox(
+              width:
+                  (constraints.maxWidth - (crossAxisCount - 1) * 16) /
+                  crossAxisCount,
+              child: _ListeningCard(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+enum EventType { critical, warning, info, system }
+
+class _EventData {
+  final EventType type;
+  final String time;
+  final String title;
+  final String description;
+  final List<String>? tags;
+  final bool showActions;
+
+  _EventData({
+    required this.type,
+    required this.time,
+    required this.title,
+    required this.description,
+    this.tags,
+    this.showActions = false,
+  });
+}
+
+class _EventCard extends StatelessWidget {
+  final _EventData data;
+  const _EventCard({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    Color color;
+    IconData icon;
+    String label;
+    switch (data.type) {
+      case EventType.critical:
+        color = const Color(0xFFEF4444);
+        icon = Icons.error;
+        label = 'Critical';
+        break;
+      case EventType.warning:
+        color = const Color(0xFFF59E0B);
+        icon = Icons.warning;
+        label = 'Warning';
+        break;
+      case EventType.info:
+        color = const Color(0xFF3B82F6);
+        icon = Icons.info;
+        label = 'Deployment';
+        break;
+      case EventType.system:
+        color = const Color(0xFF64748B);
+        icon = Icons.schedule;
+        label = data.title.contains('Scale') ? 'Auto Scale' : 'Cron Job';
+        break;
+    }
+
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 4, color: color),
+            Expanded(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            if (type != 'AUTO SCALE')
-                              Icon(
-                                type == 'CRITICAL'
-                                    ? LucideIcons.alertCircle
-                                    : type == 'WARNING'
-                                    ? LucideIcons.alertTriangle
-                                    : type == 'DEPLOYMENT'
-                                    ? LucideIcons.rocket
-                                    : LucideIcons.clock,
-                                size: 14,
-                                color: color,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
                               ),
-                            const SizedBox(width: 8),
+                              decoration: BoxDecoration(
+                                color: color.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: color.withOpacity(0.2),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(icon, color: color, size: 12),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    label.toUpperCase(),
+                                    style: TextStyle(
+                                      color: color,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Text(
-                              type,
-                              style: TextStyle(
-                                color: color,
-                                fontWeight: FontWeight.bold,
+                              data.time,
+                              style: const TextStyle(
+                                color: Color(0xFF64748B),
                                 fontSize: 12,
+                                fontFamily: 'monospace',
                               ),
                             ),
                           ],
                         ),
+                        const SizedBox(height: 12),
                         Text(
-                          time,
-                          style: TextStyle(
-                            color: AppTheme.textDim,
-                            fontFamily: 'monospace',
-                            fontSize: 12,
+                          data.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (data.tags != null) ...[
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            children: data.tags!
+                                .map(
+                                  (t) => Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.4),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.05),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      t.toUpperCase(),
+                                      style: const TextStyle(
+                                        color: Color(0xFFCBD5E1),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        Text(
+                          data.description,
+                          style: const TextStyle(
+                            color: Color(0xFFCBD5E1),
+                            fontSize: 14,
+                            height: 1.5,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                  ),
+                  if (data.showActions)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.1),
+                        border: const Border(
+                          top: BorderSide(color: Color(0x0DFFFFFF)),
+                        ),
                       ),
-                    ),
-                    if (tags != null) ...[
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        children: tags
-                            .map(
-                              (tag) => Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.1),
                                 ),
-                                color: Colors.black26,
+                              ),
+                              child: const Center(
                                 child: Text(
-                                  tag,
-                                  style: const TextStyle(
-                                    fontSize: 10,
+                                  'Investigate',
+                                  style: TextStyle(
+                                    color: Color(0xFFCBD5E1),
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: AppTheme.textMuted,
                                   ),
                                 ),
                               ),
-                            )
-                            .toList(),
-                      ),
-                    ],
-                    const SizedBox(height: 8),
-                    Text(
-                      desc,
-                      style: const TextStyle(
-                        color: AppTheme.textMuted,
-                        height: 1.4,
-                      ),
-                    ),
-
-                    if (showActions) ...[
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppTheme.error,
-                              side: BorderSide(
-                                color: AppTheme.error.withOpacity(0.5),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                              ),
                             ),
-                            child: const Text('Investigate'),
                           ),
-                          const SizedBox(width: 12),
-                          OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppTheme.textMuted,
-                              side: const BorderSide(
-                                color: AppTheme.surfaceHighlight,
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: const Center(
+                                child: Text(
+                                  'Logs',
+                                  style: TextStyle(
+                                    color: Color(0xFF94A3B8),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
-                            child: const Text('View Logs'),
                           ),
                         ],
                       ),
-                    ],
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ListeningCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 160,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.white.withOpacity(0.05),
+          width: 2,
+          style: BorderStyle.solid,
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation(const Color(0xFF64748B)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'LISTENING...',
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+                fontFamily: 'monospace',
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,0 +1,6 @@
+enum: TimelineItemType
+values:
+  - SYSTEM_ALERT
+  - STATUS_CHANGE
+  - USER_COMMENT
+  - PLAYBOOK_ACTION

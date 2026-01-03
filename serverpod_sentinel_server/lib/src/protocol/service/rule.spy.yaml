@@ -1,0 +1,18 @@
+### Logic definition for triggering incidents based on signal values.
+class: Rule
+table: rule
+fields:
+  serviceId: int
+  service: Service?, relation
+  signalId: int
+  signal: HealthSignal?, relation
+  
+  name: String
+  condition: String
+  durationSeconds: int
+  severity: IncidentSeverity
+  
+  enabled: bool
+  
+  createdAt: DateTime
+  updatedAt: DateTime

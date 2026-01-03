@@ -1,0 +1,13 @@
+### Mapping between Users and Roles.
+class: UserRole
+table: user_role
+fields:
+  userId: int
+  user: OpsUser?, relation
+  roleId: int
+  role: Role?, relation
+
+indexes:
+  user_role_unique_idx:
+    fields: userId, roleId
+    unique: true

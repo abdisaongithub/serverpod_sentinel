@@ -1,0 +1,9 @@
+### Payload for discrete events.
+class: TelemetryEvent
+fields:
+  eventId: UuidValue
+  timestamp: DateTime
+  type: String
+  severity: IncidentSeverity
+  message: String
+  metadata: String? # JSON

@@ -1,0 +1,5 @@
+### Helper class for streaming incident updates.
+class: StreamIncidentUpdate
+fields:
+  type: StreamUpdateType
+  incident: Incident

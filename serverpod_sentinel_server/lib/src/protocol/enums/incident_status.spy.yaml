@@ -1,0 +1,9 @@
+enum: IncidentStatus
+values:
+  - TRIGGERED
+  - OPEN
+  - ACKNOWLEDGED
+  - MITIGATED
+  - RESOLVED
+  - CLOSED
+  - CANCELLED
