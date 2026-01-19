@@ -1,0 +1,16 @@
+### System setting model for application-wide settings
+
+class: SystemSetting
+table: system_setting
+fields:
+  key: String
+  value: String
+  description: String?
+  category: String  # general, security, notifications, etc.
+  isSecret: bool  # If true, value is encrypted
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  system_setting_key_idx:
+    fields: key
+    unique: true

@@ -2,11 +2,8 @@
 class: PlaybookExecution
 table: playbook_execution
 fields:
-  playbookId: int
   playbook: Playbook?, relation
-  incidentId: int
   incident: Incident?, relation
-  initiatorId: int
   initiator: OpsUser?, relation
   
   status: ExecutionStatus

@@ -69,7 +69,7 @@ class SecurityChecks {
     // This depends on how auth is configured. Typically:
     // session.auth.authenticatedUserId or similar.
     // For serverpod_auth_idp, check session.authenticationInfo?.userId
-    final authInfo = await session.authenticated;
+    final authInfo = (await session.authenticated) as dynamic;
     return authInfo?.userId;
   }
 }

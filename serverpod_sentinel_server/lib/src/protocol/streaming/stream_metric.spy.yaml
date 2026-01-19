@@ -1,0 +1,10 @@
+### Stream metric for real-time metrics streaming
+
+class: StreamMetric
+fields:
+  serviceId: int
+  timestamp: DateTime
+  name: String  # metric name e.g., cpu_usage, memory_mb
+  value: double
+  unit: String?  # %, MB, ms, etc.
+  labels: String?  # JSON for metric labels/tags

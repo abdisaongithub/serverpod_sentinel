@@ -2,9 +2,7 @@
 class: Rule
 table: rule
 fields:
-  serviceId: int
   service: Service?, relation
-  signalId: int
   signal: HealthSignal?, relation
   
   name: String

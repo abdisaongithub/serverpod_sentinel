@@ -17,8 +17,9 @@ import 'package:serverpod_sentinel_server/src/generated/protocol.dart' as _i4;
 
 /// Payload for agent heartbeat.
 abstract class TelemetryHeartbeat
-    implements _i1.SerializableModel, _i1.ProtocolSerialization {
+    implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   TelemetryHeartbeat._({
+    this.id,
     required this.timestamp,
     required this.uptimeSeconds,
     required this.version,
@@ -27,6 +28,7 @@ abstract class TelemetryHeartbeat
   });
 
   factory TelemetryHeartbeat({
+    int? id,
     required DateTime timestamp,
     required int uptimeSeconds,
     required String version,
@@ -36,6 +38,7 @@ abstract class TelemetryHeartbeat
 
   factory TelemetryHeartbeat.fromJson(Map<String, dynamic> jsonSerialization) {
     return TelemetryHeartbeat(
+      id: jsonSerialization['id'] as int?,
       timestamp: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['timestamp'],
       ),
@@ -52,6 +55,13 @@ abstract class TelemetryHeartbeat
     );
   }
 
+  static final t = TelemetryHeartbeatTable();
+
+  static const db = TelemetryHeartbeatRepository._();
+
+  @override
+  int? id;
+
   DateTime timestamp;
 
   int uptimeSeconds;
@@ -62,10 +72,14 @@ abstract class TelemetryHeartbeat
 
   _i3.TelemetryResources? resources;
 
+  @override
+  _i1.Table<int?> get table => t;
+
   /// Returns a shallow copy of this [TelemetryHeartbeat]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   TelemetryHeartbeat copyWith({
+    int? id,
     DateTime? timestamp,
     int? uptimeSeconds,
     String? version,
@@ -76,6 +90,7 @@ abstract class TelemetryHeartbeat
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'TelemetryHeartbeat',
+      if (id != null) 'id': id,
       'timestamp': timestamp.toJson(),
       'uptimeSeconds': uptimeSeconds,
       'version': version,
@@ -88,12 +103,37 @@ abstract class TelemetryHeartbeat
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'TelemetryHeartbeat',
+      if (id != null) 'id': id,
       'timestamp': timestamp.toJson(),
       'uptimeSeconds': uptimeSeconds,
       'version': version,
       'status': status.toJson(),
       if (resources != null) 'resources': resources?.toJsonForProtocol(),
     };
+  }
+
+  static TelemetryHeartbeatInclude include() {
+    return TelemetryHeartbeatInclude._();
+  }
+
+  static TelemetryHeartbeatIncludeList includeList({
+    _i1.WhereExpressionBuilder<TelemetryHeartbeatTable>? where,
+    int? limit,
+    int? offset,
+    _i1.OrderByBuilder<TelemetryHeartbeatTable>? orderBy,
+    bool orderDescending = false,
+    _i1.OrderByListBuilder<TelemetryHeartbeatTable>? orderByList,
+    TelemetryHeartbeatInclude? include,
+  }) {
+    return TelemetryHeartbeatIncludeList._(
+      where: where,
+      limit: limit,
+      offset: offset,
+      orderBy: orderBy?.call(TelemetryHeartbeat.t),
+      orderDescending: orderDescending,
+      orderByList: orderByList?.call(TelemetryHeartbeat.t),
+      include: include,
+    );
   }
 
   @override
@@ -106,12 +146,14 @@ class _Undefined {}
 
 class _TelemetryHeartbeatImpl extends TelemetryHeartbeat {
   _TelemetryHeartbeatImpl({
+    int? id,
     required DateTime timestamp,
     required int uptimeSeconds,
     required String version,
     required _i2.ServiceStatus status,
     _i3.TelemetryResources? resources,
   }) : super._(
+         id: id,
          timestamp: timestamp,
          uptimeSeconds: uptimeSeconds,
          version: version,
@@ -124,6 +166,7 @@ class _TelemetryHeartbeatImpl extends TelemetryHeartbeat {
   @_i1.useResult
   @override
   TelemetryHeartbeat copyWith({
+    Object? id = _Undefined,
     DateTime? timestamp,
     int? uptimeSeconds,
     String? version,
@@ -131,6 +174,7 @@ class _TelemetryHeartbeatImpl extends TelemetryHeartbeat {
     Object? resources = _Undefined,
   }) {
     return TelemetryHeartbeat(
+      id: id is int? ? id : this.id,
       timestamp: timestamp ?? this.timestamp,
       uptimeSeconds: uptimeSeconds ?? this.uptimeSeconds,
       version: version ?? this.version,
@@ -138,6 +182,376 @@ class _TelemetryHeartbeatImpl extends TelemetryHeartbeat {
       resources: resources is _i3.TelemetryResources?
           ? resources
           : this.resources?.copyWith(),
+    );
+  }
+}
+
+class TelemetryHeartbeatUpdateTable
+    extends _i1.UpdateTable<TelemetryHeartbeatTable> {
+  TelemetryHeartbeatUpdateTable(super.table);
+
+  _i1.ColumnValue<DateTime, DateTime> timestamp(DateTime value) =>
+      _i1.ColumnValue(
+        table.timestamp,
+        value,
+      );
+
+  _i1.ColumnValue<int, int> uptimeSeconds(int value) => _i1.ColumnValue(
+    table.uptimeSeconds,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> version(String value) => _i1.ColumnValue(
+    table.version,
+    value,
+  );
+
+  _i1.ColumnValue<_i2.ServiceStatus, _i2.ServiceStatus> status(
+    _i2.ServiceStatus value,
+  ) => _i1.ColumnValue(
+    table.status,
+    value,
+  );
+
+  _i1.ColumnValue<_i3.TelemetryResources, _i3.TelemetryResources> resources(
+    _i3.TelemetryResources? value,
+  ) => _i1.ColumnValue(
+    table.resources,
+    value,
+  );
+}
+
+class TelemetryHeartbeatTable extends _i1.Table<int?> {
+  TelemetryHeartbeatTable({super.tableRelation})
+    : super(tableName: 'telemetry_heartbeat') {
+    updateTable = TelemetryHeartbeatUpdateTable(this);
+    timestamp = _i1.ColumnDateTime(
+      'timestamp',
+      this,
+    );
+    uptimeSeconds = _i1.ColumnInt(
+      'uptimeSeconds',
+      this,
+    );
+    version = _i1.ColumnString(
+      'version',
+      this,
+    );
+    status = _i1.ColumnEnum(
+      'status',
+      this,
+      _i1.EnumSerialization.byName,
+    );
+    resources = _i1.ColumnSerializable<_i3.TelemetryResources>(
+      'resources',
+      this,
+    );
+  }
+
+  late final TelemetryHeartbeatUpdateTable updateTable;
+
+  late final _i1.ColumnDateTime timestamp;
+
+  late final _i1.ColumnInt uptimeSeconds;
+
+  late final _i1.ColumnString version;
+
+  late final _i1.ColumnEnum<_i2.ServiceStatus> status;
+
+  late final _i1.ColumnSerializable<_i3.TelemetryResources> resources;
+
+  @override
+  List<_i1.Column> get columns => [
+    id,
+    timestamp,
+    uptimeSeconds,
+    version,
+    status,
+    resources,
+  ];
+}
+
+class TelemetryHeartbeatInclude extends _i1.IncludeObject {
+  TelemetryHeartbeatInclude._();
+
+  @override
+  Map<String, _i1.Include?> get includes => {};
+
+  @override
+  _i1.Table<int?> get table => TelemetryHeartbeat.t;
+}
+
+class TelemetryHeartbeatIncludeList extends _i1.IncludeList {
+  TelemetryHeartbeatIncludeList._({
+    _i1.WhereExpressionBuilder<TelemetryHeartbeatTable>? where,
+    super.limit,
+    super.offset,
+    super.orderBy,
+    super.orderDescending,
+    super.orderByList,
+    super.include,
+  }) {
+    super.where = where?.call(TelemetryHeartbeat.t);
+  }
+
+  @override
+  Map<String, _i1.Include?> get includes => include?.includes ?? {};
+
+  @override
+  _i1.Table<int?> get table => TelemetryHeartbeat.t;
+}
+
+class TelemetryHeartbeatRepository {
+  const TelemetryHeartbeatRepository._();
+
+  /// Returns a list of [TelemetryHeartbeat]s matching the given query parameters.
+  ///
+  /// Use [where] to specify which items to include in the return value.
+  /// If none is specified, all items will be returned.
+  ///
+  /// To specify the order of the items use [orderBy] or [orderByList]
+  /// when sorting by multiple columns.
+  ///
+  /// The maximum number of items can be set by [limit]. If no limit is set,
+  /// all items matching the query will be returned.
+  ///
+  /// [offset] defines how many items to skip, after which [limit] (or all)
+  /// items are read from the database.
+  ///
+  /// ```dart
+  /// var persons = await Persons.db.find(
+  ///   session,
+  ///   where: (t) => t.lastName.equals('Jones'),
+  ///   orderBy: (t) => t.firstName,
+  ///   limit: 100,
+  /// );
+  /// ```
+  Future<List<TelemetryHeartbeat>> find(
+    _i1.Session session, {
+    _i1.WhereExpressionBuilder<TelemetryHeartbeatTable>? where,
+    int? limit,
+    int? offset,
+    _i1.OrderByBuilder<TelemetryHeartbeatTable>? orderBy,
+    bool orderDescending = false,
+    _i1.OrderByListBuilder<TelemetryHeartbeatTable>? orderByList,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.find<TelemetryHeartbeat>(
+      where: where?.call(TelemetryHeartbeat.t),
+      orderBy: orderBy?.call(TelemetryHeartbeat.t),
+      orderByList: orderByList?.call(TelemetryHeartbeat.t),
+      orderDescending: orderDescending,
+      limit: limit,
+      offset: offset,
+      transaction: transaction,
+    );
+  }
+
+  /// Returns the first matching [TelemetryHeartbeat] matching the given query parameters.
+  ///
+  /// Use [where] to specify which items to include in the return value.
+  /// If none is specified, all items will be returned.
+  ///
+  /// To specify the order use [orderBy] or [orderByList]
+  /// when sorting by multiple columns.
+  ///
+  /// [offset] defines how many items to skip, after which the next one will be picked.
+  ///
+  /// ```dart
+  /// var youngestPerson = await Persons.db.findFirstRow(
+  ///   session,
+  ///   where: (t) => t.lastName.equals('Jones'),
+  ///   orderBy: (t) => t.age,
+  /// );
+  /// ```
+  Future<TelemetryHeartbeat?> findFirstRow(
+    _i1.Session session, {
+    _i1.WhereExpressionBuilder<TelemetryHeartbeatTable>? where,
+    int? offset,
+    _i1.OrderByBuilder<TelemetryHeartbeatTable>? orderBy,
+    bool orderDescending = false,
+    _i1.OrderByListBuilder<TelemetryHeartbeatTable>? orderByList,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.findFirstRow<TelemetryHeartbeat>(
+      where: where?.call(TelemetryHeartbeat.t),
+      orderBy: orderBy?.call(TelemetryHeartbeat.t),
+      orderByList: orderByList?.call(TelemetryHeartbeat.t),
+      orderDescending: orderDescending,
+      offset: offset,
+      transaction: transaction,
+    );
+  }
+
+  /// Finds a single [TelemetryHeartbeat] by its [id] or null if no such row exists.
+  Future<TelemetryHeartbeat?> findById(
+    _i1.Session session,
+    int id, {
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.findById<TelemetryHeartbeat>(
+      id,
+      transaction: transaction,
+    );
+  }
+
+  /// Inserts all [TelemetryHeartbeat]s in the list and returns the inserted rows.
+  ///
+  /// The returned [TelemetryHeartbeat]s will have their `id` fields set.
+  ///
+  /// This is an atomic operation, meaning that if one of the rows fails to
+  /// insert, none of the rows will be inserted.
+  Future<List<TelemetryHeartbeat>> insert(
+    _i1.Session session,
+    List<TelemetryHeartbeat> rows, {
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.insert<TelemetryHeartbeat>(
+      rows,
+      transaction: transaction,
+    );
+  }
+
+  /// Inserts a single [TelemetryHeartbeat] and returns the inserted row.
+  ///
+  /// The returned [TelemetryHeartbeat] will have its `id` field set.
+  Future<TelemetryHeartbeat> insertRow(
+    _i1.Session session,
+    TelemetryHeartbeat row, {
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.insertRow<TelemetryHeartbeat>(
+      row,
+      transaction: transaction,
+    );
+  }
+
+  /// Updates all [TelemetryHeartbeat]s in the list and returns the updated rows. If
+  /// [columns] is provided, only those columns will be updated. Defaults to
+  /// all columns.
+  /// This is an atomic operation, meaning that if one of the rows fails to
+  /// update, none of the rows will be updated.
+  Future<List<TelemetryHeartbeat>> update(
+    _i1.Session session,
+    List<TelemetryHeartbeat> rows, {
+    _i1.ColumnSelections<TelemetryHeartbeatTable>? columns,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.update<TelemetryHeartbeat>(
+      rows,
+      columns: columns?.call(TelemetryHeartbeat.t),
+      transaction: transaction,
+    );
+  }
+
+  /// Updates a single [TelemetryHeartbeat]. The row needs to have its id set.
+  /// Optionally, a list of [columns] can be provided to only update those
+  /// columns. Defaults to all columns.
+  Future<TelemetryHeartbeat> updateRow(
+    _i1.Session session,
+    TelemetryHeartbeat row, {
+    _i1.ColumnSelections<TelemetryHeartbeatTable>? columns,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.updateRow<TelemetryHeartbeat>(
+      row,
+      columns: columns?.call(TelemetryHeartbeat.t),
+      transaction: transaction,
+    );
+  }
+
+  /// Updates a single [TelemetryHeartbeat] by its [id] with the specified [columnValues].
+  /// Returns the updated row or null if no row with the given id exists.
+  Future<TelemetryHeartbeat?> updateById(
+    _i1.Session session,
+    int id, {
+    required _i1.ColumnValueListBuilder<TelemetryHeartbeatUpdateTable>
+    columnValues,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.updateById<TelemetryHeartbeat>(
+      id,
+      columnValues: columnValues(TelemetryHeartbeat.t.updateTable),
+      transaction: transaction,
+    );
+  }
+
+  /// Updates all [TelemetryHeartbeat]s matching the [where] expression with the specified [columnValues].
+  /// Returns the list of updated rows.
+  Future<List<TelemetryHeartbeat>> updateWhere(
+    _i1.Session session, {
+    required _i1.ColumnValueListBuilder<TelemetryHeartbeatUpdateTable>
+    columnValues,
+    required _i1.WhereExpressionBuilder<TelemetryHeartbeatTable> where,
+    int? limit,
+    int? offset,
+    _i1.OrderByBuilder<TelemetryHeartbeatTable>? orderBy,
+    _i1.OrderByListBuilder<TelemetryHeartbeatTable>? orderByList,
+    bool orderDescending = false,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.updateWhere<TelemetryHeartbeat>(
+      columnValues: columnValues(TelemetryHeartbeat.t.updateTable),
+      where: where(TelemetryHeartbeat.t),
+      limit: limit,
+      offset: offset,
+      orderBy: orderBy?.call(TelemetryHeartbeat.t),
+      orderByList: orderByList?.call(TelemetryHeartbeat.t),
+      orderDescending: orderDescending,
+      transaction: transaction,
+    );
+  }
+
+  /// Deletes all [TelemetryHeartbeat]s in the list and returns the deleted rows.
+  /// This is an atomic operation, meaning that if one of the rows fail to
+  /// be deleted, none of the rows will be deleted.
+  Future<List<TelemetryHeartbeat>> delete(
+    _i1.Session session,
+    List<TelemetryHeartbeat> rows, {
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.delete<TelemetryHeartbeat>(
+      rows,
+      transaction: transaction,
+    );
+  }
+
+  /// Deletes a single [TelemetryHeartbeat].
+  Future<TelemetryHeartbeat> deleteRow(
+    _i1.Session session,
+    TelemetryHeartbeat row, {
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.deleteRow<TelemetryHeartbeat>(
+      row,
+      transaction: transaction,
+    );
+  }
+
+  /// Deletes all rows matching the [where] expression.
+  Future<List<TelemetryHeartbeat>> deleteWhere(
+    _i1.Session session, {
+    required _i1.WhereExpressionBuilder<TelemetryHeartbeatTable> where,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.deleteWhere<TelemetryHeartbeat>(
+      where: where(TelemetryHeartbeat.t),
+      transaction: transaction,
+    );
+  }
+
+  /// Counts the number of rows matching the [where] expression. If omitted,
+  /// will return the count of all rows in the table.
+  Future<int> count(
+    _i1.Session session, {
+    _i1.WhereExpressionBuilder<TelemetryHeartbeatTable>? where,
+    int? limit,
+    _i1.Transaction? transaction,
+  }) async {
+    return session.db.count<TelemetryHeartbeat>(
+      where: where?.call(TelemetryHeartbeat.t),
+      limit: limit,
+      transaction: transaction,
     );
   }
 }

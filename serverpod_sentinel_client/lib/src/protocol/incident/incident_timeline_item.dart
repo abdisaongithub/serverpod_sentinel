@@ -21,9 +21,7 @@ abstract class IncidentTimelineItem implements _i1.SerializableModel {
   IncidentTimelineItem._({
     this.id,
     required this.incidentId,
-    required this.incidentId,
     this.incident,
-    this.authorId,
     required this.authorId,
     this.author,
     required this.type,
@@ -35,9 +33,7 @@ abstract class IncidentTimelineItem implements _i1.SerializableModel {
   factory IncidentTimelineItem({
     int? id,
     required int incidentId,
-    required int incidentId,
     _i2.Incident? incident,
-    int? authorId,
     required int authorId,
     _i3.OpsUser? author,
     required _i4.TimelineItemType type,
@@ -81,11 +77,7 @@ abstract class IncidentTimelineItem implements _i1.SerializableModel {
 
   int incidentId;
 
-  int incidentId;
-
   _i2.Incident? incident;
-
-  int? authorId;
 
   int authorId;
 
@@ -105,9 +97,7 @@ abstract class IncidentTimelineItem implements _i1.SerializableModel {
   IncidentTimelineItem copyWith({
     int? id,
     int? incidentId,
-    int? incidentId,
     _i2.Incident? incident,
-    int? authorId,
     int? authorId,
     _i3.OpsUser? author,
     _i4.TimelineItemType? type,
@@ -121,9 +111,7 @@ abstract class IncidentTimelineItem implements _i1.SerializableModel {
       '__className__': 'IncidentTimelineItem',
       if (id != null) 'id': id,
       'incidentId': incidentId,
-      'incidentId': incidentId,
       if (incident != null) 'incident': incident?.toJson(),
-      if (authorId != null) 'authorId': authorId,
       'authorId': authorId,
       if (author != null) 'author': author?.toJson(),
       'type': type.toJson(),
@@ -145,9 +133,7 @@ class _IncidentTimelineItemImpl extends IncidentTimelineItem {
   _IncidentTimelineItemImpl({
     int? id,
     required int incidentId,
-    required int incidentId,
     _i2.Incident? incident,
-    int? authorId,
     required int authorId,
     _i3.OpsUser? author,
     required _i4.TimelineItemType type,
@@ -173,9 +159,7 @@ class _IncidentTimelineItemImpl extends IncidentTimelineItem {
   IncidentTimelineItem copyWith({
     Object? id = _Undefined,
     int? incidentId,
-    int? incidentId,
     Object? incident = _Undefined,
-    Object? authorId = _Undefined,
     int? authorId,
     Object? author = _Undefined,
     _i4.TimelineItemType? type,

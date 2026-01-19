@@ -1,0 +1,15 @@
+### Notification preference model for user notification settings
+
+class: NotificationPreference
+table: notification_preference
+fields:
+  userId: int, relation(parent=ops_user)
+  channel: String  # email, slack, sms, push
+  enabled: bool
+  settings: String?  # JSON string for channel-specific settings
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  notification_preference_user_channel_idx:
+    fields: userId, channel
+    unique: true

@@ -1,5 +1,6 @@
 ### Payload for agent heartbeat.
 class: TelemetryHeartbeat
+table: telemetry_heartbeat
 fields:
   timestamp: DateTime
   uptimeSeconds: int

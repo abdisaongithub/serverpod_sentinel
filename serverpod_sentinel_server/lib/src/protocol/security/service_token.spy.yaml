@@ -4,7 +4,6 @@ table: service_token
 fields:
   name: String
   token: String # Hashed in production, plain for now or manageable
-  serviceId: int
   service: Service?, relation
   
   lastUsedAt: DateTime?

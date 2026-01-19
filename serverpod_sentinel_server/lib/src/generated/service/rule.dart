@@ -23,9 +23,7 @@ abstract class Rule implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   Rule._({
     this.id,
     required this.serviceId,
-    required this.serviceId,
     this.service,
-    required this.signalId,
     required this.signalId,
     this.signal,
     required this.name,
@@ -40,9 +38,7 @@ abstract class Rule implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   factory Rule({
     int? id,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
-    required int signalId,
     required int signalId,
     _i3.HealthSignal? signal,
     required String name,
@@ -96,11 +92,7 @@ abstract class Rule implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   int serviceId;
 
-  int serviceId;
-
   _i2.Service? service;
-
-  int signalId;
 
   int signalId;
 
@@ -131,9 +123,7 @@ abstract class Rule implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   Rule copyWith({
     int? id,
     int? serviceId,
-    int? serviceId,
     _i2.Service? service,
-    int? signalId,
     int? signalId,
     _i3.HealthSignal? signal,
     String? name,
@@ -150,9 +140,7 @@ abstract class Rule implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       '__className__': 'Rule',
       if (id != null) 'id': id,
       'serviceId': serviceId,
-      'serviceId': serviceId,
       if (service != null) 'service': service?.toJson(),
-      'signalId': signalId,
       'signalId': signalId,
       if (signal != null) 'signal': signal?.toJson(),
       'name': name,
@@ -173,9 +161,7 @@ abstract class Rule implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       '__className__': 'Rule',
       if (id != null) 'id': id,
       'serviceId': serviceId,
-      'serviceId': serviceId,
       if (service != null) 'service': service?.toJsonForProtocol(),
-      'signalId': signalId,
       'signalId': signalId,
       if (signal != null) 'signal': signal?.toJsonForProtocol(),
       'name': name,
@@ -230,9 +216,7 @@ class _RuleImpl extends Rule {
   _RuleImpl({
     int? id,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
-    required int signalId,
     required int signalId,
     _i3.HealthSignal? signal,
     required String name,
@@ -264,9 +248,7 @@ class _RuleImpl extends Rule {
   Rule copyWith({
     Object? id = _Undefined,
     int? serviceId,
-    int? serviceId,
     Object? service = _Undefined,
-    int? signalId,
     int? signalId,
     Object? signal = _Undefined,
     String? name,
@@ -299,9 +281,7 @@ class RuleImplicit extends _RuleImpl {
   RuleImplicit._({
     int? id,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
-    required int signalId,
     required int signalId,
     _i3.HealthSignal? signal,
     required String name,
@@ -358,16 +338,6 @@ class RuleUpdateTable extends _i1.UpdateTable<RuleTable> {
 
   _i1.ColumnValue<int, int> serviceId(int value) => _i1.ColumnValue(
     table.serviceId,
-    value,
-  );
-
-  _i1.ColumnValue<int, int> serviceId(int value) => _i1.ColumnValue(
-    table.serviceId,
-    value,
-  );
-
-  _i1.ColumnValue<int, int> signalId(int value) => _i1.ColumnValue(
-    table.signalId,
     value,
   );
 
@@ -429,14 +399,6 @@ class RuleTable extends _i1.Table<int?> {
       'serviceId',
       this,
     );
-    serviceId = _i1.ColumnInt(
-      'serviceId',
-      this,
-    );
-    signalId = _i1.ColumnInt(
-      'signalId',
-      this,
-    );
     signalId = _i1.ColumnInt(
       'signalId',
       this,
@@ -480,11 +442,7 @@ class RuleTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt serviceId;
 
-  late final _i1.ColumnInt serviceId;
-
   _i2.ServiceTable? _service;
-
-  late final _i1.ColumnInt signalId;
 
   late final _i1.ColumnInt signalId;
 
@@ -536,8 +494,6 @@ class RuleTable extends _i1.Table<int?> {
   List<_i1.Column> get columns => [
     id,
     serviceId,
-    serviceId,
-    signalId,
     signalId,
     name,
     condition,
@@ -553,8 +509,6 @@ class RuleTable extends _i1.Table<int?> {
   List<_i1.Column> get managedColumns => [
     id,
     serviceId,
-    serviceId,
-    signalId,
     signalId,
     name,
     condition,

@@ -94,7 +94,7 @@ class SettingsScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('VERIFICATION LINKS (BATCH 3)'),
+        _buildSectionTitle('Operational'),
         const SizedBox(height: 16),
         GridView.count(
           shrinkWrap: true,
@@ -139,7 +139,7 @@ class SettingsScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 48),
-        _buildSectionTitle('VERIFICATION LINKS (BATCH 4)'),
+        _buildSectionTitle('System & Management'),
         const SizedBox(height: 16),
         GridView.count(
           shrinkWrap: true,
@@ -199,7 +199,7 @@ class SettingsScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('VERIFICATION LINKS (BATCH 3)'),
+        _buildSectionTitle('Operational'),
         const SizedBox(height: 12),
         _buildNavTile(
           context,
@@ -226,7 +226,7 @@ class SettingsScreen extends StatelessWidget {
           AppRoutes.incidentReport,
         ),
         const SizedBox(height: 24),
-        _buildSectionTitle('VERIFICATION LINKS (BATCH 4)'),
+        _buildSectionTitle('System & Management'),
         const SizedBox(height: 12),
         _buildNavTile(
           context,

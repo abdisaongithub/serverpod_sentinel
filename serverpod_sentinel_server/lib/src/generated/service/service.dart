@@ -29,7 +29,6 @@ abstract class Service
     required this.name,
     this.description,
     required this.ownerId,
-    required this.ownerId,
     this.owner,
     required this.status,
     required this.tier,
@@ -45,7 +44,6 @@ abstract class Service
     int? id,
     required String name,
     String? description,
-    required int ownerId,
     required int ownerId,
     _i2.OpsUser? owner,
     required _i3.ServiceStatus status,
@@ -111,8 +109,6 @@ abstract class Service
 
   int ownerId;
 
-  int ownerId;
-
   _i2.OpsUser? owner;
 
   _i3.ServiceStatus status;
@@ -144,7 +140,6 @@ abstract class Service
     String? name,
     String? description,
     int? ownerId,
-    int? ownerId,
     _i2.OpsUser? owner,
     _i3.ServiceStatus? status,
     _i4.ServiceTier? tier,
@@ -162,7 +157,6 @@ abstract class Service
       if (id != null) 'id': id,
       'name': name,
       if (description != null) 'description': description,
-      'ownerId': ownerId,
       'ownerId': ownerId,
       if (owner != null) 'owner': owner?.toJson(),
       'status': status.toJson(),
@@ -187,7 +181,6 @@ abstract class Service
       if (id != null) 'id': id,
       'name': name,
       if (description != null) 'description': description,
-      'ownerId': ownerId,
       'ownerId': ownerId,
       if (owner != null) 'owner': owner?.toJsonForProtocol(),
       'status': status.toJson(),
@@ -254,7 +247,6 @@ class _ServiceImpl extends Service {
     required String name,
     String? description,
     required int ownerId,
-    required int ownerId,
     _i2.OpsUser? owner,
     required _i3.ServiceStatus status,
     required _i4.ServiceTier tier,
@@ -288,7 +280,6 @@ class _ServiceImpl extends Service {
     Object? id = _Undefined,
     String? name,
     Object? description = _Undefined,
-    int? ownerId,
     int? ownerId,
     Object? owner = _Undefined,
     _i3.ServiceStatus? status,
@@ -330,7 +321,6 @@ class ServiceImplicit extends _ServiceImpl {
     int? id,
     required String name,
     String? description,
-    required int ownerId,
     required int ownerId,
     _i2.OpsUser? owner,
     required _i3.ServiceStatus status,
@@ -403,11 +393,6 @@ class ServiceUpdateTable extends _i1.UpdateTable<ServiceTable> {
     value,
   );
 
-  _i1.ColumnValue<int, int> ownerId(int value) => _i1.ColumnValue(
-    table.ownerId,
-    value,
-  );
-
   _i1.ColumnValue<_i3.ServiceStatus, _i3.ServiceStatus> status(
     _i3.ServiceStatus value,
   ) => _i1.ColumnValue(
@@ -462,10 +447,6 @@ class ServiceTable extends _i1.Table<int?> {
       'ownerId',
       this,
     );
-    ownerId = _i1.ColumnInt(
-      'ownerId',
-      this,
-    );
     status = _i1.ColumnEnum(
       'status',
       this,
@@ -499,8 +480,6 @@ class ServiceTable extends _i1.Table<int?> {
   late final _i1.ColumnString name;
 
   late final _i1.ColumnString description;
-
-  late final _i1.ColumnInt ownerId;
 
   late final _i1.ColumnInt ownerId;
 
@@ -645,7 +624,6 @@ class ServiceTable extends _i1.Table<int?> {
     name,
     description,
     ownerId,
-    ownerId,
     status,
     tier,
     tags,
@@ -659,7 +637,6 @@ class ServiceTable extends _i1.Table<int?> {
     id,
     name,
     description,
-    ownerId,
     ownerId,
     status,
     tier,

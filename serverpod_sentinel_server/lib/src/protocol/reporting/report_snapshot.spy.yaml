@@ -2,10 +2,8 @@
 class: ReportSnapshot
 table: report_snapshot
 fields:
-  incidentId: int
   incident: Incident?, relation
   generatedAt: DateTime
-  generatedById: int?
   generatedBy: OpsUser?, relation
   content: String # JSON report data
 

@@ -26,7 +26,6 @@ abstract class Service implements _i1.SerializableModel {
     required this.name,
     this.description,
     required this.ownerId,
-    required this.ownerId,
     this.owner,
     required this.status,
     required this.tier,
@@ -42,7 +41,6 @@ abstract class Service implements _i1.SerializableModel {
     int? id,
     required String name,
     String? description,
-    required int ownerId,
     required int ownerId,
     _i2.OpsUser? owner,
     required _i3.ServiceStatus status,
@@ -104,8 +102,6 @@ abstract class Service implements _i1.SerializableModel {
 
   int ownerId;
 
-  int ownerId;
-
   _i2.OpsUser? owner;
 
   _i3.ServiceStatus status;
@@ -132,7 +128,6 @@ abstract class Service implements _i1.SerializableModel {
     String? name,
     String? description,
     int? ownerId,
-    int? ownerId,
     _i2.OpsUser? owner,
     _i3.ServiceStatus? status,
     _i4.ServiceTier? tier,
@@ -150,7 +145,6 @@ abstract class Service implements _i1.SerializableModel {
       if (id != null) 'id': id,
       'name': name,
       if (description != null) 'description': description,
-      'ownerId': ownerId,
       'ownerId': ownerId,
       if (owner != null) 'owner': owner?.toJson(),
       'status': status.toJson(),
@@ -179,7 +173,6 @@ class _ServiceImpl extends Service {
     int? id,
     required String name,
     String? description,
-    required int ownerId,
     required int ownerId,
     _i2.OpsUser? owner,
     required _i3.ServiceStatus status,
@@ -214,7 +207,6 @@ class _ServiceImpl extends Service {
     Object? id = _Undefined,
     String? name,
     Object? description = _Undefined,
-    int? ownerId,
     int? ownerId,
     Object? owner = _Undefined,
     _i3.ServiceStatus? status,

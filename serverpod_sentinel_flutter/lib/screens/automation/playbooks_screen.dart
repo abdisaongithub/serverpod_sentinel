@@ -4,12 +4,27 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/playbooks_provider.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 
-class PlaybooksScreen extends StatelessWidget {
+class PlaybooksScreen extends ConsumerStatefulWidget {
   const PlaybooksScreen({super.key});
 
   @override
+  ConsumerState<PlaybooksScreen> createState() => _PlaybooksScreenState();
+}
+
+class _PlaybooksScreenState extends ConsumerState<PlaybooksScreen> {
+  String _searchQuery = '';
+  String _activeTab = 'All Playbooks';
+  int _currentPage = 1;
+  static const int _itemsPerPage = 10;
+
+  @override
   Widget build(BuildContext context) {
+    final playbooksAsync = ref.watch(playbooksProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
@@ -23,29 +38,90 @@ class PlaybooksScreen extends StatelessWidget {
               : null,
           body: Column(
             children: [
-              _Header(isDesktop: isDesktop),
-              _FilterBar(isDesktop: isDesktop),
+              _Header(
+                isDesktop: isDesktop,
+                onSearch: (query) => setState(() => _searchQuery = query),
+              ),
+              _FilterBar(
+                isDesktop: isDesktop,
+                activeTab: _activeTab,
+                onTabChanged: (tab) => setState(() {
+                  _activeTab = tab;
+                  _currentPage = 1;
+                }),
+              ),
               Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(isDesktop ? 32 : 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      isDesktop
-                          ? const _PlaybookTable()
-                          : SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  minWidth: 900,
+                child: playbooksAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, stack) => Center(child: Text('Error: $err')),
+                  data: (allPlaybooks) {
+                    // 1. Filter by Tab
+                    var filtered = allPlaybooks;
+                    if (_activeTab == 'Active') {
+                      // Assuming 'Active' logic, but Playbook model doesn't have an 'isActive' field explicitly shown in UI
+                      // Using a mock filter if field is missing, or just pass through for now
+                      // Based on UI, we have a status, but no simple bool. Let's assume all are active for demo or filter by some logic
+                    } else if (_activeTab == 'Drafts') {
+                      // filtered = filtered.where((p) => p.isDraft).toList();
+                    }
+
+                    // 2. Filter by Search
+                    if (_searchQuery.isNotEmpty) {
+                      final query = _searchQuery.toLowerCase();
+                      filtered = filtered.where((p) {
+                        return p.name.toLowerCase().contains(query) ||
+                            (p.description?.toLowerCase().contains(query) ??
+                                false);
+                      }).toList();
+                    }
+
+                    // 3. Pagination
+                    final totalItems = filtered.length;
+                    final totalPages = (totalItems / _itemsPerPage).ceil();
+                    final start = (_currentPage - 1) * _itemsPerPage;
+                    final end = (start + _itemsPerPage < totalItems)
+                        ? start + _itemsPerPage
+                        : totalItems;
+
+                    final pagedPlaybooks = filtered.sublist(
+                      start < totalItems ? start : 0,
+                      end < totalItems ? end : totalItems,
+                    );
+
+                    return SingleChildScrollView(
+                      padding: EdgeInsets.all(isDesktop ? 32 : 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          isDesktop
+                              ? _PlaybookTable(playbooks: pagedPlaybooks)
+                              : SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      minWidth: 900,
+                                    ),
+                                    child: _PlaybookTable(
+                                      playbooks: pagedPlaybooks,
+                                    ),
+                                  ),
                                 ),
-                                child: const _PlaybookTable(),
-                              ),
+                          const SizedBox(height: 24),
+                          if (totalItems > 0)
+                            _Pagination(
+                              currentPage: _currentPage,
+                              totalPages: totalPages,
+                              totalItems: totalItems,
+                              startIndex: start + 1,
+                              endIndex: end,
+                              onPageChanged: (page) =>
+                                  setState(() => _currentPage = page),
                             ),
-                      const SizedBox(height: 24),
-                      const _Pagination(),
-                    ],
-                  ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -58,7 +134,9 @@ class PlaybooksScreen extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   final bool isDesktop;
-  const _Header({required this.isDesktop});
+  final Function(String) onSearch;
+
+  const _Header({required this.isDesktop, required this.onSearch});
 
   @override
   Widget build(BuildContext context) {
@@ -140,9 +218,10 @@ class _Header extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: const Color(0xFF334155)),
               ),
-              child: const TextField(
-                style: TextStyle(color: Colors.white, fontSize: 13),
-                decoration: InputDecoration(
+              child: TextField(
+                onChanged: onSearch,
+                style: const TextStyle(color: Colors.white, fontSize: 13),
+                decoration: const InputDecoration(
                   hintText: 'Search playbooks...',
                   hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 13),
                   prefixIcon: Icon(
@@ -178,7 +257,14 @@ class _Header extends StatelessWidget {
 
 class _FilterBar extends StatelessWidget {
   final bool isDesktop;
-  const _FilterBar({required this.isDesktop});
+  final String activeTab;
+  final Function(String) onTabChanged;
+
+  const _FilterBar({
+    required this.isDesktop,
+    required this.activeTab,
+    required this.onTabChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -191,10 +277,10 @@ class _FilterBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _navTab('All Playbooks', true),
-          _navTab('Active', false),
-          _navTab('Drafts', false),
-          _navTab('Archived', false),
+          _navTab('All Playbooks', activeTab == 'All Playbooks', onTabChanged),
+          _navTab('Active', activeTab == 'Active', onTabChanged),
+          _navTab('Drafts', activeTab == 'Drafts', onTabChanged),
+          _navTab('Archived', activeTab == 'Archived', onTabChanged),
           const Spacer(),
           if (isDesktop) ...[
             Text(
@@ -224,23 +310,26 @@ class _FilterBar extends StatelessWidget {
     );
   }
 
-  Widget _navTab(String label, bool isActive) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isActive ? Colors.white : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isActive ? Colors.white : const Color(0xFF334155),
+  Widget _navTab(String label, bool isActive, Function(String) onTap) {
+    return GestureDetector(
+      onTap: () => onTap(label),
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isActive ? Colors.white : const Color(0xFF334155),
+          ),
         ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isActive ? const Color(0xFF0F172A) : AppTheme.textMuted,
-          fontSize: 13,
-          fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isActive ? const Color(0xFF0F172A) : AppTheme.textMuted,
+            fontSize: 13,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+          ),
         ),
       ),
     );
@@ -285,10 +374,13 @@ class _SortDropdown extends StatelessWidget {
 }
 
 class _PlaybookTable extends StatelessWidget {
-  const _PlaybookTable();
+  final List<Playbook> playbooks;
+  const _PlaybookTable({required this.playbooks});
 
   @override
   Widget build(BuildContext context) {
+    // We already have the filtered list passed in
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF161E2D),
@@ -317,55 +409,23 @@ class _PlaybookTable extends StatelessWidget {
             ),
           ),
           // Rows
-          const _PlaybookRow(
-            id: '#P-1024',
-            name: 'Scale DB Read Replicas',
-            status: 'Active',
-            trigger: 'High Latency (>500ms)',
-            action: 'Scale AWS RDS',
-            mode: 'Automatic',
-            lastRun: '2h ago',
-            lastRunStatus: 'Success',
-            icon: LucideIcons.database,
-            iconColor: Colors.blue,
-          ),
-          const _PlaybookRow(
-            id: '#P-1025',
-            name: 'Emergency Cache Flush',
-            status: 'Draft',
-            trigger: 'Manual Invocation',
-            action: 'Flush Redis Cluster',
-            mode: 'Manual',
-            lastRun: 'Never',
-            lastRunStatus: 'Edited 10m ago',
-            icon: LucideIcons.zap,
-            iconColor: Colors.amber,
-          ),
-          const _PlaybookRow(
-            id: '#P-1088',
-            name: 'IP Rate Limiting',
-            status: 'Active',
-            trigger: 'DDoS Pattern Detected',
-            action: 'Block Subnet WAF',
-            mode: 'Automatic',
-            lastRun: '1d ago',
-            lastRunStatus: 'Success',
-            icon: LucideIcons.shieldAlert,
-            iconColor: Colors.purple,
-          ),
-          const _PlaybookRow(
-            id: '#P-0042',
-            name: 'Legacy DB Backup',
-            status: 'Deprecated',
-            trigger: 'Daily Backup Task',
-            action: 'S3 Sync Archive',
-            mode: 'Archived',
-            lastRun: '30d ago',
-            lastRunStatus: 'Success',
-            icon: LucideIcons.archive,
-            iconColor: const Color(0xFF64748B),
-            isDeprecated: true,
-          ),
+          // Rows
+          if (playbooks.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: Center(
+                child: Text(
+                  'No playbooks found.',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            )
+          else
+            Column(
+              children: playbooks
+                  .map((playbook) => _PlaybookRow(playbook: playbook))
+                  .toList(),
+            ),
         ],
       ),
     );
@@ -385,31 +445,9 @@ class _PlaybookTable extends StatelessWidget {
 }
 
 class _PlaybookRow extends StatefulWidget {
-  final String id;
-  final String name;
-  final String status;
-  final String trigger;
-  final String action;
-  final String mode;
-  final String lastRun;
-  final String lastRunStatus;
-  final IconData icon;
-  final Color iconColor;
-  final bool isDeprecated;
+  final Playbook playbook;
 
-  const _PlaybookRow({
-    required this.id,
-    required this.name,
-    required this.status,
-    required this.trigger,
-    required this.action,
-    required this.mode,
-    required this.lastRun,
-    required this.lastRunStatus,
-    required this.icon,
-    required this.iconColor,
-    this.isDeprecated = false,
-  });
+  const _PlaybookRow({required this.playbook});
 
   @override
   State<_PlaybookRow> createState() => _PlaybookRowState();
@@ -421,7 +459,8 @@ class _PlaybookRowState extends State<_PlaybookRow> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.go(AppRoutes.playbookExecution),
+      onTap: () =>
+          context.go('${AppRoutes.playbookExecution}?id=${widget.playbook.id}'),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         onEnter: (_) => setState(() => isHovered = true),
@@ -433,7 +472,7 @@ class _PlaybookRowState extends State<_PlaybookRow> {
             border: const Border(bottom: BorderSide(color: Color(0xFF2D3748))),
           ),
           child: Opacity(
-            opacity: widget.isDeprecated ? 0.6 : 1.0,
+            opacity: 1.0,
             child: Row(
               children: [
                 // Playbook Name
@@ -445,12 +484,16 @@ class _PlaybookRowState extends State<_PlaybookRow> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: widget.iconColor.withOpacity(0.1),
+                          color: Colors.blue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
-                          widget.icon,
-                          color: widget.iconColor,
+                          widget.playbook.type == PlaybookType.AUTOMATED
+                              ? LucideIcons.zap
+                              : LucideIcons.play,
+                          color: widget.playbook.type == PlaybookType.AUTOMATED
+                              ? Colors.amber
+                              : Colors.blue,
                           size: 20,
                         ),
                       ),
@@ -462,7 +505,7 @@ class _PlaybookRowState extends State<_PlaybookRow> {
                             Row(
                               children: [
                                 Text(
-                                  widget.name,
+                                  widget.playbook.name,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -470,14 +513,14 @@ class _PlaybookRowState extends State<_PlaybookRow> {
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                _statusBadge(widget.status),
+                                _statusBadge('Active'),
                               ],
                             ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
                                 Text(
-                                  widget.id,
+                                  '#PB-${widget.playbook.id}',
                                   style: const TextStyle(
                                     fontFamily: 'monospace',
                                     color: Color(0xFF64748B),
@@ -490,9 +533,9 @@ class _PlaybookRowState extends State<_PlaybookRow> {
                                   style: TextStyle(color: Color(0xFF475569)),
                                 ),
                                 const SizedBox(width: 4),
-                                const Text(
-                                  'v2.4.1',
-                                  style: TextStyle(
+                                Text(
+                                  'v1.0.0', // mock version
+                                  style: const TextStyle(
                                     color: Color(0xFF64748B),
                                     fontSize: 12,
                                   ),
@@ -518,7 +561,9 @@ class _PlaybookRowState extends State<_PlaybookRow> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          widget.trigger,
+                          widget.playbook.type == PlaybookType.AUTOMATED
+                              ? 'Event Based'
+                              : 'Manual',
                           style: const TextStyle(
                             color: Color(0xFFCBD5E1),
                             fontSize: 13,
@@ -542,7 +587,7 @@ class _PlaybookRowState extends State<_PlaybookRow> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          widget.action,
+                          widget.playbook.description ?? 'Execute Playbook',
                           style: const TextStyle(
                             color: Color(0xFFCBD5E1),
                             fontSize: 13,
@@ -558,11 +603,11 @@ class _PlaybookRowState extends State<_PlaybookRow> {
                   child: Row(
                     children: [
                       Icon(
-                        widget.mode == 'Automatic'
+                        widget.playbook.type == PlaybookType.AUTOMATED
                             ? LucideIcons.bot
                             : LucideIcons.hand,
                         size: 16,
-                        color: widget.mode == 'Automatic'
+                        color: widget.playbook.type == PlaybookType.AUTOMATED
                             ? AppTheme.primary
                             : const Color(0xFF94A3B8),
                       ),
@@ -573,15 +618,16 @@ class _PlaybookRowState extends State<_PlaybookRow> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: widget.mode == 'Automatic'
+                          color: widget.playbook.type == PlaybookType.AUTOMATED
                               ? AppTheme.primary.withOpacity(0.1)
                               : const Color(0xFF1E293B),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          widget.mode,
+                          widget.playbook.type.name,
                           style: TextStyle(
-                            color: widget.mode == 'Automatic'
+                            color:
+                                widget.playbook.type == PlaybookType.AUTOMATED
                                 ? AppTheme.primary
                                 : const Color(0xFFCBD5E1),
                             fontSize: 11,
@@ -598,14 +644,14 @@ class _PlaybookRowState extends State<_PlaybookRow> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.lastRun,
+                        'Never', // mock last run
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
                         ),
                       ),
                       Text(
-                        widget.lastRunStatus,
+                        'No runs yet',
                         style: const TextStyle(
                           color: Color(0xFF64748B),
                           fontSize: 11,
@@ -672,7 +718,21 @@ class _PlaybookRowState extends State<_PlaybookRow> {
 }
 
 class _Pagination extends StatelessWidget {
-  const _Pagination();
+  final int currentPage;
+  final int totalPages;
+  final int totalItems;
+  final int startIndex;
+  final int endIndex;
+  final Function(int) onPageChanged;
+
+  const _Pagination({
+    required this.currentPage,
+    required this.totalPages,
+    required this.totalItems,
+    required this.startIndex,
+    required this.endIndex,
+    required this.onPageChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -682,42 +742,50 @@ class _Pagination extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           RichText(
-            text: const TextSpan(
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 13),
+            text: TextSpan(
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
               children: [
-                TextSpan(text: 'Showing '),
+                const TextSpan(text: 'Showing '),
                 TextSpan(
-                  text: '1',
-                  style: TextStyle(
+                  text: '$startIndex',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                TextSpan(text: ' to '),
+                const TextSpan(text: ' to '),
                 TextSpan(
-                  text: '4',
-                  style: TextStyle(
+                  text: '$endIndex',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                TextSpan(text: ' of '),
+                const TextSpan(text: ' of '),
                 TextSpan(
-                  text: '24',
-                  style: TextStyle(
+                  text: '$totalItems',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                TextSpan(text: ' playbooks'),
+                const TextSpan(text: ' playbooks'),
               ],
             ),
           ),
           Row(
             children: [
-              _pageButton(LucideIcons.chevronLeft, false),
+              _pageButton(
+                LucideIcons.chevronLeft,
+                currentPage > 1,
+                () => onPageChanged(currentPage - 1),
+              ),
               const SizedBox(width: 8),
-              _pageButton(LucideIcons.chevronRight, true),
+              _pageButton(
+                LucideIcons.chevronRight,
+                currentPage < totalPages,
+                () => onPageChanged(currentPage + 1),
+              ),
             ],
           ),
         ],
@@ -725,18 +793,25 @@ class _Pagination extends StatelessWidget {
     );
   }
 
-  Widget _pageButton(IconData icon, bool isEnabled) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161E2D),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF2D3748)),
-      ),
-      child: Icon(
-        icon,
-        size: 18,
-        color: isEnabled ? Colors.white : const Color(0xFF475569),
+  Widget _pageButton(IconData icon, bool isEnabled, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: isEnabled ? onTap : null,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF161E2D),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isEnabled
+                ? const Color(0xFF2D3748)
+                : const Color(0xFF2D3748).withOpacity(0.5),
+          ),
+        ),
+        child: Icon(
+          icon,
+          size: 18,
+          color: isEnabled ? Colors.white : const Color(0xFF475569),
+        ),
       ),
     );
   }

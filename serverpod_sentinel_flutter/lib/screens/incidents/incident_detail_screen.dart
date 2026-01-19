@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
-import '../../widgets/app_sidebar.dart';
 import '../../widgets/app_right_sidebar.dart';
+import '../../providers/incidents_provider.dart';
 
-class IncidentDetailScreen extends StatelessWidget {
-  const IncidentDetailScreen({super.key});
+class IncidentDetailScreen extends ConsumerWidget {
+  final int incidentId;
+
+  const IncidentDetailScreen({super.key, required this.incidentId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final incidentAsync = ref.watch(incidentProvider(incidentId));
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
@@ -18,43 +24,53 @@ class IncidentDetailScreen extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: const Color(0xFF0F172A),
-          body: Row(
+          body: Column(
             children: [
-              if (isDesktop)
-                const AppSidebar(activeRoute: AppRoutes.incidentDetail),
+              _Header(isDesktop: isDesktop, incidentId: incidentId),
               Expanded(
-                child: Column(
-                  children: [
-                    _Header(isDesktop: isDesktop),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: SingleChildScrollView(
-                              padding: EdgeInsets.all(isDesktop ? 32 : 16),
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 1600,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const _InfoAndStatusRow(),
-                                    const SizedBox(height: 24),
-                                    const _TimelineSection(),
-                                    const SizedBox(height: 24),
-                                    _ActionsSection(isDesktop: isDesktop),
-                                    const SizedBox(height: 32),
-                                  ],
-                                ),
+                child: incidentAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(
+                    child: Text(
+                      'Error loading incident: $e',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                  data: (incident) {
+                    if (incident == null) {
+                      return const Center(
+                        child: Text(
+                          'Incident not found',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.all(isDesktop ? 32 : 16),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 1600),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _InfoAndStatusRow(incident: incident),
+                                  const SizedBox(height: 24),
+                                  _TimelineSection(incident: incident),
+                                  const SizedBox(height: 24),
+                                  _ActionsSection(isDesktop: isDesktop),
+                                  const SizedBox(height: 32),
+                                ],
                               ),
                             ),
                           ),
-                          if (isLargeDesktop) const _TeamUpdatesSidebar(),
-                        ],
-                      ),
-                    ),
-                  ],
+                        ),
+                        if (isLargeDesktop) const _TeamUpdatesSidebar(),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -67,8 +83,9 @@ class IncidentDetailScreen extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   final bool isDesktop;
+  final int incidentId;
 
-  const _Header({required this.isDesktop});
+  const _Header({required this.isDesktop, required this.incidentId});
 
   @override
   Widget build(BuildContext context) {
@@ -113,9 +130,9 @@ class _Header extends StatelessWidget {
                       color: Color(0xFF94A3B8),
                     ),
                     const SizedBox(width: 4),
-                    const Text(
-                      'US-East Gateway',
-                      style: TextStyle(
+                    Text(
+                      '#INC-$incidentId',
+                      style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -235,7 +252,9 @@ class _ActionButton extends StatelessWidget {
 }
 
 class _InfoAndStatusRow extends StatelessWidget {
-  const _InfoAndStatusRow();
+  final Incident incident;
+
+  const _InfoAndStatusRow({required this.incident});
 
   @override
   Widget build(BuildContext context) {
@@ -244,21 +263,23 @@ class _InfoAndStatusRow extends StatelessWidget {
         final isNarrow = constraints.maxWidth < 900;
 
         if (isNarrow) {
-          return const Column(
+          return Column(
+            key: const ValueKey('narrow'),
             children: [
-              _StatusSection(),
-              SizedBox(height: 24),
-              _SummarySection(),
+              _StatusSection(incident: incident),
+              const SizedBox(height: 24),
+              _SummarySection(incident: incident),
             ],
           );
         }
 
-        return const Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        return Row(
+          key: const ValueKey('wide'),
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(flex: 5, child: _StatusSection()),
-            SizedBox(width: 24),
-            Expanded(flex: 7, child: _SummarySection()),
+            Expanded(flex: 5, child: _StatusSection(incident: incident)),
+            const SizedBox(width: 24),
+            Expanded(flex: 7, child: _SummarySection(incident: incident)),
           ],
         );
       },
@@ -267,7 +288,9 @@ class _InfoAndStatusRow extends StatelessWidget {
 }
 
 class _StatusSection extends StatelessWidget {
-  const _StatusSection();
+  final Incident incident;
+
+  const _StatusSection({required this.incident});
 
   @override
   Widget build(BuildContext context) {
@@ -332,9 +355,9 @@ class _StatusSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Investigating',
-            style: TextStyle(
+          Text(
+            incident.status.name.replaceAll('_', ' '),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 32,
               fontWeight: FontWeight.w800,
@@ -342,9 +365,11 @@ class _StatusSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Team is actively working on a fix.',
-            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+          Text(
+            incident.summary ?? 'No description available',
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 24),
           const Divider(color: Color(0xFF2D3748)),
@@ -401,7 +426,9 @@ class _StatusSection extends StatelessWidget {
 }
 
 class _SummarySection extends StatelessWidget {
-  const _SummarySection();
+  final Incident incident;
+
+  const _SummarySection({required this.incident});
 
   @override
   Widget build(BuildContext context) {
@@ -437,14 +464,12 @@ class _SummarySection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          const Expanded(
-            child: Text(
-              'High latency observed in the US-East region API gateway. Error rates elevated by 15% affecting checkout services. Engineering team is currently isolating the problematic microservice.',
-              style: TextStyle(
-                color: Color(0xFFCBD5E1),
-                fontSize: 14,
-                height: 1.6,
-              ),
+          Text(
+            incident.summary ?? 'No summary available',
+            style: const TextStyle(
+              color: Color(0xFFCBD5E1),
+              fontSize: 14,
+              height: 1.6,
             ),
           ),
           const SizedBox(height: 16),
@@ -552,10 +577,16 @@ class _AvatarsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _Avatar(url: 'https://i.pravatar.cc/150?img=1'),
-        const SizedBox(width: -8),
-        _Avatar(url: 'https://i.pravatar.cc/150?img=2'),
-        const SizedBox(width: -8),
+        Align(
+          widthFactor: 0.7,
+          alignment: Alignment.centerLeft,
+          child: _Avatar(url: 'https://i.pravatar.cc/150?img=1'),
+        ),
+        Align(
+          widthFactor: 0.7,
+          alignment: Alignment.centerLeft,
+          child: _Avatar(url: 'https://i.pravatar.cc/150?img=2'),
+        ),
         Container(
           width: 24,
           height: 24,
@@ -657,10 +688,59 @@ class _PulseDotState extends State<_PulseDot>
 }
 
 class _TimelineSection extends StatelessWidget {
-  const _TimelineSection();
+  final Incident incident;
+
+  const _TimelineSection({required this.incident});
+
+  String _getTimeString(DateTime dt) {
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  }
+
+  String _getDayString(DateTime dt) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final date = DateTime(dt.year, dt.month, dt.day);
+
+    if (date == today) return 'Today';
+    if (date == today.subtract(const Duration(days: 1))) return 'Yesterday';
+    return '${dt.month}/${dt.day}';
+  }
+
+  String _getAuthorInitials(IncidentTimelineItem item) {
+    // Use authorId to generate initials since OpsUser doesn't have a name field
+    return 'U${item.authorId}';
+  }
+
+  IconData _getIconForType(TimelineItemType type) {
+    switch (type) {
+      case TimelineItemType.STATUS_CHANGE:
+        return LucideIcons.activity;
+      case TimelineItemType.USER_COMMENT:
+        return LucideIcons.messageSquare;
+      case TimelineItemType.PLAYBOOK_ACTION:
+        return LucideIcons.bot;
+      case TimelineItemType.SYSTEM_ALERT:
+        return LucideIcons.alertTriangle;
+    }
+  }
+
+  Color _getColorForType(TimelineItemType type) {
+    switch (type) {
+      case TimelineItemType.STATUS_CHANGE:
+        return AppTheme.primary;
+      case TimelineItemType.USER_COMMENT:
+        return Colors.amber;
+      case TimelineItemType.PLAYBOOK_ACTION:
+        return AppTheme.success;
+      case TimelineItemType.SYSTEM_ALERT:
+        return AppTheme.error;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final timeline = incident.timeline ?? [];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -696,50 +776,43 @@ class _TimelineSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: const Color(0xFF2D3748)),
           ),
-          child: Column(
-            children: [
-              _TimelineItem(
-                time: '14:22',
-                day: 'Today',
-                title: 'Incident Resolved',
-                description:
-                    'System health has returned to normal levels. All services operating within SLA.',
-                icon: LucideIcons.checkCircle,
-                statusColor: AppTheme.success,
-                isSystem: true,
-              ),
-              _TimelineItem(
-                time: '13:45',
-                day: 'Today',
-                title: 'Deployment Rollback Complete',
-                description: 'Service v4.2.0 has been successfully restored.',
-                icon: LucideIcons.rotateCcw,
-                statusColor: AppTheme.primary,
-                isSystem: true,
-              ),
-              _TimelineItem(
-                time: '13:12',
-                day: 'Today',
-                title: 'New Comment from Alex R.',
-                description:
-                    'Investigating the cache invalidation logic. It seems some keys were not properly cleared.',
-                icon: LucideIcons.messageSquare,
-                statusColor: Colors.amber,
-                userPlaceholder: 'AR',
-              ),
-              _TimelineItem(
-                time: '12:50',
-                day: 'Today',
-                title: 'Root Cause Identified',
-                description:
-                    'Database connection pool exhaustion identified on primary shard.',
-                icon: LucideIcons.search,
-                statusColor: AppTheme.error,
-                isSystem: true,
-                isLast: true,
-              ),
-            ],
-          ),
+          child: timeline.isEmpty
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text(
+                      'No timeline events yet',
+                      style: TextStyle(color: Color(0xFF94A3B8)),
+                    ),
+                  ),
+                )
+              : Column(
+                  children: timeline.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final item = entry.value;
+                    final isSystem =
+                        item.type == TimelineItemType.PLAYBOOK_ACTION ||
+                        item.type == TimelineItemType.STATUS_CHANGE;
+
+                    return _TimelineItem(
+                      time: _getTimeString(item.createdAt),
+                      day: _getDayString(item.createdAt),
+                      title: item.type == TimelineItemType.USER_COMMENT
+                          ? 'Comment from User #${item.authorId}'
+                          : item.content,
+                      description: item.type == TimelineItemType.USER_COMMENT
+                          ? item.content
+                          : item.metaData ?? '',
+                      icon: _getIconForType(item.type),
+                      statusColor: _getColorForType(item.type),
+                      isSystem: isSystem,
+                      userPlaceholder: isSystem
+                          ? null
+                          : _getAuthorInitials(item),
+                      isLast: index == timeline.length - 1,
+                    );
+                  }).toList(),
+                ),
         ),
       ],
     );
@@ -802,124 +875,127 @@ class _TimelineItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            width: 40,
-            child: Column(
-              children: [
-                Text(
-                  time,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  day,
-                  style: TextStyle(color: AppTheme.textMuted, fontSize: 10),
-                ),
-              ],
-            ),
+    return Stack(
+      children: [
+        if (!isLast)
+          Positioned(
+            left:
+                79, // 40 (time) + 24 (gap) + 15 (center of 32 circle minus 1 for half line width)
+            top: 32,
+            bottom: 0,
+            width: 2,
+            child: Container(color: const Color(0xFF2D3748)),
           ),
-          const SizedBox(width: 24),
-          Column(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: isSystem
-                      ? statusColor.withOpacity(0.1)
-                      : const Color(0xFF334155),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSystem
-                        ? statusColor.withOpacity(0.2)
-                        : Colors.transparent,
-                  ),
-                ),
-                child: Center(
-                  child: userPlaceholder != null
-                      ? Text(
-                          userPlaceholder!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      : Icon(icon, color: statusColor, size: 14),
-                ),
-              ),
-              if (!isLast)
-                Expanded(
-                  child: Container(width: 2, color: const Color(0xFF2D3748)),
-                ),
-            ],
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 24),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 40,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    time,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
                   Text(
-                    description,
-                    style: TextStyle(
-                      color: AppTheme.textMuted,
-                      fontSize: 13,
-                      height: 1.5,
-                    ),
+                    day,
+                    style: TextStyle(color: AppTheme.textMuted, fontSize: 10),
                   ),
-                  if (isSystem) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0F172A),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: const Color(0xFF2D3748)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(LucideIcons.bot, color: statusColor, size: 10),
-                          const SizedBox(width: 4),
-                          Text(
-                            'System Bot',
-                            style: TextStyle(
-                              color: statusColor.withOpacity(0.8),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
-          ),
-        ],
-      ),
+            const SizedBox(width: 24),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: isSystem
+                    ? statusColor.withOpacity(0.1)
+                    : const Color(0xFF334155),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSystem
+                      ? statusColor.withOpacity(0.2)
+                      : Colors.transparent,
+                ),
+              ),
+              child: Center(
+                child: userPlaceholder != null
+                    ? Text(
+                        userPlaceholder!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    : Icon(icon, color: statusColor, size: 14),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        color: AppTheme.textMuted,
+                        fontSize: 13,
+                        height: 1.5,
+                      ),
+                    ),
+                    if (isSystem) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFF2D3748)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(LucideIcons.bot, color: statusColor, size: 10),
+                            const SizedBox(width: 4),
+                            Text(
+                              'System Bot',
+                              style: TextStyle(
+                                color: statusColor.withOpacity(0.8),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

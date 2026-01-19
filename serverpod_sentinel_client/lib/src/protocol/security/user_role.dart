@@ -20,9 +20,7 @@ abstract class UserRole implements _i1.SerializableModel {
   UserRole._({
     this.id,
     required this.userId,
-    required this.userId,
     this.user,
-    required this.roleId,
     required this.roleId,
     this.role,
   });
@@ -30,9 +28,7 @@ abstract class UserRole implements _i1.SerializableModel {
   factory UserRole({
     int? id,
     required int userId,
-    required int userId,
     _i2.OpsUser? user,
-    required int roleId,
     required int roleId,
     _i3.Role? role,
   }) = _UserRoleImpl;
@@ -58,11 +54,7 @@ abstract class UserRole implements _i1.SerializableModel {
 
   int userId;
 
-  int userId;
-
   _i2.OpsUser? user;
-
-  int roleId;
 
   int roleId;
 
@@ -74,9 +66,7 @@ abstract class UserRole implements _i1.SerializableModel {
   UserRole copyWith({
     int? id,
     int? userId,
-    int? userId,
     _i2.OpsUser? user,
-    int? roleId,
     int? roleId,
     _i3.Role? role,
   });
@@ -86,9 +76,7 @@ abstract class UserRole implements _i1.SerializableModel {
       '__className__': 'UserRole',
       if (id != null) 'id': id,
       'userId': userId,
-      'userId': userId,
       if (user != null) 'user': user?.toJson(),
-      'roleId': roleId,
       'roleId': roleId,
       if (role != null) 'role': role?.toJson(),
     };
@@ -106,9 +94,7 @@ class _UserRoleImpl extends UserRole {
   _UserRoleImpl({
     int? id,
     required int userId,
-    required int userId,
     _i2.OpsUser? user,
-    required int roleId,
     required int roleId,
     _i3.Role? role,
   }) : super._(
@@ -126,9 +112,7 @@ class _UserRoleImpl extends UserRole {
   UserRole copyWith({
     Object? id = _Undefined,
     int? userId,
-    int? userId,
     Object? user = _Undefined,
-    int? roleId,
     int? roleId,
     Object? role = _Undefined,
   }) {

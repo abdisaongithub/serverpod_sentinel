@@ -1,0 +1,8 @@
+### Helper class for streaming signal updates.
+class: StreamSignalUpdate
+fields:
+  serviceId: int
+  signalId: int
+  identifier: String
+  value: double
+  timestamp: DateTime

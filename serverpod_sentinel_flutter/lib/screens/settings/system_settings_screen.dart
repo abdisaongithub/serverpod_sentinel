@@ -5,15 +5,25 @@ import '../../theme/app_theme.dart';
 import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
 
-class SystemSettingsScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/settings_provider.dart';
+
+class SystemSettingsScreen extends ConsumerStatefulWidget {
   const SystemSettingsScreen({super.key});
 
   @override
-  State<SystemSettingsScreen> createState() => _SystemSettingsScreenState();
+  ConsumerState<SystemSettingsScreen> createState() =>
+      _SystemSettingsScreenState();
 }
 
-class _SystemSettingsScreenState extends State<SystemSettingsScreen> {
+class _SystemSettingsScreenState extends ConsumerState<SystemSettingsScreen> {
   bool _guardrailsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize guardrails state if needed, or rely on provider data
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -138,26 +148,57 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen> {
                                             ),
                                           ),
                                           TextButton(
-                                            onPressed: () {},
-                                            child: const Text('Add New'),
+                                            onPressed: () => context.go(
+                                              AppRoutes.environmentSettings,
+                                            ),
+                                            child: const Text('Manage'),
                                           ),
                                         ],
                                       ),
                                       const SizedBox(height: 4),
-                                      _buildEnvironmentTile(
-                                        context,
-                                        'Production (US-East)',
-                                        '# v4.2.0   12 Nodes',
-                                        const Color(0xFF10b981),
-                                        isLive: true,
-                                      ),
-                                      const SizedBox(height: 12),
-                                      _buildEnvironmentTile(
-                                        context,
-                                        'Staging',
-                                        '# v4.2.1-rc   4 Nodes',
-                                        Colors.amber,
-                                        isBeta: true,
+                                      Consumer(
+                                        builder: (context, ref, _) {
+                                          final envsAsync = ref.watch(
+                                            environmentsProvider,
+                                          );
+                                          return envsAsync.when(
+                                            data: (envs) => Column(
+                                              children: envs.take(3).map((env) {
+                                                final isProduction = env.name
+                                                    .toLowerCase()
+                                                    .contains('production');
+                                                // Assuming region is a good proxy for 'details' if actual details are missing
+                                                final details =
+                                                    env.description ??
+                                                    env.region;
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        bottom: 12,
+                                                      ),
+                                                  child: _buildEnvironmentTile(
+                                                    context,
+                                                    env.name,
+                                                    details,
+                                                    isProduction
+                                                        ? const Color(
+                                                            0xFF10b981,
+                                                          )
+                                                        : Colors.amber,
+                                                    isLive: isProduction,
+                                                    isBeta: !isProduction,
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
+                                            loading: () => const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                            error: (err, _) =>
+                                                Text('Error: $err'),
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),
@@ -197,41 +238,52 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen> {
                                         ],
                                       ),
                                       const SizedBox(height: 12),
-                                      GridView.count(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        crossAxisCount: 2,
-                                        crossAxisSpacing: 16,
-                                        mainAxisSpacing: 16,
-                                        childAspectRatio: 1.5,
-                                        children: [
-                                          _buildIntegrationCard(
-                                            'GitHub',
-                                            'Connected',
-                                            LucideIcons.github,
-                                            const Color(0xFF10b981),
-                                            footer: 'Last sync: 1m',
-                                          ),
-                                          _buildIntegrationCard(
-                                            'AWS',
-                                            'Synced (2m ago)',
-                                            LucideIcons.cloud,
-                                            const Color(0xFF10b981),
-                                            iconColor: Colors.purple,
-                                            footer: 'us-east-1',
-                                          ),
-                                          _buildIntegrationCard(
-                                            'Jira',
-                                            'Re-auth needed',
-                                            LucideIcons.bug,
-                                            Colors.amber,
-                                            iconColor: Colors.red,
-                                            footer: 'FIX NOW',
-                                            footerColor: Colors.red,
-                                          ),
-                                          _buildAddServiceCard(context),
-                                        ],
+                                      Consumer(
+                                        builder: (context, ref, _) {
+                                          final integrationsAsync = ref.watch(
+                                            integrationsProvider,
+                                          );
+                                          return integrationsAsync.when(
+                                            data: (integrations) => GridView.count(
+                                              shrinkWrap: true,
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              crossAxisCount: 2,
+                                              crossAxisSpacing: 16,
+                                              mainAxisSpacing: 16,
+                                              childAspectRatio: 1.5,
+                                              children: [
+                                                ...integrations
+                                                    .take(3)
+                                                    .map(
+                                                      (
+                                                        integration,
+                                                      ) => _buildIntegrationCard(
+                                                        integration.name,
+                                                        integration.isEnabled
+                                                            ? 'Connected'
+                                                            : 'Disabled',
+                                                        LucideIcons.plug,
+                                                        integration.isEnabled
+                                                            ? const Color(
+                                                                0xFF10b981,
+                                                              )
+                                                            : Colors.grey,
+                                                        footer:
+                                                            'Last sync: Now',
+                                                      ),
+                                                    ),
+                                                _buildAddServiceCard(context),
+                                              ],
+                                            ),
+                                            loading: () => const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                            error: (err, _) =>
+                                                Text('Error: $err'),
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),
@@ -259,8 +311,6 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 32),
-                                // ... Rest of mobile implementation (omitted for brevity, can reuse components)
-                                // For now, mirroring desktop sections in vertical stack
                                 const Text(
                                   'NOTIFICATION PREFERENCES',
                                   style: TextStyle(
@@ -309,7 +359,7 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen> {
                                 const SizedBox(height: 32),
                                 _buildAutomationSafetyCard(),
                                 const SizedBox(height: 32),
-                                // Integrations List
+                                // Integrations List (Mobile)
                                 const Text(
                                   'INTEGRATIONS',
                                   style: TextStyle(
@@ -320,21 +370,46 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                _buildIntegrationCard(
-                                  'GitHub',
-                                  'Connected',
-                                  LucideIcons.github,
-                                  const Color(0xFF10b981),
-                                  footer: 'Last sync: 1m',
-                                ),
-                                const SizedBox(height: 12),
-                                _buildIntegrationCard(
-                                  'AWS',
-                                  'Synced (2m ago)',
-                                  LucideIcons.cloud,
-                                  const Color(0xFF10b981),
-                                  iconColor: Colors.purple,
-                                  footer: 'us-east-1',
+                                Consumer(
+                                  builder: (context, ref, _) {
+                                    final integrationsAsync = ref.watch(
+                                      integrationsProvider,
+                                    );
+                                    return integrationsAsync.when(
+                                      data: (integrations) => Column(
+                                        children: [
+                                          ...integrations
+                                              .take(3)
+                                              .map(
+                                                (integration) => Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        bottom: 12,
+                                                      ),
+                                                  child: _buildIntegrationCard(
+                                                    integration.name,
+                                                    integration.isEnabled
+                                                        ? 'Connected'
+                                                        : 'Disabled',
+                                                    LucideIcons.plug,
+                                                    integration.isEnabled
+                                                        ? const Color(
+                                                            0xFF10b981,
+                                                          )
+                                                        : Colors.grey,
+                                                    footer: 'Last sync: Now',
+                                                  ),
+                                                ),
+                                              ),
+                                          _buildAddServiceCard(context),
+                                        ],
+                                      ),
+                                      loading: () => const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                      error: (err, _) => Text('Error: $err'),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
@@ -789,7 +864,28 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen> {
                     const SizedBox(width: 12),
                     Switch(
                       value: _guardrailsEnabled,
-                      onChanged: (v) => setState(() => _guardrailsEnabled = v),
+                      onChanged: (v) {
+                        setState(() => _guardrailsEnabled = v);
+                        // Update backend
+                        ref
+                            .read(settingsMutationProvider.notifier)
+                            .upsertSetting(
+                              'safety_guardrails',
+                              v.toString(),
+                              description:
+                                  'Enforce safety checks on production',
+                              category: 'safety',
+                            )
+                            .then((result) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Safety settings updated'),
+                                  ),
+                                );
+                              }
+                            });
+                      },
                       activeColor: Colors.white,
                       activeTrackColor: AppTheme.primary,
                       inactiveTrackColor: AppTheme.surfaceHighlight,
@@ -798,151 +894,6 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen> {
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 32),
-          // Safety Level
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppTheme.background.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Safety Sensitivity Level',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Adjust the strictness of automation approvals.',
-                          style: TextStyle(
-                            color: AppTheme.textMuted,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primary.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        'Standard',
-                        style: TextStyle(
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    trackHeight: 4,
-                    activeTrackColor: AppTheme.primary,
-                    inactiveTrackColor: AppTheme.surfaceHighlight,
-                    thumbColor: AppTheme.primary,
-                    thumbShape: const RoundSliderThumbShape(
-                      enabledThumbRadius: 8,
-                    ),
-                    overlayShape: const RoundSliderOverlayShape(
-                      overlayRadius: 0,
-                    ),
-                  ),
-                  child: Slider(
-                    value: 1,
-                    min: 0,
-                    max: 2,
-                    divisions: 2,
-                    onChanged: (v) {},
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'PERMISSIVE',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppTheme.textMuted,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'STANDARD',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppTheme.textMuted,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'STRICT',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppTheme.textMuted,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    const Icon(
-                      LucideIcons.info,
-                      size: 16,
-                      color: AppTheme.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Standard Mode Active',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Manual approval is required for any destructive actions (DROP, DELETE) on production databases.',
-                            style: TextStyle(
-                              color: AppTheme.textMuted.withOpacity(0.8),
-                              fontSize: 12,
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
           ),
         ],
       ),

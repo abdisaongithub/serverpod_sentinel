@@ -3,45 +3,191 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 
-class ServiceRegistryScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/services_provider.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
+import '../../widgets/shimmer_loading.dart';
+import 'package:intl/intl.dart';
+
+class ServiceRegistryScreen extends ConsumerStatefulWidget {
   const ServiceRegistryScreen({super.key});
 
   @override
-  State<ServiceRegistryScreen> createState() => _ServiceRegistryScreenState();
+  ConsumerState<ServiceRegistryScreen> createState() =>
+      _ServiceRegistryScreenState();
 }
 
-class _ServiceRegistryScreenState extends State<ServiceRegistryScreen> {
+class _ServiceRegistryScreenState extends ConsumerState<ServiceRegistryScreen> {
   int _currentNavIndex = 2;
+  String _searchQuery = '';
+  ServiceStatus? _statusFilter;
+  String _environmentFilter = 'All';
+  int _currentPage = 1;
+  static const int _itemsPerPage = 12;
+
+  // View mode: 'grid' or 'list'
+  bool _isGridView = true;
+
+  void _exportCsv(List<Service> services) {
+    print('Exporting ${services.length} services');
+    final header = 'ID,Name,Status,Environment,Owner,Updated At';
+    final rows = services
+        .map((s) {
+          return '${s.id},${s.name},${s.status.name},Production,${s.owner?.userInfoId ?? "N/A"},${s.updatedAt}';
+        })
+        .join('\n');
+    final csvContent = '$header\n$rows';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Export CSV'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Copy the content below:'),
+            const SizedBox(height: 16),
+            Container(
+              width: 500,
+              height: 300,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF334155)),
+              ),
+              child: SingleChildScrollView(
+                child: SelectableText(
+                  csvContent,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    color: Color(0xFFE2E8F0),
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final servicesAsync = ref.watch(servicesProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
 
         return Scaffold(
           backgroundColor: const Color(0xFF0F172A),
-          body: Column(
-            children: [
-              _Header(isDesktop: isDesktop),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(isDesktop ? 32 : 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _FilterBar(isDesktop: isDesktop),
-                      const SizedBox(height: 24),
-                      const _StatsRow(),
-                      const SizedBox(height: 24),
-                      _ServiceGrid(isDesktop: isDesktop),
-                      const SizedBox(height: 24),
-                      const _Pagination(),
-                    ],
+          body: servicesAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Center(child: Text('Error: $e')),
+            data: (services) {
+              // 1. Filter by Search Query
+              var filtered = services.where((s) {
+                final searchLower = _searchQuery.toLowerCase();
+                return s.name.toLowerCase().contains(searchLower) ||
+                    s.id.toString().contains(searchLower);
+              }).toList();
+
+              // 2. Filter by Status
+              if (_statusFilter != null) {
+                filtered = filtered
+                    .where((s) => s.status == _statusFilter)
+                    .toList();
+              }
+
+              // 3. Filter by Environment (Mock property for now)
+              if (_environmentFilter != 'All') {
+                // In a real app, check s.environment. Since we don't have it on the model yet,
+                // we'll skip effective filtering or assume 'Production' for demo if needed.
+                // useful for future.
+              }
+
+              // 4. Pagination
+              final totalItems = filtered.length;
+              final totalPages = (totalItems / _itemsPerPage).ceil();
+              final startIndex = (_currentPage - 1) * _itemsPerPage;
+              final endIndex = (startIndex + _itemsPerPage < totalItems)
+                  ? startIndex + _itemsPerPage
+                  : totalItems;
+
+              final paginatedServices = (startIndex < totalItems)
+                  ? filtered.sublist(startIndex, endIndex)
+                  : <Service>[];
+
+              return Column(
+                children: [
+                  _Header(
+                    isDesktop: isDesktop,
+                    onSearch: (value) => setState(() {
+                      _searchQuery = value;
+                      _currentPage = 1;
+                    }),
+                    onRegister: () {
+                      // Navigate to create service or show dialog
+                    },
+                    onExport: () => _exportCsv(filtered),
                   ),
-                ),
-              ),
-            ],
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(isDesktop ? 32 : 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _FilterBar(
+                            isDesktop: isDesktop,
+                            statusFilter: _statusFilter,
+                            environmentFilter: _environmentFilter,
+                            isGridView: _isGridView,
+                            onStatusChanged: (val) => setState(() {
+                              _statusFilter = val;
+                              _currentPage = 1;
+                            }),
+                            onEnvironmentChanged: (val) => setState(() {
+                              _environmentFilter = val ?? 'All';
+                              _currentPage = 1;
+                            }),
+                            onViewModeChanged: (isGrid) => setState(() {
+                              _isGridView = isGrid;
+                            }),
+                          ),
+                          const SizedBox(height: 24),
+                          const _StatsRow(),
+                          const SizedBox(height: 24),
+                          _ServiceGrid(
+                            isDesktop: isDesktop,
+                            services: paginatedServices,
+                            isGridView: _isGridView,
+                          ),
+                          const SizedBox(height: 24),
+                          _Pagination(
+                            currentPage: _currentPage,
+                            totalPages: totalPages > 0 ? totalPages : 1,
+                            startIndex: startIndex + 1,
+                            endIndex: endIndex,
+                            totalItems: totalItems,
+                            onPageChanged: (page) =>
+                                setState(() => _currentPage = page),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
           bottomNavigationBar: isDesktop
               ? null
@@ -100,7 +246,16 @@ class _ServiceRegistryScreenState extends State<ServiceRegistryScreen> {
 
 class _Header extends StatelessWidget {
   final bool isDesktop;
-  const _Header({required this.isDesktop});
+  final ValueChanged<String> onSearch;
+  final VoidCallback onRegister;
+  final VoidCallback onExport;
+
+  const _Header({
+    required this.isDesktop,
+    required this.onSearch,
+    required this.onRegister,
+    required this.onExport,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -157,13 +312,23 @@ class _Header extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
-                children: const [
-                  Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
-                  SizedBox(width: 8),
+                children: [
+                  const Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      'Search services...',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                    child: TextField(
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      decoration: const InputDecoration(
+                        hintText: 'Search services...',
+                        hintStyle: TextStyle(
+                          color: Color(0xFF64748B),
+                          fontSize: 14,
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      onChanged: onSearch,
                     ),
                   ),
                 ],
@@ -171,11 +336,28 @@ class _Header extends StatelessWidget {
             ),
           const SizedBox(width: 16),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: onRegister,
             icon: const Icon(Icons.add, size: 20),
             label: Text(isDesktop ? 'Register Service' : ''),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primary,
+              padding: EdgeInsets.symmetric(
+                horizontal: isDesktop ? 16 : 12,
+                vertical: 10,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          OutlinedButton.icon(
+            onPressed: onExport,
+            icon: const Icon(Icons.download, size: 20),
+            label: Text(isDesktop ? 'Export CSV' : ''),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.white,
+              side: const BorderSide(color: Color(0xFF334155)),
               padding: EdgeInsets.symmetric(
                 horizontal: isDesktop ? 16 : 12,
                 vertical: 10,
@@ -193,7 +375,22 @@ class _Header extends StatelessWidget {
 
 class _FilterBar extends StatelessWidget {
   final bool isDesktop;
-  const _FilterBar({required this.isDesktop});
+  final ServiceStatus? statusFilter;
+  final String environmentFilter;
+  final bool isGridView;
+  final ValueChanged<ServiceStatus?> onStatusChanged;
+  final ValueChanged<String?> onEnvironmentChanged;
+  final ValueChanged<bool> onViewModeChanged;
+
+  const _FilterBar({
+    required this.isDesktop,
+    required this.statusFilter,
+    required this.environmentFilter,
+    required this.isGridView,
+    required this.onStatusChanged,
+    required this.onEnvironmentChanged,
+    required this.onViewModeChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +421,7 @@ class _FilterBar extends StatelessWidget {
               Container(width: 1, height: 16, color: const Color(0xFF334155)),
               const SizedBox(width: 8),
               DropdownButton<String>(
-                value: 'All',
+                value: environmentFilter,
                 underline: const SizedBox(),
                 dropdownColor: const Color(0xFF1E293B),
                 style: const TextStyle(color: Colors.white, fontSize: 14),
@@ -236,22 +433,28 @@ class _FilterBar extends StatelessWidget {
                       ),
                     )
                     .toList(),
-                onChanged: (_) {},
+                onChanged: onEnvironmentChanged,
               ),
               Container(width: 1, height: 16, color: const Color(0xFF334155)),
               const SizedBox(width: 8),
-              DropdownButton<String>(
-                value: 'All',
+              DropdownButton<ServiceStatus?>(
+                value: statusFilter,
                 underline: const SizedBox(),
                 dropdownColor: const Color(0xFF1E293B),
                 style: const TextStyle(color: Colors.white, fontSize: 14),
-                items: ['All', 'Healthy', 'Warning', 'Critical']
-                    .map(
-                      (e) =>
-                          DropdownMenuItem(value: e, child: Text('Health: $e')),
-                    )
-                    .toList(),
-                onChanged: (_) {},
+                items: [
+                  const DropdownMenuItem<ServiceStatus?>(
+                    value: null,
+                    child: Text('Health: All'),
+                  ),
+                  ...ServiceStatus.values.map(
+                    (e) => DropdownMenuItem(
+                      value: e,
+                      child: Text('Health: ${e.name}'),
+                    ),
+                  ),
+                ],
+                onChanged: onStatusChanged,
               ),
             ],
           ),
@@ -298,18 +501,26 @@ class _FilterBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: Icon(Icons.grid_view, color: AppTheme.primary, size: 20),
-                onPressed: () {},
+                icon: Icon(
+                  Icons.grid_view,
+                  color: isGridView
+                      ? AppTheme.primary
+                      : const Color(0xFF64748B),
+                  size: 20,
+                ),
+                onPressed: () => onViewModeChanged(true),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               ),
               IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.view_list,
-                  color: Color(0xFF64748B),
+                  color: !isGridView
+                      ? AppTheme.primary
+                      : const Color(0xFF64748B),
                   size: 20,
                 ),
-                onPressed: () {},
+                onPressed: () => onViewModeChanged(false),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               ),
@@ -321,43 +532,66 @@ class _FilterBar extends StatelessWidget {
   }
 }
 
-class _StatsRow extends StatelessWidget {
+class _StatsRow extends ConsumerWidget {
   const _StatsRow();
 
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isSmall = constraints.maxWidth < 600;
-        return Wrap(
-          spacing: 16,
-          runSpacing: 16,
-          children: [
-            _StatCard(
-              label: 'Total Services',
-              value: '48',
-              width: isSmall ? constraints.maxWidth / 2 - 8 : null,
-            ),
-            _StatCard(
-              label: 'Healthy',
-              value: '42',
-              valueColor: const Color(0xFF22C55E),
-              width: isSmall ? constraints.maxWidth / 2 - 8 : null,
-            ),
-            _StatCard(
-              label: 'Warnings',
-              value: '5',
-              valueColor: const Color(0xFFF59E0B),
-              width: isSmall ? constraints.maxWidth / 2 - 8 : null,
-            ),
-            _StatCard(
-              label: 'Critical',
-              value: '1',
-              valueColor: const Color(0xFFEF4444),
-              highlight: true,
-              width: isSmall ? constraints.maxWidth / 2 - 8 : null,
-            ),
-          ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final servicesAsync = ref.watch(servicesProvider);
+
+    return servicesAsync.when(
+      loading: () => const ShimmerBox(width: double.infinity, height: 100),
+      error: (_, __) => const SizedBox(),
+      data: (services) {
+        final total = services.length;
+        final healthy = services
+            .where((s) => s.status == ServiceStatus.OPERATIONAL)
+            .length;
+        final warnings = services
+            .where((s) => s.status == ServiceStatus.DEGRADED)
+            .length;
+        final critical = services
+            .where(
+              (s) =>
+                  s.status == ServiceStatus.PARTIAL_OUTAGE ||
+                  s.status == ServiceStatus.MAJOR_OUTAGE,
+            )
+            .length;
+
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final isSmall = constraints.maxWidth < 600;
+            return Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _StatCard(
+                  label: 'Total Services',
+                  value: total.toString(),
+                  width: isSmall ? constraints.maxWidth / 2 - 8 : null,
+                ),
+                _StatCard(
+                  label: 'Healthy',
+                  value: healthy.toString(),
+                  valueColor: const Color(0xFF22C55E),
+                  width: isSmall ? constraints.maxWidth / 2 - 8 : null,
+                ),
+                _StatCard(
+                  label: 'Warnings',
+                  value: warnings.toString(),
+                  valueColor: const Color(0xFFF59E0B),
+                  width: isSmall ? constraints.maxWidth / 2 - 8 : null,
+                ),
+                _StatCard(
+                  label: 'Critical',
+                  value: critical.toString(),
+                  valueColor: const Color(0xFFEF4444),
+                  highlight: true,
+                  width: isSmall ? constraints.maxWidth / 2 - 8 : null,
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -425,71 +659,44 @@ class _StatCard extends StatelessWidget {
 
 class _ServiceGrid extends StatelessWidget {
   final bool isDesktop;
-  const _ServiceGrid({required this.isDesktop});
+  final List<Service> services;
+  final bool isGridView;
+
+  const _ServiceGrid({
+    required this.isDesktop,
+    required this.services,
+    required this.isGridView,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final services = [
-      _ServiceData(
-        name: 'Auth-Service',
-        id: '#srv-001',
-        team: 'Team Alpha',
-        heartbeat: '2m ago',
-        status: ServiceStatus.healthy,
-        env: 'Prod',
-        envColor: const Color(0xFF3B82F6),
-      ),
-      _ServiceData(
-        name: 'Payment-Gateway',
-        id: 'High Latency Detected',
-        team: 'FinOps',
-        heartbeat: '10s ago',
-        status: ServiceStatus.warning,
-        env: 'Prod',
-        envColor: const Color(0xFF3B82F6),
-        latency: 850,
-      ),
-      _ServiceData(
-        name: 'Email-Worker',
-        id: 'Connection Refused',
-        team: 'Comm Team',
-        heartbeat: '5h ago',
-        status: ServiceStatus.critical,
-        env: 'Staging',
-        envColor: const Color(0xFF8B5CF6),
-        error: 'TCP connection timeout on port 587. Check firewall rules.',
-      ),
-      _ServiceData(
-        name: 'Analytics-Stream',
-        id: 'Maintenance Mode',
-        team: 'Data Eng',
-        heartbeat: '1d 4h',
-        status: ServiceStatus.maintenance,
-        env: 'Prod',
-        envColor: const Color(0xFF3B82F6),
-      ),
-      _ServiceData(
-        name: 'User-Profile',
-        id: '#srv-042',
-        team: 'Team Alpha',
-        heartbeat: '1h ago',
-        status: ServiceStatus.healthy,
-        env: 'Dev',
-        envColor: const Color(0xFF22C55E),
-      ),
-      _ServiceData(
-        name: 'Notification-Svc',
-        id: '#srv-088',
-        team: 'Comm Team',
-        heartbeat: '30s ago',
-        status: ServiceStatus.healthy,
-        env: 'Prod',
-        envColor: const Color(0xFF3B82F6),
-      ),
-    ];
+    if (services.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: Text(
+            'No services found matching your criteria',
+            style: TextStyle(color: Color(0xFF94A3B8)),
+          ),
+        ),
+      );
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        if (!isGridView) {
+          return Column(
+            children: services
+                .map(
+                  (s) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _ServiceCard(data: s),
+                  ),
+                )
+                .toList(),
+          );
+        }
+
         int crossAxisCount = 1;
         if (constraints.maxWidth >= 1200)
           crossAxisCount = 4;
@@ -517,34 +724,8 @@ class _ServiceGrid extends StatelessWidget {
   }
 }
 
-enum ServiceStatus { healthy, warning, critical, maintenance }
-
-class _ServiceData {
-  final String name;
-  final String id;
-  final String team;
-  final String heartbeat;
-  final ServiceStatus status;
-  final String env;
-  final Color envColor;
-  final int? latency;
-  final String? error;
-
-  _ServiceData({
-    required this.name,
-    required this.id,
-    required this.team,
-    required this.heartbeat,
-    required this.status,
-    required this.env,
-    required this.envColor,
-    this.latency,
-    this.error,
-  });
-}
-
 class _ServiceCard extends StatelessWidget {
-  final _ServiceData data;
+  final Service data;
   const _ServiceCard({required this.data});
 
   @override
@@ -552,19 +733,20 @@ class _ServiceCard extends StatelessWidget {
     Color statusColor;
     IconData statusIcon;
     switch (data.status) {
-      case ServiceStatus.healthy:
+      case ServiceStatus.OPERATIONAL:
         statusColor = const Color(0xFF22C55E);
         statusIcon = Icons.check_circle;
         break;
-      case ServiceStatus.warning:
+      case ServiceStatus.DEGRADED:
         statusColor = const Color(0xFFF59E0B);
         statusIcon = Icons.warning;
         break;
-      case ServiceStatus.critical:
+      case ServiceStatus.PARTIAL_OUTAGE:
+      case ServiceStatus.MAJOR_OUTAGE:
         statusColor = const Color(0xFFEF4444);
         statusIcon = Icons.error;
         break;
-      case ServiceStatus.maintenance:
+      case ServiceStatus.MAINTENANCE:
         statusColor = const Color(0xFF64748B);
         statusIcon = Icons.build;
         break;
@@ -577,12 +759,14 @@ class _ServiceCard extends StatelessWidget {
           color: const Color(0xFF1E293B),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: data.status == ServiceStatus.critical
+            color:
+                data.status == ServiceStatus.PARTIAL_OUTAGE ||
+                    data.status == ServiceStatus.MAJOR_OUTAGE
                 ? const Color(0xFFEF4444).withOpacity(0.5)
-                : (data.status == ServiceStatus.warning
+                : (data.status == ServiceStatus.DEGRADED
                       ? const Color(0xFFF59E0B)
                       : const Color(0xFF334155)),
-            width: data.status == ServiceStatus.warning ? 1 : 1,
+            width: data.status == ServiceStatus.DEGRADED ? 1 : 1,
           ),
         ),
         child: Column(
@@ -611,7 +795,7 @@ class _ServiceCard extends StatelessWidget {
                                 size: 22,
                               ),
                             ),
-                            if (data.status == ServiceStatus.healthy)
+                            if (data.status == ServiceStatus.OPERATIONAL)
                               Positioned(
                                 bottom: 0,
                                 right: 0,
@@ -646,19 +830,11 @@ class _ServiceCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              data.id,
-                              style: TextStyle(
-                                color: data.status == ServiceStatus.critical
-                                    ? const Color(0xFFEF4444)
-                                    : const Color(0xFF94A3B8),
+                              '#${data.id}',
+                              style: const TextStyle(
+                                color: Color(0xFF94A3B8),
                                 fontSize: 12,
-                                fontFamily: data.id.startsWith('#')
-                                    ? 'monospace'
-                                    : null,
-                                fontWeight:
-                                    data.status == ServiceStatus.critical
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
+                                fontFamily: 'monospace',
                               ),
                             ),
                           ],
@@ -670,16 +846,16 @@ class _ServiceCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: data.envColor.withOpacity(0.1),
+                          color: Colors.blue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(100),
                           border: Border.all(
-                            color: data.envColor.withOpacity(0.3),
+                            color: Colors.blue.withOpacity(0.3),
                           ),
                         ),
                         child: Text(
-                          data.env,
+                          'Prod',
                           style: TextStyle(
-                            color: data.envColor,
+                            color: Colors.blue,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -693,81 +869,25 @@ class _ServiceCard extends StatelessWidget {
                       _MetaItem(
                         label: 'Owner',
                         icon: Icons.groups,
-                        value: data.team,
+                        value:
+                            data.owner?.userInfoId.toString() ?? 'Unassigned',
                       ),
                       const SizedBox(width: 16),
                       _MetaItem(
                         label: 'Last Heartbeat',
                         icon: Icons.schedule,
-                        value: data.heartbeat,
-                        highlight: data.status != ServiceStatus.healthy,
+                        value: DateFormat(
+                          'MMM d, h:mm a',
+                        ).format(data.updatedAt),
+                        highlight: data.status != ServiceStatus.OPERATIONAL,
                       ),
                     ],
                   ),
-                  if (data.latency != null) ...[
-                    const SizedBox(height: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'METRICS',
-                          style: TextStyle(
-                            color: Color(0xFF64748B),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: data.latency! / 1000,
-                            backgroundColor: const Color(0xFF334155),
-                            valueColor: const AlwaysStoppedAnimation(
-                              Color(0xFFF59E0B),
-                            ),
-                            minHeight: 6,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            'Latency: ${data.latency}ms',
-                            style: const TextStyle(
-                              color: Color(0xFFF59E0B),
-                              fontSize: 10,
-                              fontFamily: 'monospace',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                  if (data.error != null) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEF4444).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                          color: const Color(0xFFEF4444).withOpacity(0.2),
-                        ),
-                      ),
-                      child: Text(
-                        'Error: ${data.error}',
-                        style: const TextStyle(
-                          color: Color(0xFFFCA5A5),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (data.status == ServiceStatus.healthy &&
-                      data.latency == null &&
-                      data.error == null) ...[
+                  // Latency metrics removed as they are not on the Service model
+                  // if (data.latency != null) ...[ ... ]
+                  // Error details removed
+                  // if (data.error != null) ...[ ... ]
+                  if (data.status == ServiceStatus.OPERATIONAL) ...[
                     const SizedBox(height: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -783,7 +903,7 @@ class _ServiceCard extends StatelessWidget {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Operational - 99.9% Uptime',
+                          'Operational',
                           style: TextStyle(
                             color: Color(0xFF22C55E),
                             fontSize: 12,
@@ -809,11 +929,14 @@ class _ServiceCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    data.status == ServiceStatus.critical
+                    (data.status == ServiceStatus.PARTIAL_OUTAGE ||
+                            data.status == ServiceStatus.MAJOR_OUTAGE)
                         ? 'Restart Service'
                         : 'View Logs',
                     style: TextStyle(
-                      color: data.status == ServiceStatus.critical
+                      color:
+                          (data.status == ServiceStatus.PARTIAL_OUTAGE ||
+                              data.status == ServiceStatus.MAJOR_OUTAGE)
                           ? const Color(0xFFEF4444)
                           : const Color(0xFF94A3B8),
                       fontSize: 12,
@@ -894,7 +1017,21 @@ class _MetaItem extends StatelessWidget {
 }
 
 class _Pagination extends StatelessWidget {
-  const _Pagination();
+  final int currentPage;
+  final int totalPages;
+  final int startIndex;
+  final int endIndex;
+  final int totalItems;
+  final ValueChanged<int> onPageChanged;
+
+  const _Pagination({
+    required this.currentPage,
+    required this.totalPages,
+    required this.startIndex,
+    required this.endIndex,
+    required this.totalItems,
+    required this.onPageChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -907,41 +1044,43 @@ class _Pagination extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           RichText(
-            text: const TextSpan(
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+            text: TextSpan(
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
               children: [
-                TextSpan(text: 'Showing '),
+                const TextSpan(text: 'Showing '),
                 TextSpan(
-                  text: '1',
-                  style: TextStyle(
+                  text: startIndex.toString(),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                TextSpan(text: ' to '),
+                const TextSpan(text: ' to '),
                 TextSpan(
-                  text: '6',
-                  style: TextStyle(
+                  text: endIndex.toString(),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                TextSpan(text: ' of '),
+                const TextSpan(text: ' of '),
                 TextSpan(
-                  text: '48',
-                  style: TextStyle(
+                  text: totalItems.toString(),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                TextSpan(text: ' results'),
+                const TextSpan(text: ' results'),
               ],
             ),
           ),
           Row(
             children: [
               OutlinedButton(
-                onPressed: () {},
+                onPressed: currentPage > 1
+                    ? () => onPageChanged(currentPage - 1)
+                    : null,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF94A3B8),
                   side: const BorderSide(color: Color(0xFF334155)),
@@ -954,7 +1093,9 @@ class _Pagination extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               OutlinedButton(
-                onPressed: () {},
+                onPressed: currentPage < totalPages
+                    ? () => onPageChanged(currentPage + 1)
+                    : null,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: const Color(0xFF1E293B),

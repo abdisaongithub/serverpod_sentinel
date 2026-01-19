@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../routes.dart';
+import '../../services/serverpod_client.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,13 +14,26 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Navigate to dashboard after a short delay
-    // In a real app, you would check auth state here
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        context.go(AppRoutes.dashboard);
-      }
-    });
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    // Artificial delay for splash effect
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    // Check if user is signed in
+    // Note: sessionManager.checkStatus() might be needed if not automatically checked on startup
+    // For now assuming signedInUser is populated if session exists
+    final sessionManager = ServerpodClientSingleton.sessionManager;
+    final signedIn = sessionManager.signedInUser != null;
+
+    if (signedIn) {
+      context.go(AppRoutes.dashboard);
+    } else {
+      context.go(AppRoutes.login);
+    }
   }
 
   @override

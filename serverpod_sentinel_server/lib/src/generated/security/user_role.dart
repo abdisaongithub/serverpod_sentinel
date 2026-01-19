@@ -23,9 +23,7 @@ abstract class UserRole
   UserRole._({
     this.id,
     required this.userId,
-    required this.userId,
     this.user,
-    required this.roleId,
     required this.roleId,
     this.role,
   }) : _opsUserRolesOpsUserId = null,
@@ -34,9 +32,7 @@ abstract class UserRole
   factory UserRole({
     int? id,
     required int userId,
-    required int userId,
     _i2.OpsUser? user,
-    required int roleId,
     required int roleId,
     _i3.Role? role,
   }) = _UserRoleImpl;
@@ -67,11 +63,7 @@ abstract class UserRole
 
   int userId;
 
-  int userId;
-
   _i2.OpsUser? user;
-
-  int roleId;
 
   int roleId;
 
@@ -90,9 +82,7 @@ abstract class UserRole
   UserRole copyWith({
     int? id,
     int? userId,
-    int? userId,
     _i2.OpsUser? user,
-    int? roleId,
     int? roleId,
     _i3.Role? role,
   });
@@ -102,9 +92,7 @@ abstract class UserRole
       '__className__': 'UserRole',
       if (id != null) 'id': id,
       'userId': userId,
-      'userId': userId,
       if (user != null) 'user': user?.toJson(),
-      'roleId': roleId,
       'roleId': roleId,
       if (role != null) 'role': role?.toJson(),
       if (_opsUserRolesOpsUserId != null)
@@ -119,9 +107,7 @@ abstract class UserRole
       '__className__': 'UserRole',
       if (id != null) 'id': id,
       'userId': userId,
-      'userId': userId,
       if (user != null) 'user': user?.toJsonForProtocol(),
-      'roleId': roleId,
       'roleId': roleId,
       if (role != null) 'role': role?.toJsonForProtocol(),
     };
@@ -169,9 +155,7 @@ class _UserRoleImpl extends UserRole {
   _UserRoleImpl({
     int? id,
     required int userId,
-    required int userId,
     _i2.OpsUser? user,
-    required int roleId,
     required int roleId,
     _i3.Role? role,
   }) : super._(
@@ -189,9 +173,7 @@ class _UserRoleImpl extends UserRole {
   UserRole copyWith({
     Object? id = _Undefined,
     int? userId,
-    int? userId,
     Object? user = _Undefined,
-    int? roleId,
     int? roleId,
     Object? role = _Undefined,
   }) {
@@ -211,9 +193,7 @@ class UserRoleImplicit extends _UserRoleImpl {
   UserRoleImplicit._({
     int? id,
     required int userId,
-    required int userId,
     _i2.OpsUser? user,
-    required int roleId,
     required int roleId,
     _i3.Role? role,
     int? $_opsUserRolesOpsUserId,
@@ -259,16 +239,6 @@ class UserRoleUpdateTable extends _i1.UpdateTable<UserRoleTable> {
     value,
   );
 
-  _i1.ColumnValue<int, int> userId(int value) => _i1.ColumnValue(
-    table.userId,
-    value,
-  );
-
-  _i1.ColumnValue<int, int> roleId(int value) => _i1.ColumnValue(
-    table.roleId,
-    value,
-  );
-
   _i1.ColumnValue<int, int> roleId(int value) => _i1.ColumnValue(
     table.roleId,
     value,
@@ -293,14 +263,6 @@ class UserRoleTable extends _i1.Table<int?> {
       'userId',
       this,
     );
-    userId = _i1.ColumnInt(
-      'userId',
-      this,
-    );
-    roleId = _i1.ColumnInt(
-      'roleId',
-      this,
-    );
     roleId = _i1.ColumnInt(
       'roleId',
       this,
@@ -319,11 +281,7 @@ class UserRoleTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt userId;
 
-  late final _i1.ColumnInt userId;
-
   _i2.OpsUserTable? _user;
-
-  late final _i1.ColumnInt roleId;
 
   late final _i1.ColumnInt roleId;
 
@@ -363,8 +321,6 @@ class UserRoleTable extends _i1.Table<int?> {
   List<_i1.Column> get columns => [
     id,
     userId,
-    userId,
-    roleId,
     roleId,
     $_opsUserRolesOpsUserId,
     $_roleUsersRoleId,
@@ -374,8 +330,6 @@ class UserRoleTable extends _i1.Table<int?> {
   List<_i1.Column> get managedColumns => [
     id,
     userId,
-    userId,
-    roleId,
     roleId,
   ];
 

@@ -1,0 +1,12 @@
+### Stream alert for real-time alert notifications
+
+class: StreamAlert
+fields:
+  id: int
+  serviceId: int?
+  title: String
+  message: String
+  severity: String  # info, warning, critical
+  source: String  # rule, ai, manual, system
+  timestamp: DateTime
+  acknowledged: bool

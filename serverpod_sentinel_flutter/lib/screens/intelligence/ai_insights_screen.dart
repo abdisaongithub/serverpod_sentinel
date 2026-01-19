@@ -1,77 +1,106 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 import '../../theme/app_theme.dart';
-
 import '../../widgets/app_sidebar.dart';
 import '../../routes.dart';
+import '../../providers/ai_insights_provider.dart';
 
-class AIInsightsScreen extends StatelessWidget {
+class AIInsightsScreen extends ConsumerStatefulWidget {
   const AIInsightsScreen({super.key});
 
   @override
+  ConsumerState<AIInsightsScreen> createState() => _AIInsightsScreenState();
+}
+
+class _AIInsightsScreenState extends ConsumerState<AIInsightsScreen> {
+  @override
   Widget build(BuildContext context) {
+    final insightsAsync = ref.watch(aiInsightsProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
 
-        if (isDesktop) {
-          return Scaffold(
-            backgroundColor: AppTheme.background,
-            body: Column(
-              children: [
-                _buildDesktopHeader(),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSummaryCards(isDesktop: true),
-                        const SizedBox(height: 24),
-                        _buildMainContent(isDesktop: true),
-                        const SizedBox(height: 24),
-                        _buildFooter(),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        // Mobile Layout
         return Scaffold(
-          appBar: AppBar(
-            title: const Text(
-              'AI Insights',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            actions: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(LucideIcons.filter),
+          backgroundColor: AppTheme.background,
+          appBar: isDesktop
+              ? null
+              : AppBar(
+                  title: const Text('AI Insights'),
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                ),
+          drawer: isDesktop
+              ? null
+              : const Drawer(
+                  child: AppSidebar(activeRoute: AppRoutes.aiInsights),
+                ),
+          body: insightsAsync.when(
+            data: (insights) {
+              return isDesktop
+                  ? Row(
+                      children: [
+                        // Sidebar for desktop is handled by layout shell usually, but if this screen is standalone:
+                        // Assuming ShellRoute handles sidebar, so we just build body.
+                        // If not, we might need to add sidebar here.
+                        // Based on other screens, it seems we might rely on a shell or need to check usage.
+                        // SystemSettingsScreen uses LayoutBuilder but doesn't explicitly add Sidebar in desktop branch
+                        // unless it's wrapped. Let's assume standard body structure.
+                        Expanded(
+                          child: Column(
+                            children: [
+                              _buildDesktopHeader(),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  padding: const EdgeInsets.all(24),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _buildSummaryCards(
+                                        insights,
+                                        isDesktop: true,
+                                      ),
+                                      const SizedBox(height: 24),
+                                      _buildMainContent(
+                                        insights,
+                                        isDesktop: true,
+                                      ),
+                                      const SizedBox(height: 24),
+                                      _buildFooter(),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildLiveAnalysisBadge(),
+                          const SizedBox(height: 16),
+                          _buildSummaryCards(insights, isDesktop: false),
+                          const SizedBox(height: 24),
+                          _buildMainContent(insights, isDesktop: false),
+                          const SizedBox(height: 24),
+                          _buildFooter(),
+                        ],
+                      ),
+                    );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(
+              child: Text(
+                'Error: $err',
+                style: const TextStyle(color: Colors.red),
               ),
-            ],
-          ),
-          drawer: const Drawer(
-            child: AppSidebar(activeRoute: AppRoutes.aiInsights),
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildLiveAnalysisBadge(),
-                const SizedBox(height: 16),
-                _buildSummaryCards(isDesktop: false),
-                const SizedBox(height: 24),
-                _buildMainContent(isDesktop: false),
-                const SizedBox(height: 24),
-                _buildFooter(),
-              ],
             ),
           ),
         );
@@ -114,20 +143,13 @@ class AIInsightsScreen extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               IconButton(
-                onPressed: () {},
+                onPressed: () => ref.refresh(aiInsightsProvider),
                 icon: const Icon(
                   LucideIcons.refreshCw,
                   size: 20,
                   color: AppTheme.textMuted,
                 ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  LucideIcons.settings,
-                  size: 20,
-                  color: AppTheme.textMuted,
-                ),
+                tooltip: 'Refresh',
               ),
             ],
           ),
@@ -170,51 +192,52 @@ class AIInsightsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryCards({required bool isDesktop}) {
+  Widget _buildSummaryCards(
+    List<AiInsight> insights, {
+    required bool isDesktop,
+  }) {
+    // Calculate stats derived from insights
+    int anomalyCount = insights
+        .where(
+          (i) =>
+              (i.severity?.toLowerCase() ?? '') == 'high' ||
+              (i.type.contains('anomaly')),
+        )
+        .length;
+
+    // Naive health calc
+    double health = 1.0 - (anomalyCount * 0.05);
+    if (health < 0) health = 0;
+
     final cards = [
       _buildStatCard(
         title: 'SYSTEM HEALTH',
-        value: '94%',
-        trend: '+2%',
-        trendUp: true,
+        value: '${(health * 100).toInt()}%',
+        trend: health > 0.9 ? 'Stable' : 'Degraded',
+        trendUp: health > 0.9,
         icon: LucideIcons.checkCircle,
-        iconColor: const Color(0xFF10b981),
-        progressBar: _buildProgressBar(0.94, const Color(0xFF10b981)),
+        iconColor: health > 0.8 ? const Color(0xFF10b981) : Colors.orange,
+        progressBar: _buildProgressBar(
+          health,
+          health > 0.8 ? const Color(0xFF10b981) : Colors.orange,
+        ),
       ),
       _buildStatCard(
         title: 'ACTIVE ANOMALIES',
-        value: '3',
-        trend: '+1 New',
-        trendUp: false, // bad trend
+        value: '$anomalyCount',
+        trend: anomalyCount > 0 ? '$anomalyCount Detected' : 'No Anomalies',
+        trendUp: anomalyCount == 0,
         icon: LucideIcons.alertTriangle,
-        iconColor: Colors.orange,
+        iconColor: anomalyCount > 0 ? Colors.orange : AppTheme.textMuted,
         progressBar: Row(
           children: [
             Expanded(
               child: Container(
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.error,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(width: 2),
-            Expanded(
-              child: Container(
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(width: 2),
-            Expanded(
-              child: Container(
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.yellow,
+                  color: anomalyCount > 0
+                      ? Colors.orange
+                      : AppTheme.surfaceHighlight,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -223,9 +246,9 @@ class AIInsightsScreen extends StatelessWidget {
         ),
       ),
       _buildStatCard(
-        title: 'AI ACCURACY SCORE',
+        title: 'AI CONFIDENCE',
         value: '98%',
-        trend: 'Based on user feedback',
+        trend: 'High',
         trendUp: true,
         isSubtext: true,
         icon: LucideIcons.brainCircuit,
@@ -234,34 +257,14 @@ class AIInsightsScreen extends StatelessWidget {
         glow: true,
       ),
       _buildStatCard(
-        title: 'SERVICES MONITORED',
-        value: '142',
-        trend: 'Across 4 regions',
+        title: 'INSIGHTS GENERATED',
+        value: '${insights.length}',
+        trend: 'Total events analyzed',
         trendUp: true,
         isSubtext: true,
-        icon: LucideIcons.server,
+        icon: LucideIcons.fileText,
         iconColor: AppTheme.textMuted,
-        progressBar: Row(
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: Color(0xFF10b981),
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'ALL SYSTEMS OPERATIONAL',
-              style: TextStyle(
-                color: AppTheme.textMuted,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+        progressBar: _buildProgressBar(1.0, AppTheme.textMuted),
       ),
     ];
 
@@ -368,16 +371,15 @@ class AIInsightsScreen extends StatelessWidget {
                       )
                     : Row(
                         children: [
-                          if (!isSubtext && trendUp)
-                            Icon(
-                              LucideIcons.arrowUp,
-                              size: 14,
-                              color: iconColor,
-                            ),
+                          // Add arrow if needed, mostly context dependent
                           Text(
                             trend,
                             style: TextStyle(
-                              color: trendUp ? iconColor : iconColor,
+                              color: trendUp
+                                  ? (title.contains('ANOMALIES')
+                                        ? Colors.green
+                                        : iconColor)
+                                  : Colors.orange,
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -405,7 +407,7 @@ class AIInsightsScreen extends StatelessWidget {
           ),
         ),
         FractionallySizedBox(
-          widthFactor: value,
+          widthFactor: value.clamp(0.0, 1.0),
           child: Container(
             height: 4,
             decoration: BoxDecoration(
@@ -418,16 +420,31 @@ class AIInsightsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMainContent({required bool isDesktop}) {
+  Widget _buildMainContent(
+    List<AiInsight> insights, {
+    required bool isDesktop,
+  }) {
+    final rootCauses = insights
+        .where((i) => i.type == 'root_cause' || i.type == 'analysis')
+        .toList();
+    final predictions = insights
+        .where((i) => i.type == 'prediction' || i.type == 'risk')
+        .toList();
+
+    // If no data, show empty states or mock examples if desired.
+    // We will show "No insights" if empty.
+
     final leftContent = Column(
       children: [
-        _buildRootCausesSection(),
+        _buildRootCausesSection(rootCauses),
         const SizedBox(height: 32),
-        _buildRiskPredictionsSection(isDesktop: isDesktop),
+        _buildRiskPredictionsSection(predictions, isDesktop: isDesktop),
       ],
     );
 
-    final rightContent = _buildRecommendedActionsSection();
+    // Filter for action items or similar
+    final suggestions = insights.where((i) => i.type == 'suggestion').toList();
+    final rightContent = _buildRecommendedActionsSection(suggestions);
 
     if (isDesktop) {
       return Row(
@@ -445,7 +462,16 @@ class AIInsightsScreen extends StatelessWidget {
     }
   }
 
-  Widget _buildRootCausesSection() {
+  Widget _buildRootCausesSection(List<AiInsight> insights) {
+    if (insights.isEmpty) {
+      return const Center(
+        child: Text(
+          'No active root cause analysis',
+          style: TextStyle(color: AppTheme.textMuted),
+        ),
+      );
+    }
+
     return Column(
       children: [
         Row(
@@ -461,94 +487,30 @@ class AIInsightsScreen extends StatelessWidget {
                 ),
               ],
             ),
-            TextButton(
-              onPressed: () {},
-              child: const Text(
-                'View All Incidents',
-                style: TextStyle(
-                  color: AppTheme.primary,
-                  fontWeight: FontWeight.bold,
+            // 'View All' can be added back if we have a separate list page
+          ],
+        ),
+        const SizedBox(height: 16),
+        ...insights
+            .take(5)
+            .map(
+              (insight) => Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: _buildInsightCard(
+                  title: insight.title,
+                  subtitle: insight.metadata ?? 'System',
+                  time: 'Detected just now', // Could use timeago
+                  confidence: '${(insight.confidence * 100).toInt()}%',
+                  icon: LucideIcons
+                      .database, // Generic icon, mapped from type if possible
+                  iconBg: AppTheme.error.withOpacity(0.1),
+                  iconColor: AppTheme.error,
+                  borderColor: AppTheme.error,
+                  content: Text(insight.content), // Simplify rich text for now
+                  actions: [_buildLink(LucideIcons.code, 'View Details')],
                 ),
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _buildInsightCard(
-          title: 'Database Latency Spike',
-          subtitle: 'Order-API-v2',
-          time: '15 mins ago',
-          confidence: '92%',
-          icon: LucideIcons.database,
-          iconBg: AppTheme.error.withOpacity(0.1),
-          iconColor: AppTheme.error,
-          borderColor: AppTheme.error,
-          content: RichText(
-            text: TextSpan(
-              style: const TextStyle(color: AppTheme.text, fontSize: 14),
-              children: [
-                const TextSpan(
-                  text: 'Insight: ',
-                  style: TextStyle(
-                    color: AppTheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const TextSpan(text: 'Unoptimized query detected in '),
-                TextSpan(
-                  text: 'GET /products',
-                  style: TextStyle(
-                    backgroundColor: AppTheme.surfaceHighlight,
-                    fontFamily: 'monospace',
-                    fontSize: 12,
-                  ),
-                ),
-                const TextSpan(
-                  text: ' endpoint introduced in v2.4 deployment.',
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            _buildLink(LucideIcons.code, 'View Query Logs'),
-            const SizedBox(width: 16),
-            _buildLink(
-              LucideIcons.history,
-              'Compare Deployments',
-              color: AppTheme.textMuted,
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _buildInsightCard(
-          title: 'API Timeout Error',
-          subtitle: 'Region: US-East-1',
-          time: '42 mins ago',
-          confidence: '85%',
-          icon: LucideIcons.cloudOff,
-          iconBg: Colors.orange.withOpacity(0.1),
-          iconColor: Colors.orange,
-          borderColor: Colors.orange,
-          content: RichText(
-            text: const TextSpan(
-              style: TextStyle(color: AppTheme.text, fontSize: 14),
-              children: [
-                TextSpan(
-                  text: 'Insight: ',
-                  style: TextStyle(
-                    color: AppTheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextSpan(
-                  text:
-                      'Abnormal traffic surge detected from 2 IP ranges correlating with recent marketing blast.',
-                ),
-              ],
-            ),
-          ),
-          actions: [_buildLink(LucideIcons.globe, 'Analyze Traffic Source')],
-        ),
       ],
     );
   }
@@ -750,36 +712,14 @@ class AIInsightsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRiskPredictionsSection({required bool isDesktop}) {
-    final risks = [
-      _buildRiskCard(
-        title: 'Disk Exhaustion',
-        subtitle: 'Node-cluster-04',
-        riskLevel: 'Medium Risk',
-        riskColor: Colors.orange,
-        currentValue: '78%',
-        prediction: 'Projected 95% in 4 hours.',
-        icon: LucideIcons.trendingUp,
-      ),
-      _buildRiskCard(
-        title: 'Memory Leak',
-        subtitle: 'Payment-Gateway',
-        riskLevel: 'High Risk',
-        riskColor: AppTheme.error,
-        currentValue: 'Linear Growth',
-        prediction: 'Crash predicted in 2 hours.',
-        icon: LucideIcons.memoryStick,
-      ),
-      _buildRiskCard(
-        title: 'Cert Expiry',
-        subtitle: 'Load Balancer',
-        riskLevel: 'Low Risk',
-        riskColor: AppTheme.textMuted,
-        currentValue: '14 Days Left',
-        prediction: 'Renewal automated scheduled for Saturday.',
-        icon: LucideIcons.shieldAlert,
-      ),
-    ];
+  Widget _buildRiskPredictionsSection(
+    List<AiInsight> predictions, {
+    required bool isDesktop,
+  }) {
+    if (predictions.isEmpty) {
+      // Return empty or placeholder
+      return Container();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -802,25 +742,57 @@ class AIInsightsScreen extends StatelessWidget {
                 ),
               ],
             ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(LucideIcons.moreHorizontal),
+            ),
           ],
         ),
         const SizedBox(height: 16),
         isDesktop
             ? Row(
-                children: [
-                  Expanded(child: risks[0]),
-                  const SizedBox(width: 16),
-                  Expanded(child: risks[1]),
-                  const SizedBox(width: 16),
-                  Expanded(child: risks[2]),
-                ],
+                children: predictions
+                    .take(3)
+                    .map(
+                      (p) => Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: _buildRiskCard(
+                            title: p.title,
+                            subtitle: p.metadata ?? 'Service',
+                            riskLevel: (p.severity ?? 'Low').toUpperCase(),
+                            riskColor:
+                                (p.severity == 'critical' ||
+                                    p.severity == 'high')
+                                ? Colors.red
+                                : Colors.orange,
+                            currentValue: 'Active',
+                            prediction: p.content,
+                            icon: LucideIcons.trendingUp,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
               )
             : Column(
-                children: risks
+                children: predictions
+                    .take(3)
                     .map(
-                      (r) => Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: r,
+                      (p) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: _buildRiskCard(
+                          title: p.title,
+                          subtitle: p.metadata ?? 'Service',
+                          riskLevel: (p.severity ?? 'Low').toUpperCase(),
+                          riskColor:
+                              (p.severity == 'critical' || p.severity == 'high')
+                              ? Colors.red
+                              : Colors.orange,
+                          currentValue: 'Active',
+                          prediction: p.content,
+                          icon: LucideIcons.trendingUp,
+                        ),
                       ),
                     )
                     .toList(),
@@ -839,102 +811,115 @@ class AIInsightsScreen extends StatelessWidget {
     required IconData icon,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.surfaceHighlight),
-        boxShadow: [
-          BoxShadow(
-            color: riskColor.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            right: -10,
-            top: -10,
-            child: Icon(icon, size: 80, color: riskColor.withOpacity(0.05)),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(icon, size: 16, color: riskColor),
-                  const SizedBox(width: 8),
-                  Text(
-                    riskLevel.toUpperCase(),
-                    style: TextStyle(
-                      color: riskColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.background,
+                  borderRadius: BorderRadius.circular(8),
                 ),
+                child: Icon(icon, size: 20, color: riskColor),
               ),
-              Text(
-                subtitle,
-                style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Current',
-                    style: TextStyle(color: AppTheme.textMuted, fontSize: 10),
-                  ),
-                  Text(
-                    currentValue,
-                    style: TextStyle(
-                      color: riskColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(2),
-                child: LinearProgressIndicator(
-                  value: 0.75,
-                  color: riskColor,
-                  backgroundColor: AppTheme.surfaceHighlight,
-                  minHeight: 4,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: riskColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                prediction,
-                style: const TextStyle(fontSize: 12, height: 1.4),
+                child: Text(
+                  riskLevel,
+                  style: TextStyle(
+                    color: riskColor,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          Text(
+            subtitle,
+            style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppTheme.surfaceHighlight),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Current:',
+                style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+              ),
+              Text(
+                currentValue,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppTheme.background,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  LucideIcons.arrowRightCircle,
+                  size: 14,
+                  color: AppTheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    prediction,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRecommendedActionsSection() {
+  Widget _buildRecommendedActionsSection(List<AiInsight> suggestions) {
+    if (suggestions.isEmpty) {
+      // Return empty or placeholder
+      return Container();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Row(
           children: [
-            Icon(LucideIcons.listChecks, color: Color(0xFF10b981), size: 20),
+            Icon(LucideIcons.checkSquare, color: AppTheme.primary, size: 20),
             SizedBox(width: 8),
             Text(
               'Recommended Actions',
@@ -943,312 +928,136 @@ class AIInsightsScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        _buildActionCard(
-          title: 'Execute Rollback',
-          subtitle: 'High Priority',
-          subtitleBg: AppTheme.error.withOpacity(0.1),
-          subtitleColor: AppTheme.error,
-          icon: LucideIcons.history,
-          iconBg: Colors.blue.withOpacity(0.1),
-          iconColor: Colors.blue,
-          desc: RichText(
-            text: TextSpan(
-              style: const TextStyle(
-                color: AppTheme.textMuted,
-                fontSize: 13,
-                height: 1.5,
-              ),
-              children: [
-                const TextSpan(text: 'Revert to stable build '),
-                TextSpan(
-                  text: 'v2.3.9',
-                  style: TextStyle(
-                    backgroundColor: AppTheme.surfaceHighlight,
-                    fontFamily: 'monospace',
-                    fontSize: 12,
-                  ),
-                ),
-                const TextSpan(
-                  text:
-                      '. AI predicts 95% probability of resolving latency spike.',
-                ),
-              ],
-            ),
-          ),
-          primaryAction: ElevatedButton.icon(
-            onPressed: () {},
-            icon: const Icon(LucideIcons.rotateCcw, size: 16),
-            label: const Text('Rollback Service'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildActionCard(
-          title: 'Scale Resources',
-          subtitle: 'Medium Priority',
-          subtitleBg: Colors.orange.withOpacity(0.1),
-          subtitleColor: Colors.orange,
-          icon: LucideIcons.rocket,
-          iconBg: const Color(0xFF10b981).withOpacity(0.1),
-          iconColor: const Color(0xFF10b981),
-          desc: RichText(
-            text: const TextSpan(
-              style: TextStyle(
-                color: AppTheme.textMuted,
-                fontSize: 13,
-                height: 1.5,
-              ),
-              children: [
-                TextSpan(text: 'Pre-empt memory leak crash by scaling '),
-                TextSpan(
-                  text: 'Payment-Gateway',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.text,
-                  ),
-                ),
-                TextSpan(text: ' to 10 replicas.'),
-              ],
-            ),
-          ),
-          primaryAction: Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(LucideIcons.plusCircle, size: 16),
-                  label: const Text('Scale'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: const BorderSide(color: AppTheme.surfaceHighlight),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.surfaceHighlight),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  LucideIcons.moreHorizontal,
-                  color: AppTheme.textMuted,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: AppTheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppTheme.surfaceHighlight),
-            // opacity would be applied to content or color
           ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppTheme.textMuted.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  LucideIcons.bellOff,
-                  size: 16,
-                  color: AppTheme.textMuted,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Snooze Alerts',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Pause for maintenance window',
-                      style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(LucideIcons.chevronRight, color: AppTheme.textMuted),
-            ],
+          child: Column(
+            children: suggestions
+                .take(5)
+                .map(
+                  (s) => _buildActionItem(
+                    title: s.title,
+                    description: s.content,
+                    impact: s.severity ?? 'Medium',
+                    impactColor: (s.severity == 'High')
+                        ? Colors.orange
+                        : Colors.blue,
+                  ),
+                )
+                .toList(),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildActionCard({
+  Widget _buildActionItem({
     required String title,
-    required String subtitle,
-    required Color subtitleBg,
-    required Color subtitleColor,
-    required IconData icon,
-    required Color iconBg,
-    required Color iconColor,
-    required Widget desc,
-    required Widget primaryAction,
+    required String description,
+    required String impact,
+    required Color impactColor,
   }) {
     return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.surfaceHighlight),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primary.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppTheme.surfaceHighlight)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 2),
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppTheme.textMuted),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: iconBg,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(icon, color: iconColor, size: 20),
+                    Text(
+                      title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: subtitleBg,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            subtitle.toUpperCase(),
-                            style: TextStyle(
-                              color: subtitleColor,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: const TextStyle(
+                        color: AppTheme.textMuted,
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                desc,
-                const SizedBox(height: 16),
-                SizedBox(width: double.infinity, child: primaryAction),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: impactColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  impact,
+                  style: TextStyle(
+                    color: impactColor,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.only(left: 32),
+            child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(0, 32),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                  child: const Text('Execute', style: TextStyle(fontSize: 12)),
+                ),
+                const SizedBox(width: 12),
+                TextButton(
+                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(0, 32),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                  child: const Text('Dismiss', style: TextStyle(fontSize: 12)),
+                ),
               ],
             ),
           ),
-          if (title.contains('Rollback')) // Special case for footer
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: AppTheme.surfaceHighlight),
-                ),
-                color: Color(0x33000000), // Darker bg
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(LucideIcons.eye, size: 14, color: AppTheme.textMuted),
-                  SizedBox(width: 6),
-                  Text(
-                    'View Rollback Simulation',
-                    style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
         ],
       ),
     );
   }
 
   Widget _buildFooter() {
-    return const Column(
-      children: [
-        Divider(color: AppTheme.surfaceHighlight),
-        SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  LucideIcons.shieldCheck,
-                  size: 16,
-                  color: AppTheme.primary,
-                ),
-                SizedBox(width: 8),
-                Text(
-                  'AI Insights verified by OpsGuard Engine v4.0',
-                  style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  'Feedback',
-                  style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-                ),
-                SizedBox(width: 16),
-                Text(
-                  'Documentation',
-                  style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-                ),
-                SizedBox(width: 16),
-                Text(
-                  'Privacy',
-                  style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-                ),
-              ],
-            ),
-          ],
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24.0),
+        child: Text(
+          'AI Analysis provided by Cortex-4 Engine',
+          style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
         ),
-      ],
+      ),
     );
   }
 }

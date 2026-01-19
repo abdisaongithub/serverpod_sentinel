@@ -20,7 +20,6 @@ abstract class PlaybookStepExecution implements _i1.SerializableModel {
   PlaybookStepExecution._({
     this.id,
     required this.executionId,
-    required this.executionId,
     this.execution,
     required this.stepId,
     required this.status,
@@ -32,7 +31,6 @@ abstract class PlaybookStepExecution implements _i1.SerializableModel {
 
   factory PlaybookStepExecution({
     int? id,
-    required int executionId,
     required int executionId,
     _i2.PlaybookExecution? execution,
     required String stepId,
@@ -78,8 +76,6 @@ abstract class PlaybookStepExecution implements _i1.SerializableModel {
 
   int executionId;
 
-  int executionId;
-
   _i2.PlaybookExecution? execution;
 
   String stepId;
@@ -100,7 +96,6 @@ abstract class PlaybookStepExecution implements _i1.SerializableModel {
   PlaybookStepExecution copyWith({
     int? id,
     int? executionId,
-    int? executionId,
     _i2.PlaybookExecution? execution,
     String? stepId,
     _i3.ExecutionStatus? status,
@@ -114,7 +109,6 @@ abstract class PlaybookStepExecution implements _i1.SerializableModel {
     return {
       '__className__': 'PlaybookStepExecution',
       if (id != null) 'id': id,
-      'executionId': executionId,
       'executionId': executionId,
       if (execution != null) 'execution': execution?.toJson(),
       'stepId': stepId,
@@ -137,7 +131,6 @@ class _Undefined {}
 class _PlaybookStepExecutionImpl extends PlaybookStepExecution {
   _PlaybookStepExecutionImpl({
     int? id,
-    required int executionId,
     required int executionId,
     _i2.PlaybookExecution? execution,
     required String stepId,
@@ -164,7 +157,6 @@ class _PlaybookStepExecutionImpl extends PlaybookStepExecution {
   @override
   PlaybookStepExecution copyWith({
     Object? id = _Undefined,
-    int? executionId,
     int? executionId,
     Object? execution = _Undefined,
     String? stepId,

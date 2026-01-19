@@ -3,16 +3,20 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/team_provider.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
+import '../../widgets/shimmer_loading.dart';
 import '../../widgets/app_sidebar.dart';
 
-class TeamMembersScreen extends StatefulWidget {
+class TeamMembersScreen extends ConsumerStatefulWidget {
   const TeamMembersScreen({super.key});
 
   @override
-  State<TeamMembersScreen> createState() => _TeamMembersScreenState();
+  ConsumerState<TeamMembersScreen> createState() => _TeamMembersScreenState();
 }
 
-class _TeamMembersScreenState extends State<TeamMembersScreen> {
+class _TeamMembersScreenState extends ConsumerState<TeamMembersScreen> {
   bool _isSidebarOpen = false;
   String? _selectedRole;
 
@@ -27,6 +31,21 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
     setState(() {
       _isSidebarOpen = false;
     });
+  }
+
+  int _countByRole(List<TeamMember> members, String roleKey) {
+    // Count members whose roles contain the roleKey (case-insensitive)
+    return members.where((m) {
+      final roles = m.user?.roles ?? [];
+      if (roles.isEmpty) {
+        // If no roles assigned, count as 'user' (standard user)
+        return roleKey == 'user';
+      }
+      return roles.any(
+        (r) =>
+            (r.role?.name.toLowerCase() ?? '').contains(roleKey.toLowerCase()),
+      );
+    }).length;
   }
 
   @override
@@ -46,7 +65,10 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
             children: [
               Column(
                 children: [
-                  const _Header(),
+                  _Header(
+                    activeCount:
+                        ref.watch(teamMembersProvider).valueOrNull?.length ?? 0,
+                  ),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(32),
@@ -55,11 +77,30 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _RoleOverview(onRoleTap: _openSidebar),
+                            _RoleOverview(
+                              onRoleTap: _openSidebar,
+                              adminCount: _countByRole(
+                                ref.watch(teamMembersProvider).valueOrNull ??
+                                    [],
+                                'admin',
+                              ),
+                              analystCount: _countByRole(
+                                ref.watch(teamMembersProvider).valueOrNull ??
+                                    [],
+                                'analyst',
+                              ),
+                              userCount: _countByRole(
+                                ref.watch(teamMembersProvider).valueOrNull ??
+                                    [],
+                                'user',
+                              ),
+                            ),
                             const SizedBox(height: 32),
                             _UsersSection(
-                              onUserTap: (name) => _openSidebar('Operator'),
-                            ), // Placeholder role
+                              onUserTap: (name) => _openSidebar(
+                                'Operator',
+                              ), // TODO: Open actual user details
+                            ),
                           ],
                         ),
                       ),
@@ -98,7 +139,8 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header();
+  final int activeCount;
+  const _Header({required this.activeCount});
 
   @override
   Widget build(BuildContext context) {
@@ -152,9 +194,9 @@ class _Header extends StatelessWidget {
                           color: AppTheme.primary.withOpacity(0.2),
                         ),
                       ),
-                      child: const Text(
-                        '42 Active',
-                        style: TextStyle(
+                      child: Text(
+                        '$activeCount Active',
+                        style: const TextStyle(
                           color: AppTheme.primary,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -233,7 +275,16 @@ class _Header extends StatelessWidget {
 
 class _RoleOverview extends StatelessWidget {
   final Function(String) onRoleTap;
-  const _RoleOverview({required this.onRoleTap});
+  final int adminCount;
+  final int analystCount;
+  final int userCount;
+
+  const _RoleOverview({
+    required this.onRoleTap,
+    required this.adminCount,
+    required this.analystCount,
+    required this.userCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +305,7 @@ class _RoleOverview extends StatelessWidget {
             Expanded(
               child: _RoleCard(
                 title: 'Administrator',
-                count: 4,
+                count: adminCount,
                 tier: 'TIER 1',
                 icon: LucideIcons.shieldCheck,
                 gradient: const [Color(0xFF6366F1), Color(0xFF4F46E5)],
@@ -266,7 +317,7 @@ class _RoleOverview extends StatelessWidget {
             Expanded(
               child: _RoleCard(
                 title: 'Security Analyst',
-                count: 12,
+                count: analystCount,
                 tier: 'TIER 2',
                 icon: LucideIcons.search,
                 gradient: const [Color(0xFF3B82F6), Color(0xFF2563EB)],
@@ -278,7 +329,7 @@ class _RoleOverview extends StatelessWidget {
             Expanded(
               child: _RoleCard(
                 title: 'Standard User',
-                count: 26,
+                count: userCount,
                 tier: 'TIER 3',
                 icon: LucideIcons.users,
                 gradient: const [Color(0xFF10B981), Color(0xFF059669)],
@@ -403,12 +454,14 @@ class _RoleCard extends StatelessWidget {
   }
 }
 
-class _UsersSection extends StatelessWidget {
+class _UsersSection extends ConsumerWidget {
   final Function(String) onUserTap;
   const _UsersSection({required this.onUserTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final teamMembersAsync = ref.watch(teamMembersProvider);
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF0D1117),
@@ -417,7 +470,21 @@ class _UsersSection extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [_buildTableToolbar(), _buildUserTable(), _buildPagination()],
+        children: [
+          _buildTableToolbar(),
+          teamMembersAsync.when(
+            loading: () => const ShimmerList(itemCount: 5),
+            error: (e, st) => Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Error: $e',
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+            data: (users) => _buildUserTable(users),
+          ),
+          _buildPagination(),
+        ],
       ),
     );
   }
@@ -458,7 +525,18 @@ class _UsersSection extends StatelessWidget {
     );
   }
 
-  Widget _buildUserTable() {
+  Widget _buildUserTable(List<TeamMember> members) {
+    if (members.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(32),
+        child: Center(
+          child: Text(
+            'No team members found.',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
     return Column(
       children: [
         // Table Header
@@ -519,39 +597,24 @@ class _UsersSection extends StatelessWidget {
           ),
         ),
         // Table Rows
-        _UserTableRow(
-          name: 'Sarah Chen',
-          email: 'sarah.c@antigravity.io',
-          role: 'Administrator',
-          roleColor: const Color(0xFF6366F1),
-          permissions: ['All Access', 'Billing', 'Security'],
-          status: 'Active',
-          isOnline: true,
-          initials: 'SC',
-          onTap: () => onUserTap('Sarah Chen'),
-        ),
-        _UserTableRow(
-          name: 'Marcus Wright',
-          email: 'm.wright@antigravity.io',
-          role: 'Security Analyst',
-          roleColor: const Color(0xFF3B82F6),
-          permissions: ['Incidents', 'Logs', 'Rules'],
-          status: 'Active',
-          isOnline: true,
-          initials: 'MW',
-          onTap: () => onUserTap('Marcus Wright'),
-        ),
-        _UserTableRow(
-          name: 'Elena Rodriguez',
-          email: 'elena.r@antigravity.io',
-          role: 'Standard User',
-          roleColor: const Color(0xFF10B981),
-          permissions: ['Monitoring', 'View Only'],
-          status: 'Inactive',
-          isOnline: false,
-          initials: 'ER',
-          onTap: () => onUserTap('Elena Rodriguez'),
-        ),
+        ...members.map((member) {
+          // final user = member.user;
+          // final role = user.roles?.isNotEmpty == true
+          //     ? user.roles!.first.description
+          //     : 'Unassigned';
+
+          return _UserTableRow(
+            name: member.userName,
+            email: member.email ?? 'No Email',
+            role: 'User',
+            roleColor: const Color(0xFF6366F1),
+            permissions: ['View'], // Mock permissions
+            status: 'Active',
+            isOnline: false,
+            initials: member.userName.substring(0, 1).toUpperCase(),
+            onTap: () => onUserTap(member.userName),
+          );
+        }).toList(),
       ],
     );
   }
@@ -562,7 +625,7 @@ class _UsersSection extends StatelessWidget {
       child: Row(
         children: [
           const Text(
-            'Showing 1 to 10 of 42 users',
+            'Showing all users',
             style: TextStyle(color: Color(0xFF8B949E), fontSize: 13),
           ),
           const Spacer(),
@@ -572,7 +635,7 @@ class _UsersSection extends StatelessWidget {
             onPressed: () {},
           ),
           const SizedBox(width: 8),
-          _PaginationButton(label: 'Next', isDisabled: false, onPressed: () {}),
+          _PaginationButton(label: 'Next', isDisabled: true, onPressed: () {}),
         ],
       ),
     );

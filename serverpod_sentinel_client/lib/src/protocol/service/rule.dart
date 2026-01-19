@@ -21,9 +21,7 @@ abstract class Rule implements _i1.SerializableModel {
   Rule._({
     this.id,
     required this.serviceId,
-    required this.serviceId,
     this.service,
-    required this.signalId,
     required this.signalId,
     this.signal,
     required this.name,
@@ -38,9 +36,7 @@ abstract class Rule implements _i1.SerializableModel {
   factory Rule({
     int? id,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
-    required int signalId,
     required int signalId,
     _i3.HealthSignal? signal,
     required String name,
@@ -90,11 +86,7 @@ abstract class Rule implements _i1.SerializableModel {
 
   int serviceId;
 
-  int serviceId;
-
   _i2.Service? service;
-
-  int signalId;
 
   int signalId;
 
@@ -120,9 +112,7 @@ abstract class Rule implements _i1.SerializableModel {
   Rule copyWith({
     int? id,
     int? serviceId,
-    int? serviceId,
     _i2.Service? service,
-    int? signalId,
     int? signalId,
     _i3.HealthSignal? signal,
     String? name,
@@ -139,9 +129,7 @@ abstract class Rule implements _i1.SerializableModel {
       '__className__': 'Rule',
       if (id != null) 'id': id,
       'serviceId': serviceId,
-      'serviceId': serviceId,
       if (service != null) 'service': service?.toJson(),
-      'signalId': signalId,
       'signalId': signalId,
       if (signal != null) 'signal': signal?.toJson(),
       'name': name,
@@ -166,9 +154,7 @@ class _RuleImpl extends Rule {
   _RuleImpl({
     int? id,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
-    required int signalId,
     required int signalId,
     _i3.HealthSignal? signal,
     required String name,
@@ -200,9 +186,7 @@ class _RuleImpl extends Rule {
   Rule copyWith({
     Object? id = _Undefined,
     int? serviceId,
-    int? serviceId,
     Object? service = _Undefined,
-    int? signalId,
     int? signalId,
     Object? signal = _Undefined,
     String? name,

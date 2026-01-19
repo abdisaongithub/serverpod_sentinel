@@ -2,7 +2,6 @@
 class: PlaybookStepExecution
 table: playbook_step_execution
 fields:
-  executionId: int
   execution: PlaybookExecution?, relation
   stepId: String
   status: ExecutionStatus

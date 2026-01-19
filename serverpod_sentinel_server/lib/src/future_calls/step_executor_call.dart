@@ -3,6 +3,9 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
 import 'package:serverpod_sentinel_server/src/business/automation/step_runner.dart';
 import 'package:serverpod_sentinel_server/src/business/automation/playbook_controller.dart';
+import 'package:serverpod_sentinel_server/src/business/notifications/notification_service.dart';
+import 'package:serverpod_sentinel_server/src/business/notifications/slack_provider.dart';
+import 'package:serverpod_sentinel_server/src/business/notifications/webhook_provider.dart';
 
 class StepExecutorCall extends FutureCall<StepExecutorPayload> {
   @override
@@ -54,8 +57,15 @@ class StepExecutorCall extends FutureCall<StepExecutorPayload> {
     final type = stepConfig['type'];
     StepRunner runner;
 
-    switch (type) {
+    // Initialize notification manager for runners that need it
+    final notificationManager = NotificationManager();
+    // In a real app, populate with providers from config
+    notificationManager.registerProvider(WebhookProvider());
+    // notificationManager.registerProvider(SlackProvider(webhookUrl: '...'));
+
+    switch (type.toString().toUpperCase()) {
       case 'SSH_COMMAND':
+      case 'SCRIPT': // Handle seed data "script"
         runner = SshStepRunner();
         break;
       case 'HTTP_REQUEST':
@@ -63,6 +73,20 @@ class StepExecutorCall extends FutureCall<StepExecutorPayload> {
         break;
       case 'APPROVAL_GATE':
         runner = ApprovalStepRunner();
+        break;
+      case 'NOTIFICATION':
+        // Dynamically register slack provider if url present in config
+        if (stepConfig['config'] != null &&
+            stepConfig['config']['channel'] == 'slack' &&
+            stepConfig['config']['webhookUrl'] != null) {
+          notificationManager.registerProvider(
+            SlackProvider(webhookUrl: stepConfig['config']['webhookUrl']),
+          );
+        }
+        runner = NotificationStepRunner(notificationManager);
+        break;
+      case 'WEBHOOK':
+        runner = WebhookStepRunner(notificationManager);
         break;
       default:
         _fail(session, stepExecution, 'Unknown step type: $type');
@@ -73,8 +97,8 @@ class StepExecutorCall extends FutureCall<StepExecutorPayload> {
     try {
       final result = await runner.run(
         stepConfig['config'] ?? {},
-        {},
-      ); // Empty context for now
+        {'session': session}, // Pass session in context
+      );
 
       stepExecution.logs = result.logs;
       stepExecution.output = result.output;

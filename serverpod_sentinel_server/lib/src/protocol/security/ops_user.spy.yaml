@@ -3,7 +3,7 @@ class: OpsUser
 table: ops_user
 fields:
   userInfoId: int
-  # userInfo: auth.UserInfo?, relation
+  # userInfo: auth.UserInfo?
   
   roles: List<UserRole>?, relation
   

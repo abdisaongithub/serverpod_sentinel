@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
+
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
 import '../../widgets/app_right_sidebar.dart';
+import '../../providers/services_provider.dart';
 
-class ServiceDetailScreen extends StatelessWidget {
-  const ServiceDetailScreen({super.key});
+class ServiceDetailScreen extends ConsumerWidget {
+  final int serviceId;
+  const ServiceDetailScreen({super.key, required this.serviceId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final servicesAsync = ref.watch(servicesProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
@@ -21,53 +28,72 @@ class ServiceDetailScreen extends StatelessWidget {
               if (isDesktop)
                 const AppSidebar(activeRoute: AppRoutes.serviceDetail),
               Expanded(
-                child: Column(
-                  children: [
-                    _Header(isDesktop: isDesktop),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.all(isDesktop ? 32 : 16),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 1600),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const _ServiceHeader(),
-                                    const SizedBox(height: 24),
-                                    const _MetricsSection(),
-                                    const SizedBox(height: 24),
-                                    _BottomSection(isDesktop: isDesktop),
-                                    const SizedBox(height: 32),
+                child: servicesAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(child: Text('Error: $e')),
+                  data: (services) {
+                    final service = services.firstWhere(
+                      (s) => s.id == serviceId,
+                      orElse: () => throw Exception('Service not found'),
+                    );
+
+                    return Column(
+                      children: [
+                        _Header(
+                          isDesktop: isDesktop,
+                          serviceName: service.name,
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.all(isDesktop ? 32 : 16),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 1600),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _ServiceHeader(service: service),
+                                        const SizedBox(height: 24),
+                                        const _MetricsSection(), // Keeping metrics static for now as per plan
+                                        const SizedBox(height: 24),
+                                        _BottomSection(
+                                          isDesktop: isDesktop,
+                                          service: service,
+                                        ),
+                                        const SizedBox(height: 32),
+                                      ],
+                                    ),
+                                  ),
+                                  if (isDesktop) ...[
+                                    const SizedBox(width: 32),
+                                    const AppRightSidebar(
+                                      title: 'Service Settings',
+                                      children: [
+                                        RightSidebarSettingItem(
+                                          label: 'Auto-scaling',
+                                        ),
+                                        RightSidebarSettingItem(
+                                          label: 'Health Checks',
+                                        ),
+                                        RightSidebarSettingItem(
+                                          label: 'Load Balancer',
+                                        ),
+                                      ],
+                                    ),
                                   ],
-                                ),
+                                ],
                               ),
-                              if (isDesktop) ...[
-                                const SizedBox(width: 32),
-                                const AppRightSidebar(
-                                  title: 'Service Settings',
-                                  children: [
-                                    RightSidebarSettingItem(
-                                      label: 'Auto-scaling',
-                                    ),
-                                    RightSidebarSettingItem(
-                                      label: 'Health Checks',
-                                    ),
-                                    RightSidebarSettingItem(
-                                      label: 'Load Balancer',
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -80,7 +106,8 @@ class ServiceDetailScreen extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   final bool isDesktop;
-  const _Header({required this.isDesktop});
+  final String serviceName;
+  const _Header({required this.isDesktop, required this.serviceName});
 
   @override
   Widget build(BuildContext context) {
@@ -113,18 +140,18 @@ class _Header extends StatelessWidget {
                   color: Color(0xFF64748B),
                   size: 16,
                 ),
-                const Text(
-                  'Backend',
-                  style: TextStyle(color: Color(0xFF94A3B8)),
+                Text(
+                  'Backend', // Could also be dynamic if we had tag info
+                  style: const TextStyle(color: Color(0xFF94A3B8)),
                 ),
                 const Icon(
                   Icons.chevron_right,
                   color: Color(0xFF64748B),
                   size: 16,
                 ),
-                const Text(
-                  'Auth-Service-v4',
-                  style: TextStyle(
+                Text(
+                  serviceName,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
@@ -167,7 +194,8 @@ class _Header extends StatelessWidget {
 }
 
 class _ServiceHeader extends StatelessWidget {
-  const _ServiceHeader();
+  final Service service;
+  const _ServiceHeader({required this.service});
 
   @override
   Widget build(BuildContext context) {
@@ -185,14 +213,17 @@ class _ServiceHeader extends StatelessWidget {
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _ServiceInfo(),
+                    _ServiceInfo(service: service),
                     const SizedBox(height: 24),
-                    _ServiceStats(),
+                    _ServiceStats(service: service),
                   ],
                 )
               : Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [_ServiceInfo(), _ServiceStats()],
+                  children: [
+                    _ServiceInfo(service: service),
+                    _ServiceStats(service: service),
+                  ],
                 );
         },
       ),
@@ -201,8 +232,17 @@ class _ServiceHeader extends StatelessWidget {
 }
 
 class _ServiceInfo extends StatelessWidget {
+  final Service service;
+  const _ServiceInfo({required this.service});
+
   @override
   Widget build(BuildContext context) {
+    final statusColor = service.status == ServiceStatus.OPERATIONAL
+        ? const Color(0xFF22C55E)
+        : (service.status == ServiceStatus.DEGRADED
+              ? const Color(0xFFF59E0B)
+              : const Color(0xFFEF4444));
+
     return Row(
       children: [
         Stack(
@@ -245,8 +285,8 @@ class _ServiceInfo extends StatelessWidget {
                   child: Container(
                     width: 12,
                     height: 12,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF22C55E),
+                    decoration: BoxDecoration(
+                      color: statusColor,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -259,9 +299,9 @@ class _ServiceInfo extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Auth-Service-v4',
-              style: TextStyle(
+            Text(
+              service.name,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -273,7 +313,7 @@ class _ServiceInfo extends StatelessWidget {
               spacing: 8,
               children: [
                 const Text(
-                  'us-east-1a',
+                  'us-east-1a', // Hardcoded for now, seemingly not in Service model
                   style: TextStyle(
                     color: Color(0xFF92A4C9),
                     fontSize: 14,
@@ -289,7 +329,7 @@ class _ServiceInfo extends StatelessWidget {
                   ),
                 ),
                 const Text(
-                  'Production',
+                  'Production', // Hardcoded
                   style: TextStyle(
                     color: Color(0xFF92A4C9),
                     fontSize: 14,
@@ -306,17 +346,13 @@ class _ServiceInfo extends StatelessWidget {
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(
-                      Icons.check_circle,
-                      color: Color(0xFF22C55E),
-                      size: 14,
-                    ),
-                    SizedBox(width: 4),
+                  children: [
+                    Icon(Icons.check_circle, color: statusColor, size: 14),
+                    const SizedBox(width: 4),
                     Text(
-                      'SYSTEM HEALTHY',
+                      service.status.name.toUpperCase(),
                       style: TextStyle(
-                        color: Color(0xFF22C55E),
+                        color: statusColor,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
@@ -334,57 +370,56 @@ class _ServiceInfo extends StatelessWidget {
 }
 
 class _ServiceStats extends StatelessWidget {
+  final Service service;
+  const _ServiceStats({required this.service});
+
   @override
   Widget build(BuildContext context) {
+    // Basic dynamic logic based on status for now
+    final isOperational = service.status == ServiceStatus.OPERATIONAL;
+    final availability = isOperational ? '99.99%' : '85.50%';
+    final responseTime = isOperational ? '45ms' : '120ms';
+    final color = isOperational
+        ? const Color(0xFF22C55E)
+        : const Color(0xFFEF4444);
+
     return Row(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: const [
-            Text(
-              'Availability (24h)',
-              style: TextStyle(
-                color: Color(0xFF92A4C9),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              '99.99%',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+        _buildStatColumn('Availability (24h)', availability, color),
         Container(
           width: 1,
           height: 40,
           margin: const EdgeInsets.symmetric(horizontal: 24),
           color: const Color(0xFF334155),
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: const [
-            Text(
-              'Response Time',
-              style: TextStyle(
-                color: Color(0xFF92A4C9),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              '32ms',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+        _buildStatColumn(
+          'Response Time',
+          responseTime,
+          isOperational ? Colors.white : const Color(0xFFF59E0B),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatColumn(String label, String value, Color valueColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF92A4C9),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: valueColor,
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -638,7 +673,8 @@ class _MiniChart extends StatelessWidget {
 
 class _BottomSection extends StatelessWidget {
   final bool isDesktop;
-  const _BottomSection({required this.isDesktop});
+  final Service service;
+  const _BottomSection({required this.isDesktop, required this.service});
 
   @override
   Widget build(BuildContext context) {

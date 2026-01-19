@@ -1,33 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
+import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_sidebar.dart';
 import '../../routes.dart';
+import '../../providers/settings_provider.dart';
+import '../../providers/local_settings_provider.dart';
+import '../../services/serverpod_client.dart';
 
-class NotificationPreferencesScreen extends StatefulWidget {
+class NotificationPreferencesScreen extends ConsumerStatefulWidget {
   const NotificationPreferencesScreen({super.key});
 
   @override
-  State<NotificationPreferencesScreen> createState() =>
+  ConsumerState<NotificationPreferencesScreen> createState() =>
       _NotificationPreferencesScreenState();
 }
 
 class _NotificationPreferencesScreenState
-    extends State<NotificationPreferencesScreen> {
-  bool _emailEnabled = true;
-  bool _pushEnabled = true;
-  bool _quietHoursEnabled = false;
-
-  // Additional state for new UI elements from HTML
-  String _selectedSeverity = 'Critical Only';
-  bool _slackConnected = true;
-  bool _pagerDutyConnected = false;
+    extends ConsumerState<NotificationPreferencesScreen> {
+  // Use signedInUser ID or fallback to 1 for development/bypass mode
+  int get _userId =>
+      ServerpodClientSingleton.sessionManager.signedInUser?.id ?? 1;
 
   @override
   Widget build(BuildContext context) {
+    // If we want to strictly enforce auth, we'd check here.
+    // But since we have a fallback, we proceed.
+
+    final prefsAsync = ref.watch(notificationPreferencesProvider(_userId));
+    final channelsAsync = ref.watch(notificationChannelsProvider);
+    final localSettingsAsync = ref.watch(localSettingsProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
+
+        // Define content based on async data
+        final Widget content = channelsAsync.when(
+          data: (channels) => prefsAsync.when(
+            data: (prefs) => localSettingsAsync.when(
+              data: (localSettings) {
+                // Helper to check if a channel is enabled
+                bool isEnabled(String channel) {
+                  final p = prefs
+                      .where((p) => p.channel == channel)
+                      .firstOrNull;
+                  return p?.enabled ?? false;
+                }
+
+                // Apply UI state
+                final emailEnabled = isEnabled('email');
+                final pushEnabled = isEnabled('push');
+                final slackEnabled = isEnabled('slack');
+                final pagerDutyEnabled = isEnabled('pagerduty');
+
+                return isDesktop
+                    ? _buildDesktopLayout(
+                        emailEnabled,
+                        pushEnabled,
+                        slackEnabled,
+                        pagerDutyEnabled,
+                        channels,
+                        localSettings,
+                      )
+                    : _buildMobileLayout(
+                        emailEnabled,
+                        pushEnabled,
+                        slackEnabled,
+                        pagerDutyEnabled,
+                        channels,
+                        localSettings,
+                      );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, s) =>
+                  Center(child: Text('Error loading local settings: $e')),
+            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, s) =>
+                Center(child: Text('Error loading preferences: $e')),
+          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, s) => Center(child: Text('Error loading channels: $e')),
+        );
 
         if (isDesktop) {
           return Scaffold(
@@ -41,29 +98,7 @@ class _NotificationPreferencesScreenState
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 1200),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildAlertSeverityCard(),
-                            const SizedBox(height: 32),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: _buildDeliveryChannelsSection(),
-                                ),
-                                const SizedBox(width: 32),
-                                Expanded(
-                                  flex: 1,
-                                  child: _buildScheduleSection(),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 32),
-                            _buildFooterActions(),
-                          ],
-                        ),
+                        child: content,
                       ),
                     ),
                   ),
@@ -73,7 +108,6 @@ class _NotificationPreferencesScreenState
           );
         }
 
-        // Mobile Layout (Adaptive version of original)
         return Scaffold(
           appBar: AppBar(
             title: const Text(
@@ -91,9 +125,9 @@ class _NotificationPreferencesScreenState
             ),
             actions: [
               TextButton(
-                onPressed: () {},
+                onPressed: () => context.pop(),
                 child: const Text(
-                  'Save',
+                  'Done',
                   style: TextStyle(
                     color: AppTheme.primary,
                     fontWeight: FontWeight.bold,
@@ -108,21 +142,71 @@ class _NotificationPreferencesScreenState
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildAlertSeverityCard(), // Reuse new card for mobile too
-                const SizedBox(height: 24),
-                _buildDeliveryChannelsSection(isMobile: true),
-                const SizedBox(height: 24),
-                _buildScheduleSection(),
-                const SizedBox(height: 24),
-                _buildFooterActions(isMobile: true),
-              ],
-            ),
+            child: content,
           ),
         );
       },
+    );
+  }
+
+  Widget _buildDesktopLayout(
+    bool email,
+    bool push,
+    bool slack,
+    bool pagerDuty,
+    List<String> availableChannels,
+    LocalSettingsState localSettings,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildAlertSeverityCard(localSettings),
+        const SizedBox(height: 32),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 2,
+              child: _buildDeliveryChannelsSection(
+                email,
+                push,
+                slack,
+                pagerDuty,
+                availableChannels,
+              ),
+            ),
+            const SizedBox(width: 32),
+            Expanded(flex: 1, child: _buildScheduleSection(localSettings)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout(
+    bool email,
+    bool push,
+    bool slack,
+    bool pagerDuty,
+    List<String> availableChannels,
+    LocalSettingsState localSettings,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildAlertSeverityCard(localSettings),
+        const SizedBox(height: 24),
+        _buildDeliveryChannelsSection(
+          email,
+          push,
+          slack,
+          pagerDuty,
+          availableChannels,
+          isMobile: true,
+        ),
+        const SizedBox(height: 24),
+        _buildScheduleSection(localSettings),
+      ],
     );
   }
 
@@ -141,10 +225,6 @@ class _NotificationPreferencesScreenState
         children: [
           const Row(
             children: [
-              Icon(
-                LucideIcons.menu,
-                color: AppTheme.textMuted,
-              ), // Hidden on Desktop usually, but design kept title
               SizedBox(width: 16),
               Text(
                 'Notification Preferences',
@@ -156,46 +236,17 @@ class _NotificationPreferencesScreenState
               ),
             ],
           ),
-          Row(
-            children: [
-              TextButton(
-                onPressed: () {},
-                style: TextButton.styleFrom(
-                  foregroundColor: AppTheme.textMuted,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
-                  ),
-                ),
-                child: const Text('Discard Changes'),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Save Preferences',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
+          IconButton(
+            onPressed: () => context.pop(),
+            icon: const Icon(LucideIcons.x),
+            tooltip: 'Close',
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAlertSeverityCard() {
+  Widget _buildAlertSeverityCard(LocalSettingsState settings) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -206,7 +257,6 @@ class _NotificationPreferencesScreenState
       child: Column(
         children: [
           Row(
-            // Using Row but will wrap for mobile if needed, though simple enough
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
@@ -243,12 +293,8 @@ class _NotificationPreferencesScreenState
                   ],
                 ),
               ),
-              // On narrower screens this might need to strictly be next to it or below.
-              // For simplicity in this layout, we'll assume desktop width fits, specific mobile adaptation can just use Column.
             ],
           ),
-          // For the "Notify me on" section, the HTML puts it side-by-side on large screens.
-          // Let's implement the content part.
           const SizedBox(height: 24),
           Container(
             padding: const EdgeInsets.all(16),
@@ -268,9 +314,18 @@ class _NotificationPreferencesScreenState
                       ),
                       child: Row(
                         children: [
-                          _buildSeverityBtn('All Events'),
-                          _buildSeverityBtn('Incidents'),
-                          _buildSeverityBtn('Critical Only'),
+                          _buildSeverityBtn(
+                            'All Events',
+                            settings.alertSeverity,
+                          ),
+                          _buildSeverityBtn(
+                            'Incidents',
+                            settings.alertSeverity,
+                          ),
+                          _buildSeverityBtn(
+                            'Critical Only',
+                            settings.alertSeverity,
+                          ),
                         ],
                       ),
                     ),
@@ -329,16 +384,15 @@ class _NotificationPreferencesScreenState
     );
   }
 
-  Widget _buildSeverityBtn(String label) {
-    final isSelected = _selectedSeverity == label;
+  Widget _buildSeverityBtn(String label, String currentSelection) {
+    final isSelected = currentSelection == label;
     return GestureDetector(
-      onTap: () => setState(() => _selectedSeverity = label),
+      onTap: () =>
+          ref.read(localSettingsProvider.notifier).setAlertSeverity(label),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.surface
-              : Colors.transparent, // Adjusted for dark theme match
+          color: isSelected ? AppTheme.surface : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
           boxShadow: isSelected
               ? [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 2)]
@@ -348,7 +402,7 @@ class _NotificationPreferencesScreenState
           label,
           style: TextStyle(
             color: isSelected
-                ? (_selectedSeverity == 'Critical Only'
+                ? (currentSelection == 'Critical Only'
                       ? AppTheme.primary
                       : Colors.white)
                 : AppTheme.textMuted,
@@ -360,114 +414,104 @@ class _NotificationPreferencesScreenState
     );
   }
 
-  Widget _buildDeliveryChannelsSection({bool isMobile = false}) {
+  Widget _buildDeliveryChannelsSection(
+    bool email,
+    bool push,
+    bool slack,
+    bool pagerDuty,
+    List<String> availableChannels, {
+    bool isMobile = false,
+  }) {
+    Future<void> toggle(String channel, bool val) async {
+      await ref
+          .read(settingsMutationProvider.notifier)
+          .toggleNotificationChannel(_userId, channel, val);
+    }
+
     // Grid of cards
     final children = [
       _buildChannelCard(
         title: 'Email Notifications',
-        subtitle: 'Digest and alerts sent to jane@devops.com',
+        subtitle: 'Digest and alerts',
         icon: LucideIcons.mail,
         iconBg: Colors.blue.withOpacity(0.2),
         iconColor: Colors.blue,
         trailing: Switch(
-          value: _emailEnabled,
-          onChanged: (v) => setState(() => _emailEnabled = v),
+          value: email,
+          onChanged: (v) => toggle('email', v),
           activeColor: AppTheme.primary,
         ),
       ),
       _buildChannelCard(
         title: 'Mobile Push',
-        subtitle: 'Instant alerts on connected iOS devices',
+        subtitle: 'Instant alerts',
         icon: LucideIcons.smartphone,
         iconBg: Colors.indigo.withOpacity(0.2),
         iconColor: Colors.indigo,
         trailing: Switch(
-          value: _pushEnabled,
-          onChanged: (v) => setState(() => _pushEnabled = v),
+          value: push,
+          onChanged: (v) => toggle('push', v),
           activeColor: AppTheme.primary,
         ),
       ),
       _buildChannelCard(
         title: 'Slack Integration',
-        subtitle: 'Active in #devops-alerts',
+        subtitle: slack ? 'Active' : 'Disabled',
         icon: LucideIcons.messageSquare,
         iconBg: const Color(0xFF4A154B).withOpacity(0.3),
         iconColor: const Color(0xFFE01E5A),
-        trailing: const Icon(
-          LucideIcons.arrowRight,
-          size: 16,
-          color: AppTheme.textMuted,
+        trailing: Switch(
+          value: slack,
+          onChanged: (v) => toggle('slack', v),
+          activeColor: AppTheme.primary,
         ),
-        statusBadge: _slackConnected ? 'Connected' : 'Not Configured',
-        statusColor: _slackConnected
-            ? const Color(0xFF10b981)
-            : AppTheme.textMuted,
+        statusBadge: slack ? 'Connected' : null,
+        statusColor: slack ? const Color(0xFF10b981) : null,
       ),
       _buildChannelCard(
         title: 'PagerDuty',
-        subtitle: 'Escalate critical incidents',
-        icon: LucideIcons.siren, // Emergency
+        subtitle: pagerDuty ? 'Escalations Active' : 'Disabled',
+        icon: LucideIcons.siren,
         iconBg: const Color(0xFF10b981).withOpacity(0.2),
         iconColor: const Color(0xFF10b981),
-        trailing: const Text(
-          'Connect',
-          style: TextStyle(
-            color: AppTheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
+        trailing: Switch(
+          value: pagerDuty,
+          onChanged: (v) => toggle('pagerduty', v),
+          activeColor: AppTheme.primary,
         ),
-        statusBadge: _pagerDutyConnected ? 'Connected' : 'Not Configured',
-        statusColor: _pagerDutyConnected
-            ? const Color(0xFF10b981)
-            : AppTheme.textMuted,
+        statusBadge: pagerDuty ? 'Connected' : null,
+        statusColor: pagerDuty ? const Color(0xFF10b981) : null,
       ),
     ];
 
-    if (isMobile) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'DELIVERY CHANNELS',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  color: AppTheme.textMuted,
-                ),
-              ),
-              Text(
-                'Manage integrations',
-                style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...children.map(
-            (c) =>
-                Padding(padding: const EdgeInsets.only(bottom: 16), child: c),
-          ),
-          const Text(
-            '* Third-party integrations require admin API keys.',
-            style: TextStyle(
-              color: AppTheme.textMuted,
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
-      );
-    }
+    final content = isMobile
+        ? Column(
+            children: children
+                .map(
+                  (c) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: c,
+                  ),
+                )
+                .toList(),
+          )
+        : GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 1.5,
+            children: children,
+          );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'DELIVERY CHANNELS',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -475,22 +519,17 @@ class _NotificationPreferencesScreenState
                 color: AppTheme.textMuted,
               ),
             ),
-            Text(
-              'Manage integrations & endpoints',
-              style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+            TextButton(
+              onPressed: () => context.go(AppRoutes.integrations),
+              child: const Text(
+                'Manage integrations',
+                style: TextStyle(fontSize: 12),
+              ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 1.5, // Aspect ratio to match card shape roughly
-          children: children,
-        ),
+        content,
         const SizedBox(height: 16),
         const Text(
           '* Third-party integrations require admin API keys.',
@@ -551,17 +590,15 @@ class _NotificationPreferencesScreenState
                   ),
                   child: Row(
                     children: [
-                      if (statusBadge == 'Connected') ...[
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: statusColor,
-                            shape: BoxShape.circle,
-                          ),
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 4),
-                      ],
+                      ),
+                      const SizedBox(width: 4),
                       Text(
                         statusBadge,
                         style: TextStyle(
@@ -574,15 +611,10 @@ class _NotificationPreferencesScreenState
                   ),
                 )
               else
-                trailing is Switch
-                    ? trailing
-                    : const SizedBox(), // If switch, show at top right? Design shows switch separate essentially
+                Container(),
             ],
           ),
-          if (trailing
-              is! Switch) // If not switch, trailing might be "Connect" text or arrow, usually aligned bottom right or top right. Design varies.
-            const SizedBox(height: 12),
-
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -609,12 +641,7 @@ class _NotificationPreferencesScreenState
                   ],
                 ),
               ),
-              if (trailing is! Switch && statusBadge == null)
-                trailing, // Just in case
-              if (trailing is! Switch && statusBadge != null)
-                trailing is Text ? trailing : const SizedBox(),
-              if (trailing is Switch)
-                const SizedBox(), // Already blocked out at top?
+              trailing,
             ],
           ),
         ],
@@ -622,7 +649,7 @@ class _NotificationPreferencesScreenState
     );
   }
 
-  Widget _buildScheduleSection() {
+  Widget _buildScheduleSection(LocalSettingsState settings) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -685,8 +712,10 @@ class _NotificationPreferencesScreenState
                     ],
                   ),
                   Switch(
-                    value: _quietHoursEnabled,
-                    onChanged: (v) => setState(() => _quietHoursEnabled = v),
+                    value: settings.quietHoursEnabled,
+                    onChanged: (v) => ref
+                        .read(localSettingsProvider.notifier)
+                        .setQuietHoursEnabled(v),
                     activeColor: AppTheme.primary,
                   ),
                 ],
@@ -789,37 +818,6 @@ class _NotificationPreferencesScreenState
           ],
         ),
         const Icon(LucideIcons.pencil, size: 14, color: AppTheme.textDim),
-      ],
-    );
-  }
-
-  Widget _buildFooterActions({bool isMobile = false}) {
-    if (isMobile) {
-      return SizedBox(
-        width: double.infinity,
-        child: OutlinedButton.icon(
-          onPressed: () {},
-          icon: const Icon(LucideIcons.send, size: 16),
-          label: const Text('Send Test Notification'),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            side: const BorderSide(color: AppTheme.surfaceHighlight),
-          ),
-        ),
-      );
-    }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        OutlinedButton.icon(
-          onPressed: () {},
-          icon: const Icon(LucideIcons.send, size: 16),
-          label: const Text('Send Test Notification'),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            side: const BorderSide(color: AppTheme.surfaceHighlight),
-          ),
-        ),
       ],
     );
   }

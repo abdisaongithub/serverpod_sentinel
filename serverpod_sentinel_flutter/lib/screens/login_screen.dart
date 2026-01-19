@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../theme/app_theme.dart';
 import '../routes.dart';
+import '../providers/auth_provider.dart';
+import '../widgets/loading_button.dart';
+import '../widgets/app_text_field.dart';
+import '../utils/validators.dart';
 
 class LoginScreen extends StatelessWidget {
   static String route = '/login';
@@ -247,11 +252,41 @@ class _StatItem extends StatelessWidget {
   }
 }
 
-class _LoginFormPanel extends StatelessWidget {
+class _LoginFormPanel extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_LoginFormPanel> createState() => _LoginFormPanelState();
+}
+
+class _LoginFormPanelState extends ConsumerState<_LoginFormPanel> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (_formKey.currentState!.validate()) {
+      final success = await ref
+          .read(authProvider.notifier)
+          .signIn(_emailController.text, _passwordController.text);
+
+      if (success && mounted) {
+        context.go(AppRoutes.dashboard);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDesktop =
         MediaQuery.of(context).size.width >= AppTheme.tabletBreakpoint;
+    final authState = ref.watch(authProvider);
 
     return Center(
       child: SingleChildScrollView(
@@ -261,208 +296,252 @@ class _LoginFormPanel extends StatelessWidget {
         ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Mobile Logo
-              if (!isDesktop) ...[
-                Row(
-                  children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppTheme.primary, Color(0xFF60A5FA)],
-                        ),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Icon(
-                        Icons.terminal,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'OpsCenter',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 48),
-              ],
-
-              // Header
-              Row(
-                children: [
-                  const Icon(Icons.lock, color: AppTheme.primary, size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    'SECURE ACCESS',
-                    style: TextStyle(
-                      color: AppTheme.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Welcome back',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Please enter your details to sign in.',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(color: AppTheme.textMuted),
-              ),
-              const SizedBox(height: 40),
-
-              // Form
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Work Email',
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'engineer@company.com',
-                      prefixIcon: const Icon(LucideIcons.mail, size: 20),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Mobile Logo
+                if (!isDesktop) ...[
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Password',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppTheme.primary, Color(0xFF60A5FA)],
+                          ),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Icon(
+                          Icons.terminal,
+                          color: Colors.white,
+                          size: 18,
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          'Forgot password?',
-                          style: TextStyle(
-                            color: AppTheme.primary,
-                            fontSize: 14,
-                          ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'OpsCenter',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: '••••••••',
-                      prefixIcon: const Icon(LucideIcons.lock, size: 20),
-                      suffixIcon: const Icon(LucideIcons.eyeOff, size: 20),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        context.go(AppRoutes.welcome);
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text('Log In'),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward, size: 20),
-                        ],
-                      ),
-                    ),
-                  ),
+                  const SizedBox(height: 48),
                 ],
-              ),
 
-              const SizedBox(height: 32),
-              // Divider
-              Row(
-                children: [
-                  Expanded(child: Divider(color: AppTheme.surfaceHighlight)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'OR CONTINUE WITH',
+                // Header
+                Row(
+                  children: [
+                    const Icon(Icons.lock, color: AppTheme.primary, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      'SECURE ACCESS',
                       style: TextStyle(
-                        color: AppTheme.textDim,
-                        fontSize: 10,
+                        color: AppTheme.primary,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.1,
                       ),
                     ),
-                  ),
-                  Expanded(child: Divider(color: AppTheme.surfaceHighlight)),
-                ],
-              ),
-              const SizedBox(height: 24),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Welcome back',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Please enter your details to sign in.',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: AppTheme.textMuted),
+                ),
+                const SizedBox(height: 24),
 
-              // Social Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: _SocialButton(
-                      label: 'GitHub',
-                      icon: LucideIcons.github,
+                if (authState.error != null)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      border: Border.all(color: Colors.red.withOpacity(0.3)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: Colors.red[300],
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            authState.error!,
+                            style: TextStyle(color: Colors.red[200]),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _SocialButton(
-                      label: 'Google',
-                      icon: LucideIcons.chrome,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              _SocialButton(
-                label: 'Single Sign-On (SAML)',
-                icon: Icons.admin_panel_settings,
-                isFullWidth: true,
-              ),
 
-              const SizedBox(height: 48),
-              // Footer
-              Center(
-                child: Column(
+                // Form
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Protected by reCAPTCHA and subject to the Privacy Policy and Terms of Service.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppTheme.textDim, fontSize: 12),
+                    AppTextField(
+                      label: 'Work Email',
+                      controller: _emailController,
+                      hint: 'engineer@company.com',
+                      prefixIcon: LucideIcons.mail,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: Validators.email,
+                      enabled: !authState.isLoading,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'v2.4.0 • OpsCenter Inc.',
-                      style: TextStyle(
-                        color: AppTheme.surfaceHighlight,
-                        fontSize: 12,
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Password',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => context.go(AppRoutes.forgotPassword),
+                          child: const Text(
+                            'Forgot password?',
+                            style: TextStyle(
+                              color: AppTheme.primary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    AppTextField(
+                      label: '', // Label handled in Row above
+                      controller: _passwordController,
+                      hint: '••••••••',
+                      prefixIcon: LucideIcons.lock,
+                      obscureText: _obscurePassword,
+                      enabled: !authState.isLoading,
+                      validator: Validators.required,
+                      suffixIcon: _obscurePassword
+                          ? LucideIcons.eye
+                          : LucideIcons.eyeOff,
+                      onSuffixPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: LoadingButton(
+                        label: 'Log In',
+                        icon: Icons.arrow_forward,
+                        isLoading: authState.isLoading,
+                        onPressed: _handleLogin,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Don\'t have an account?',
+                          style: TextStyle(color: AppTheme.textMuted),
+                        ),
+                        TextButton(
+                          onPressed: () => context.go(AppRoutes.signup),
+                          child: const Text('Sign up'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 32),
+                // Divider
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: AppTheme.surfaceHighlight)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'OR CONTINUE WITH',
+                        style: TextStyle(
+                          color: AppTheme.textDim,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: AppTheme.surfaceHighlight)),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Social Buttons (Mock)
+                Row(
+                  children: [
+                    Expanded(
+                      child: _SocialButton(
+                        label: 'GitHub',
+                        icon: LucideIcons.github,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _SocialButton(
+                        label: 'Google',
+                        icon: LucideIcons.chrome,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                _SocialButton(
+                  label: 'Single Sign-On (SAML)',
+                  icon: Icons.admin_panel_settings,
+                  isFullWidth: true,
+                ),
+
+                const SizedBox(height: 48),
+                // Footer
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Protected by reCAPTCHA and subject to the Privacy Policy and Terms of Service.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppTheme.textDim, fontSize: 12),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'v2.4.0 • OpsCenter Inc.',
+                        style: TextStyle(
+                          color: AppTheme.surfaceHighlight,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

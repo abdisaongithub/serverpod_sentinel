@@ -2,7 +2,6 @@
 class: HealthSignal
 table: health_signal
 fields:
-  serviceId: int
   service: Service?, relation
   name: String
   identifier: String

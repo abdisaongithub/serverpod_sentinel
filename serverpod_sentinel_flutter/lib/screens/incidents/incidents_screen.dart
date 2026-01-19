@@ -4,14 +4,19 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 
-class IncidentsScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/incidents_provider.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
+import '../../widgets/shimmer_loading.dart';
+
+class IncidentsScreen extends ConsumerStatefulWidget {
   const IncidentsScreen({super.key});
 
   @override
-  State<IncidentsScreen> createState() => _IncidentsScreenState();
+  ConsumerState<IncidentsScreen> createState() => _IncidentsScreenState();
 }
 
-class _IncidentsScreenState extends State<IncidentsScreen> {
+class _IncidentsScreenState extends ConsumerState<IncidentsScreen> {
   int _selectedIndex = 1; // Incidents tab
 
   @override
@@ -42,11 +47,15 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                             const SizedBox(height: 24),
                             if (isWide)
                               Row(
+                                key: const ValueKey('incidents-wide-layout'),
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
                                     flex: 2,
-                                    child: _buildOngoingIncidentsList(context),
+                                    child: _buildOngoingIncidentsList(
+                                      context,
+                                      ref,
+                                    ),
                                   ),
                                   const SizedBox(width: 32),
                                   SizedBox(
@@ -57,8 +66,9 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                               )
                             else
                               Column(
+                                key: const ValueKey('incidents-narrow-layout'),
                                 children: [
-                                  _buildOngoingIncidentsList(context),
+                                  _buildOngoingIncidentsList(context, ref),
                                   const SizedBox(height: 32),
                                   _buildResolvedSidebar(context),
                                 ],
@@ -118,6 +128,10 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
       ),
     );
   }
+
+  // ... _buildHeader and other widgets remain same as unrelated to list data for now ...
+  // Note: ideally all widgets should be broken down but for brevity I'm keeping existing structure
+  // except where I need to pass ref or change signature. Since I am in ConsumerState, I have access to ref.
 
   Widget _buildHeader(BuildContext context, bool isDesktop) {
     return Container(
@@ -601,7 +615,9 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
     );
   }
 
-  Widget _buildOngoingIncidentsList(BuildContext context) {
+  Widget _buildOngoingIncidentsList(BuildContext context, WidgetRef ref) {
+    final risksAsync = ref.watch(activeIncidentsProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -618,58 +634,75 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
               ),
             ),
             Text(
-              'Updated 2m ago',
+              'Live Updates', // Changed from static time
               style: TextStyle(color: Color(0xFF64748B), fontSize: 11),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final isDesktop = constraints.maxWidth > 800;
-            return GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: isDesktop ? 2 : 1,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: isDesktop ? 1.4 : 1.8,
-              children: [
-                _buildDetailedIncidentCard(
-                  context,
-                  id: '#INC-204',
-                  severity: 'Critical',
-                  title: 'Database Latency Spike',
-                  desc:
-                      'High latency observed in primary production DB cluster affecting checkout flow.',
-                  service: 'Payment Service',
-                  duration: '00:24:12',
-                  color: Colors.red,
+        risksAsync.when(
+          loading: () => const ShimmerList(itemCount: 3),
+          error: (e, _) => Text(
+            'Error loading incidents: $e',
+            style: const TextStyle(color: Colors.red),
+          ),
+          data: (incidents) {
+            if (incidents.isEmpty) {
+              return const Center(
+                child: Text(
+                  'No ongoing incidents',
+                  style: TextStyle(color: Colors.white),
                 ),
-                _buildDetailedIncidentCard(
-                  context,
-                  id: '#INC-203',
-                  severity: 'Major',
-                  title: 'API 500 Errors',
-                  desc:
-                      'Increased rate of 5xx errors on authentication endpoints.',
-                  service: 'Auth Service',
-                  duration: '01:12:45',
-                  color: Colors.orange,
-                  isAcknowledged: true,
-                ),
-                _buildDetailedIncidentCard(
-                  context,
-                  id: '#INC-201',
-                  severity: 'Minor',
-                  title: 'UI Glitch in Dashboard',
-                  desc:
-                      'CSS rendering issue on Safari browser reported by 3 users.',
-                  service: 'Frontend',
-                  duration: '03:45:00',
-                  color: Colors.yellow,
-                ),
-              ],
+              );
+            }
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isDesktop = constraints.maxWidth > 800;
+                return GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: isDesktop ? 2 : 1,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: isDesktop ? 1.4 : 1.8,
+                  children: incidents.map((incident) {
+                    Color severityColor;
+                    switch (incident.severity) {
+                      case IncidentSeverity.CRITICAL:
+                        severityColor = Colors.red;
+                        break;
+                      case IncidentSeverity.HIGH:
+                        severityColor = Colors.orange;
+                        break;
+                      case IncidentSeverity.MEDIUM:
+                        severityColor = Colors.yellow;
+                        break;
+                      default:
+                        severityColor = Colors.grey;
+                    }
+
+                    final duration = DateTime.now().difference(
+                      incident.createdAt,
+                    );
+                    final durationStr =
+                        '${duration.inHours}h ${duration.inMinutes.remainder(60)}m';
+
+                    return _buildDetailedIncidentCard(
+                      context,
+                      incidentId: incident.id ?? 0,
+                      id: '#INC-${incident.id}',
+                      severity: incident.severity.name,
+                      title: incident.title,
+                      desc: incident.summary ?? 'No description',
+                      service: incident.service?.name ?? 'Unknown Service',
+                      duration: durationStr,
+                      color: severityColor,
+                      isAcknowledged:
+                          incident.status == IncidentStatus.ACKNOWLEDGED,
+                    );
+                  }).toList(),
+                );
+              },
             );
           },
         ),
@@ -679,6 +712,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
 
   Widget _buildDetailedIncidentCard(
     BuildContext context, {
+    required int incidentId,
     required String id,
     required String severity,
     required String title,
@@ -701,12 +735,28 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: IntrinsicHeight(
-          child: Row(
+      child: Stack(
+        children: [
+          // Colored sidebar indicator
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 4,
+            child: Container(
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          // Main content
+          Row(
             children: [
-              Container(width: 4, color: color),
+              const SizedBox(width: 4), // Space for sidebar
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -761,9 +811,9 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              severity == 'Critical'
+                              severity == 'CRITICAL'
                                   ? LucideIcons.alertTriangle
-                                  : severity == 'Major'
+                                  : severity == 'HIGH'
                                   ? LucideIcons.alertCircle
                                   : LucideIcons.bug,
                               size: 16,
@@ -774,7 +824,8 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                       ),
                       const SizedBox(height: 12),
                       GestureDetector(
-                        onTap: () => context.go(AppRoutes.incidentDetail),
+                        onTap: () =>
+                            context.go('/incidents/detail/$incidentId'),
                         child: Text(
                           title,
                           style: const TextStyle(
@@ -937,7 +988,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                                 ),
                               ),
                               child: Text(
-                                severity == 'Minor'
+                                severity == 'LOW'
                                     ? 'Assign to Me'
                                     : 'Acknowledge',
                                 style: const TextStyle(fontSize: 12),
@@ -978,7 +1029,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
@@ -1045,106 +1096,104 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
     bool isFirst = false,
     bool isLast = false,
   }) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+    return Stack(
+      children: [
+        if (!isLast)
+          Positioned(
+            left: 11,
+            top: 8,
+            bottom: 0,
+            width: 1,
+            child: Container(color: const Color(0xFF334155)),
+          ),
+        Positioned(
+          left: 8,
+          top: 0,
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: Colors.green,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 32),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B).withOpacity(0.4),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF334155).withOpacity(0.3),
+              ),
+            ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'RESOLVED',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      time,
+                      style: const TextStyle(
+                        color: Color(0xFF64748B),
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Color(0xFFE2E8F0),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
                   ),
                 ),
-                if (!isLast)
-                  Expanded(
-                    child: Container(width: 1, color: const Color(0xFF334155)),
-                  ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(
+                      LucideIcons.box,
+                      size: 12,
+                      color: Color(0xFF64748B),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      service,
+                      style: const TextStyle(
+                        color: Color(0xFF64748B),
+                        fontSize: 11,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      duration,
+                      style: const TextStyle(
+                        color: Colors.green,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E293B).withOpacity(0.4),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFF334155).withOpacity(0.3),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'RESOLVED',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        time,
-                        style: const TextStyle(
-                          color: Color(0xFF64748B),
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Color(0xFFE2E8F0),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(
-                        LucideIcons.box,
-                        size: 12,
-                        color: Color(0xFF64748B),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        service,
-                        style: const TextStyle(
-                          color: Color(0xFF64748B),
-                          fontSize: 11,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        duration,
-                        style: const TextStyle(
-                          color: Colors.green,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

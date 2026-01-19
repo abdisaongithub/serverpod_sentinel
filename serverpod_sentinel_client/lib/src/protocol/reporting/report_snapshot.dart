@@ -20,10 +20,8 @@ abstract class ReportSnapshot implements _i1.SerializableModel {
   ReportSnapshot._({
     this.id,
     required this.incidentId,
-    required this.incidentId,
     this.incident,
     required this.generatedAt,
-    this.generatedById,
     required this.generatedById,
     this.generatedBy,
     required this.content,
@@ -32,10 +30,8 @@ abstract class ReportSnapshot implements _i1.SerializableModel {
   factory ReportSnapshot({
     int? id,
     required int incidentId,
-    required int incidentId,
     _i2.Incident? incident,
     required DateTime generatedAt,
-    int? generatedById,
     required int generatedById,
     _i3.OpsUser? generatedBy,
     required String content,
@@ -70,13 +66,9 @@ abstract class ReportSnapshot implements _i1.SerializableModel {
 
   int incidentId;
 
-  int incidentId;
-
   _i2.Incident? incident;
 
   DateTime generatedAt;
-
-  int? generatedById;
 
   int generatedById;
 
@@ -90,10 +82,8 @@ abstract class ReportSnapshot implements _i1.SerializableModel {
   ReportSnapshot copyWith({
     int? id,
     int? incidentId,
-    int? incidentId,
     _i2.Incident? incident,
     DateTime? generatedAt,
-    int? generatedById,
     int? generatedById,
     _i3.OpsUser? generatedBy,
     String? content,
@@ -104,10 +94,8 @@ abstract class ReportSnapshot implements _i1.SerializableModel {
       '__className__': 'ReportSnapshot',
       if (id != null) 'id': id,
       'incidentId': incidentId,
-      'incidentId': incidentId,
       if (incident != null) 'incident': incident?.toJson(),
       'generatedAt': generatedAt.toJson(),
-      if (generatedById != null) 'generatedById': generatedById,
       'generatedById': generatedById,
       if (generatedBy != null) 'generatedBy': generatedBy?.toJson(),
       'content': content,
@@ -126,10 +114,8 @@ class _ReportSnapshotImpl extends ReportSnapshot {
   _ReportSnapshotImpl({
     int? id,
     required int incidentId,
-    required int incidentId,
     _i2.Incident? incident,
     required DateTime generatedAt,
-    int? generatedById,
     required int generatedById,
     _i3.OpsUser? generatedBy,
     required String content,
@@ -150,10 +136,8 @@ class _ReportSnapshotImpl extends ReportSnapshot {
   ReportSnapshot copyWith({
     Object? id = _Undefined,
     int? incidentId,
-    int? incidentId,
     Object? incident = _Undefined,
     DateTime? generatedAt,
-    Object? generatedById = _Undefined,
     int? generatedById,
     Object? generatedBy = _Undefined,
     String? content,

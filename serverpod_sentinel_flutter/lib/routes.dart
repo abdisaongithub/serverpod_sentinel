@@ -3,6 +3,9 @@ class AppRoutes {
   // Auth
   static const String login = '/login';
   static const String splash = '/splash';
+  static const String signup = '/signup';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
 
   // Onboarding
   static const String welcome = '/onboarding/welcome';
@@ -14,12 +17,12 @@ class AppRoutes {
   // Main screens
   static const String dashboard = '/';
   static const String serviceRegistry = '/registry';
-  static const String serviceDetail = '/registry/detail';
+  static const String serviceDetail = '/registry/detail/:id';
   static const String liveStream = '/live-stream';
 
   // Incidents
   static const String incidents = '/incidents';
-  static const String incidentDetail = '/incidents/detail';
+  static const String incidentDetail = '/incidents/detail/:id';
   static const String remediationRequest = '/incidents/remediation';
 
   // Automation
@@ -28,6 +31,7 @@ class AppRoutes {
 
   // Intelligence & Reports
   static const String aiInsights = '/ai-insights';
+  static const String reports = '/reports';
   static const String incidentReport = '/reports/incident';
 
   // Settings

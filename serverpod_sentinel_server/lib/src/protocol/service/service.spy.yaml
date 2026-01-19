@@ -4,7 +4,6 @@ table: service
 fields:
   name: String
   description: String?
-  ownerId: int
   owner: OpsUser?, relation
   status: ServiceStatus
   tier: ServiceTier

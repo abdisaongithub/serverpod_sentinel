@@ -1,122 +1,119 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
+import '../../providers/settings_provider.dart';
 
-class _Integration {
-  final String name;
-  final String description;
-  final String type;
-  final IconData icon;
-  final Color color;
-  final bool isConnected;
-  final bool isBeta;
-
-  const _Integration({
-    required this.name,
-    required this.description,
-    required this.type,
-    required this.icon,
-    required this.color,
-    this.isConnected = false,
-    this.isBeta = false,
-  });
-}
-
-class IntegrationsManagerScreen extends StatefulWidget {
+class IntegrationsManagerScreen extends ConsumerStatefulWidget {
   const IntegrationsManagerScreen({super.key});
 
   @override
-  State<IntegrationsManagerScreen> createState() =>
+  ConsumerState<IntegrationsManagerScreen> createState() =>
       _IntegrationsManagerScreenState();
 }
 
-class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
-  final List<_Integration> _integrations = [
-    // Connected
-    const _Integration(
-      name: 'GitHub',
-      description: 'Sync repositories and deployment events.',
-      type: 'Source Control',
-      icon: LucideIcons.github,
-      color: Color(0xFF181717), // GitHub Black
-      isConnected: true,
-    ),
-    const _Integration(
-      name: 'AWS',
-      description: 'CloudWatch metrics and hygiene scans.',
-      type: 'Cloud Provider',
-      icon: LucideIcons.cloud,
-      color: Color(0xFFFF9900), // AWS Orange
-      isConnected: true,
-    ),
-    const _Integration(
-      name: 'Slack',
-      description: 'Real-time alerts and ChatOps.',
-      type: 'Notifications',
-      icon: LucideIcons.messageSquare,
-      color: Color(0xFF4A154B), // Slack Purple
-      isConnected: true,
-    ),
-    // Available
-    const _Integration(
-      name: 'Jira',
-      description: 'Create tickets from incidents automatically.',
-      type: 'Issue Tracking',
-      icon: LucideIcons.bug,
-      color: Color(0xFF0052CC), // Jira Blue
-    ),
-    const _Integration(
-      name: 'Datadog',
-      description: 'Ingest metrics and traces.',
-      type: 'Monitoring',
-      icon: LucideIcons.activity,
-      color: Color(0xFF632CA6), // Datadog Purple
-    ),
-    const _Integration(
-      name: 'Kubernetes',
-      description: 'Cluster health and pod monitoring.',
-      type: 'Orchestration',
-      icon: LucideIcons.container,
-      color: Color(0xFF326CE5), // K8s Blue
-    ),
-    const _Integration(
-      name: 'PagerDuty',
-      description: 'On-call scheduling and escalation policies.',
-      type: 'Incident Response',
-      icon: LucideIcons.siren,
-      color: Color(0xFF005f2f), // PagerDuty Green
-    ),
-    const _Integration(
-      name: 'Sentry',
-      description: 'Application error tracking.',
-      type: 'Monitoring',
-      icon: LucideIcons.alertOctagon,
-      color: Color(0xFF362D59), // Sentry Purple
-      isBeta: true,
-    ),
-  ];
+class _IntegrationsManagerScreenState
+    extends ConsumerState<IntegrationsManagerScreen> {
+  // Helper to map backend data to UI presentation
+  _IntegrationUIInfo _getUIInfo(Integration integration) {
+    switch (integration.provider.toLowerCase()) {
+      case 'github':
+        return const _IntegrationUIInfo(
+          description: 'Sync repositories and deployment events.',
+          icon: LucideIcons.github,
+          color: Color(0xFF181717),
+        );
+      case 'aws':
+        return const _IntegrationUIInfo(
+          description: 'CloudWatch metrics and hygiene scans.',
+          icon: LucideIcons.cloud,
+          color: Color(0xFFFF9900),
+        );
+      case 'slack':
+        return const _IntegrationUIInfo(
+          description: 'Real-time alerts and ChatOps.',
+          icon: LucideIcons.messageSquare,
+          color: Color(0xFF4A154B),
+        );
+      case 'jira':
+        return const _IntegrationUIInfo(
+          description: 'Create tickets from incidents automatically.',
+          icon: LucideIcons.bug,
+          color: Color(0xFF0052CC),
+        );
+      case 'datadog':
+        return const _IntegrationUIInfo(
+          description: 'Ingest metrics and traces.',
+          icon: LucideIcons.activity,
+          color: Color(0xFF632CA6),
+        );
+      case 'kubernetes':
+        return const _IntegrationUIInfo(
+          description: 'Cluster health and pod monitoring.',
+          icon: LucideIcons.container,
+          color: Color(0xFF326CE5),
+        );
+      case 'pagerduty':
+        return const _IntegrationUIInfo(
+          description: 'On-call scheduling and escalation policies.',
+          icon: LucideIcons.siren,
+          color: Color(0xFF005f2f),
+        );
+      case 'sentry':
+        return const _IntegrationUIInfo(
+          description: 'Application error tracking.',
+          icon: LucideIcons.alertOctagon,
+          color: Color(0xFF362D59),
+        );
+      default:
+        return const _IntegrationUIInfo(
+          description: 'External service integration.',
+          icon: LucideIcons.plug,
+          color: Colors.grey,
+        );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final integrationsAsync = ref.watch(integrationsProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
 
-        if (isDesktop) {
-          return Scaffold(
-            backgroundColor: AppTheme.background,
-            body: Column(children: [Expanded(child: _buildDesktopLayout())]),
-          );
-        }
+        return integrationsAsync.when(
+          data: (integrations) {
+            final connected = integrations.where((i) => i.isEnabled).toList();
+            final available = integrations.where((i) => !i.isEnabled).toList();
 
-        return Scaffold(
-          appBar: _buildMobileAppBar(),
-          drawer: const Drawer(
-            child: AppSidebar(activeRoute: AppRoutes.integrations),
-          ),
-          body: _buildMobileLayout(),
+            if (isDesktop) {
+              return Scaffold(
+                backgroundColor: AppTheme.background,
+                body: Column(
+                  children: [
+                    _buildDesktopHeader(),
+                    Expanded(child: _buildDesktopLayout(connected, available)),
+                  ],
+                ),
+              );
+            }
+
+            return Scaffold(
+              appBar: _buildMobileAppBar(),
+              drawer: const Drawer(
+                child: AppSidebar(activeRoute: AppRoutes.integrations),
+              ),
+              body: _buildMobileLayout(connected, available),
+            );
+          },
+          loading: () =>
+              const Scaffold(body: Center(child: CircularProgressIndicator())),
+          error: (err, stack) =>
+              Scaffold(body: Center(child: Text('Error: $err'))),
         );
       },
     );
@@ -135,15 +132,20 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
     );
   }
 
-  Widget _buildMobileLayout() {
-    final connected = _integrations.where((i) => i.isConnected).toList();
-    final available = _integrations.where((i) => !i.isConnected).toList();
-
+  Widget _buildMobileLayout(
+    List<Integration> connected,
+    List<Integration> available,
+  ) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         _buildSectionTitle('CONNECTED SERVICES'),
         const SizedBox(height: 12),
+        if (connected.isEmpty)
+          const Text(
+            'No connected services',
+            style: TextStyle(color: AppTheme.textMuted),
+          ),
         ...connected.map((i) => _buildIntegrationListTile(i)),
         const SizedBox(height: 32),
         _buildSectionTitle('AVAILABLE INTEGRATIONS'),
@@ -153,7 +155,8 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
     );
   }
 
-  Widget _buildIntegrationListTile(_Integration item) {
+  Widget _buildIntegrationListTile(Integration item) {
+    final uiInfo = _getUIInfo(item);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -173,10 +176,10 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: item.color.withOpacity(0.1),
+            color: uiInfo.color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(item.icon, color: item.color),
+          child: Icon(uiInfo.icon, color: uiInfo.color),
         ),
         title: Row(
           children: [
@@ -184,7 +187,8 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
               item.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            if (item.isBeta) ...[
+            // Example of beta flag logic, hardcoded for now or define logic based on provider
+            if (item.provider.toLowerCase() == 'sentry') ...[
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -208,69 +212,76 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
           item.type,
           style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
         ),
-        trailing: item.isConnected
+        trailing: item.isEnabled
             ? const Icon(
                 LucideIcons.checkCircle,
                 color: Color(0xFF10b981),
                 size: 20,
               )
             : const Icon(LucideIcons.chevronRight, color: AppTheme.textMuted),
-        onTap: () {},
+        onTap: () {
+          // Navigate to detail or show sheet to connect
+          // For now, toggle logic placeholder
+          _showConnectionDialog(context, item);
+        },
       ),
     );
   }
 
   // --- Desktop Components ---
 
-  Widget _buildDesktopLayout() {
-    final connected = _integrations.where((i) => i.isConnected).toList();
-    final available = _integrations.where((i) => !i.isConnected).toList();
-
-    return Column(
-      children: [
-        _buildDesktopHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle('CONNECTED SERVICES'),
-                const SizedBox(height: 16),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 1.8, // Wider cards
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: connected.length,
-                  itemBuilder: (context, index) =>
-                      _buildDesktopCard(connected[index]),
-                ),
-                const SizedBox(height: 48),
-                _buildSectionTitle('AVAILABLE INTEGRATIONS'),
-                const SizedBox(height: 16),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 400,
-                    childAspectRatio: 1.5,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: available.length,
-                  itemBuilder: (context, index) =>
-                      _buildDesktopCard(available[index]),
-                ),
-              ],
+  Widget _buildDesktopLayout(
+    List<Integration> connected,
+    List<Integration> available,
+  ) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('CONNECTED SERVICES'),
+          const SizedBox(height: 16),
+          if (connected.isEmpty)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 32),
+              child: Text(
+                'No connected services',
+                style: TextStyle(color: AppTheme.textMuted),
+              ),
             ),
+          if (connected.isNotEmpty)
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 1.8, // Wider cards
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: connected.length,
+              itemBuilder: (context, index) =>
+                  _buildDesktopCard(connected[index]),
+            ),
+          if (connected.isNotEmpty) const SizedBox(height: 48),
+
+          _buildSectionTitle('AVAILABLE INTEGRATIONS'),
+          const SizedBox(height: 16),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 400,
+              childAspectRatio: 1.5,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+            ),
+            itemCount: available.length,
+            itemBuilder: (context, index) =>
+                _buildDesktopCard(available[index]),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -301,7 +312,7 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
             ],
           ),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () => _showAddWebhookDialog(context),
             icon: const Icon(LucideIcons.plus, size: 16),
             label: const Text('Add Custom Webhook'),
             style: ElevatedButton.styleFrom(
@@ -318,7 +329,8 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
     );
   }
 
-  Widget _buildDesktopCard(_Integration item) {
+  Widget _buildDesktopCard(Integration item) {
+    final uiInfo = _getUIInfo(item);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -342,12 +354,12 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: item.color.withOpacity(0.1),
+                  color: uiInfo.color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(item.icon, color: item.color, size: 28),
+                child: Icon(uiInfo.icon, color: uiInfo.color, size: 28),
               ),
-              if (item.isConnected)
+              if (item.isEnabled)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -381,7 +393,7 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
                 )
               else
                 OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () => _showConnectionDialog(context, item),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -406,7 +418,7 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              if (item.isBeta) ...[
+              if (item.provider.toLowerCase() == 'sentry') ...[
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -431,7 +443,7 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            item.description,
+            uiInfo.description,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
@@ -471,4 +483,161 @@ class _IntegrationsManagerScreenState extends State<IntegrationsManagerScreen> {
       ),
     );
   }
+
+  Future<void> _showConnectionDialog(
+    BuildContext context,
+    Integration item,
+  ) async {
+    final enabled = !item.isEnabled;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('${enabled ? 'Connect' : 'Disconnect'} ${item.name}?'),
+        content: Text(
+          'Are you sure you want to ${enabled ? 'enable' : 'disable'} this integration?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && item.id != null) {
+      final result = await ref
+          .read(settingsMutationProvider.notifier)
+          .toggleIntegration(item.id!, enabled);
+
+      if (mounted) {
+        if (result != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${item.name} ${enabled ? 'connected' : 'disconnected'} successfully',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Failed to ${enabled ? 'connect' : 'disconnect'} ${item.name}',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _showAddWebhookDialog(BuildContext context) async {
+    final nameController = TextEditingController();
+    final urlController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    final created = await showDialog<Integration>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Custom Webhook'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  hintText: 'e.g., Slack Channel #alerts',
+                ),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: urlController,
+                decoration: const InputDecoration(
+                  labelText: 'Webhook URL',
+                  hintText: 'https://hooks.slack.com/...',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Required';
+                  if (!Uri.parse(value).isAbsolute) return 'Invalid URL';
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                final newIntegration = Integration(
+                  name: nameController.text,
+                  type: 'webhook',
+                  provider: 'webhook',
+                  config: '{"url": "${urlController.text}"}',
+                  isEnabled: true,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                );
+
+                final result = await ref
+                    .read(settingsMutationProvider.notifier)
+                    .createIntegration(newIntegration);
+
+                if (context.mounted) {
+                  if (result != null) {
+                    Navigator.of(context).pop(result);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Failed to create webhook'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+
+    if (mounted && created != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Webhook added successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+}
+
+class _IntegrationUIInfo {
+  final String description;
+  final IconData icon;
+  final Color color;
+
+  const _IntegrationUIInfo({
+    required this.description,
+    required this.icon,
+    required this.color,
+  });
 }

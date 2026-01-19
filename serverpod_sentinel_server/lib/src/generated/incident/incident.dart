@@ -30,14 +30,11 @@ abstract class Incident
     required this.title,
     this.summary,
     required this.serviceId,
-    required this.serviceId,
     this.service,
-    this.ruleId,
     required this.ruleId,
     this.rule,
     required this.status,
     required this.severity,
-    this.commanderId,
     required this.commanderId,
     this.commander,
     this.timeline,
@@ -54,14 +51,11 @@ abstract class Incident
     required String title,
     String? summary,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
-    int? ruleId,
     required int ruleId,
     _i3.Rule? rule,
     required _i4.IncidentStatus status,
     required _i5.IncidentSeverity severity,
-    int? commanderId,
     required int commanderId,
     _i6.OpsUser? commander,
     List<_i7.IncidentTimelineItem>? timeline,
@@ -141,11 +135,7 @@ abstract class Incident
 
   int serviceId;
 
-  int serviceId;
-
   _i2.Service? service;
-
-  int? ruleId;
 
   int ruleId;
 
@@ -154,8 +144,6 @@ abstract class Incident
   _i4.IncidentStatus status;
 
   _i5.IncidentSeverity severity;
-
-  int? commanderId;
 
   int commanderId;
 
@@ -188,14 +176,11 @@ abstract class Incident
     String? title,
     String? summary,
     int? serviceId,
-    int? serviceId,
     _i2.Service? service,
-    int? ruleId,
     int? ruleId,
     _i3.Rule? rule,
     _i4.IncidentStatus? status,
     _i5.IncidentSeverity? severity,
-    int? commanderId,
     int? commanderId,
     _i6.OpsUser? commander,
     List<_i7.IncidentTimelineItem>? timeline,
@@ -213,14 +198,11 @@ abstract class Incident
       'title': title,
       if (summary != null) 'summary': summary,
       'serviceId': serviceId,
-      'serviceId': serviceId,
       if (service != null) 'service': service?.toJson(),
-      if (ruleId != null) 'ruleId': ruleId,
       'ruleId': ruleId,
       if (rule != null) 'rule': rule?.toJson(),
       'status': status.toJson(),
       'severity': severity.toJson(),
-      if (commanderId != null) 'commanderId': commanderId,
       'commanderId': commanderId,
       if (commander != null) 'commander': commander?.toJson(),
       if (timeline != null)
@@ -246,14 +228,11 @@ abstract class Incident
       'title': title,
       if (summary != null) 'summary': summary,
       'serviceId': serviceId,
-      'serviceId': serviceId,
       if (service != null) 'service': service?.toJsonForProtocol(),
-      if (ruleId != null) 'ruleId': ruleId,
       'ruleId': ruleId,
       if (rule != null) 'rule': rule?.toJsonForProtocol(),
       'status': status.toJson(),
       'severity': severity.toJson(),
-      if (commanderId != null) 'commanderId': commanderId,
       'commanderId': commanderId,
       if (commander != null) 'commander': commander?.toJsonForProtocol(),
       if (timeline != null)
@@ -319,14 +298,11 @@ class _IncidentImpl extends Incident {
     required String title,
     String? summary,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
-    int? ruleId,
     required int ruleId,
     _i3.Rule? rule,
     required _i4.IncidentStatus status,
     required _i5.IncidentSeverity severity,
-    int? commanderId,
     required int commanderId,
     _i6.OpsUser? commander,
     List<_i7.IncidentTimelineItem>? timeline,
@@ -364,14 +340,11 @@ class _IncidentImpl extends Incident {
     String? title,
     Object? summary = _Undefined,
     int? serviceId,
-    int? serviceId,
     Object? service = _Undefined,
-    Object? ruleId = _Undefined,
     int? ruleId,
     Object? rule = _Undefined,
     _i4.IncidentStatus? status,
     _i5.IncidentSeverity? severity,
-    Object? commanderId = _Undefined,
     int? commanderId,
     Object? commander = _Undefined,
     Object? timeline = _Undefined,
@@ -417,14 +390,11 @@ class IncidentImplicit extends _IncidentImpl {
     required String title,
     String? summary,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
-    int? ruleId,
     required int ruleId,
     _i3.Rule? rule,
     required _i4.IncidentStatus status,
     required _i5.IncidentSeverity severity,
-    int? commanderId,
     required int commanderId,
     _i6.OpsUser? commander,
     List<_i7.IncidentTimelineItem>? timeline,
@@ -510,16 +480,6 @@ class IncidentUpdateTable extends _i1.UpdateTable<IncidentTable> {
     value,
   );
 
-  _i1.ColumnValue<int, int> serviceId(int value) => _i1.ColumnValue(
-    table.serviceId,
-    value,
-  );
-
-  _i1.ColumnValue<int, int> ruleId(int? value) => _i1.ColumnValue(
-    table.ruleId,
-    value,
-  );
-
   _i1.ColumnValue<int, int> ruleId(int value) => _i1.ColumnValue(
     table.ruleId,
     value,
@@ -536,11 +496,6 @@ class IncidentUpdateTable extends _i1.UpdateTable<IncidentTable> {
     _i5.IncidentSeverity value,
   ) => _i1.ColumnValue(
     table.severity,
-    value,
-  );
-
-  _i1.ColumnValue<int, int> commanderId(int? value) => _i1.ColumnValue(
-    table.commanderId,
     value,
   );
 
@@ -601,14 +556,6 @@ class IncidentTable extends _i1.Table<int?> {
       'serviceId',
       this,
     );
-    serviceId = _i1.ColumnInt(
-      'serviceId',
-      this,
-    );
-    ruleId = _i1.ColumnInt(
-      'ruleId',
-      this,
-    );
     ruleId = _i1.ColumnInt(
       'ruleId',
       this,
@@ -622,10 +569,6 @@ class IncidentTable extends _i1.Table<int?> {
       'severity',
       this,
       _i1.EnumSerialization.byName,
-    );
-    commanderId = _i1.ColumnInt(
-      'commanderId',
-      this,
     );
     commanderId = _i1.ColumnInt(
       'commanderId',
@@ -665,11 +608,7 @@ class IncidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt serviceId;
 
-  late final _i1.ColumnInt serviceId;
-
   _i2.ServiceTable? _service;
-
-  late final _i1.ColumnInt ruleId;
 
   late final _i1.ColumnInt ruleId;
 
@@ -678,8 +617,6 @@ class IncidentTable extends _i1.Table<int?> {
   late final _i1.ColumnEnum<_i4.IncidentStatus> status;
 
   late final _i1.ColumnEnum<_i5.IncidentSeverity> severity;
-
-  late final _i1.ColumnInt commanderId;
 
   late final _i1.ColumnInt commanderId;
 
@@ -814,12 +751,9 @@ class IncidentTable extends _i1.Table<int?> {
     title,
     summary,
     serviceId,
-    serviceId,
-    ruleId,
     ruleId,
     status,
     severity,
-    commanderId,
     commanderId,
     startedAt,
     resolvedAt,
@@ -835,12 +769,9 @@ class IncidentTable extends _i1.Table<int?> {
     title,
     summary,
     serviceId,
-    serviceId,
-    ruleId,
     ruleId,
     status,
     severity,
-    commanderId,
     commanderId,
     startedAt,
     resolvedAt,

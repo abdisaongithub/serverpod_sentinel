@@ -1,0 +1,13 @@
+### Integration model for external service integrations
+
+class: Integration
+table: integration
+fields:
+  name: String
+  type: String  # notification, ticketing, monitoring, etc.
+  provider: String  # slack, pagerduty, jira, etc.
+  config: String?  # JSON string for connection settings
+  isEnabled: bool
+  lastSyncAt: DateTime?
+  createdAt: DateTime
+  updatedAt: DateTime

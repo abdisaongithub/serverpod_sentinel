@@ -8,6 +8,117 @@ emailIdp:
   - finishPasswordReset:
 jwtRefresh:
   - refreshAccessToken:
+aiInsights:
+  - getInsights:
+  - analyzeIncident:
+  - suggestActions:
+  - predictServiceHealth:
+  - trainModel:
+  - getInsightTypes:
+alert:
+  - getRecent:
+auditLog:
+  - list:
+  - get:
+  - getForEntity:
+  - getActionTypes:
+  - getEntityTypes:
+  - create:
+environment:
+  - list:
+  - get:
+  - create:
+  - update:
+  - delete:
+  - getActive:
+  - setActive:
+health:
+  - ping:
+  - check:
+  - ready:
+  - live:
+incident:
+  - list:
+  - get:
+  - updateStatus:
+  - assignCommander:
+  - addTimelineItem:
+  - getStats:
+  - create:
+  - close:
+  - acknowledge:
+  - acknowledgeAll:
+  - update:
+  - delete:
+integration:
+  - list:
+  - get:
+  - create:
+  - update:
+  - delete:
+  - toggleEnabled:
+  - testConnection:
+  - sync:
+notificationPreferences:
+  - getForUser:
+  - getOrCreate:
+  - update:
+  - toggleEnabled:
+  - testNotification:
+  - getAvailableChannels:
+playbook:
+  - list:
+  - get:
+  - create:
+  - update:
+  - delete:
+  - execute:
+  - getExecution:
+report:
+  - listSnapshots:
+  - getSnapshot:
+  - saveSnapshot:
+  - deleteSnapshot:
+  - generateIncidentReport:
+  - generateHealthReport:
+  - saveGeneratedReport:
+rule:
+  - list:
+  - listForService:
+  - get:
+  - create:
+  - update:
+  - toggleEnabled:
+  - delete:
+service:
+  - list:
+  - get:
+  - create:
+  - update:
+  - delete:
+  - getHealthSummary:
+  - getSystemMetrics:
 streaming:
+systemSettings:
+  - list:
+  - getByKey:
+  - getValue:
+  - upsert:
+  - delete:
+  - getCategories:
+  - bulkUpdate:
+  - getPublic:
+telemetry:
+  - ingestSignal:
+  - ingestBatch:
+  - heartbeat:
+  - getSignals:
+user:
+  - getCurrentUser:
+  - listTeamMembers:
+  - get:
+  - update:
+  - assignRole:
+  - removeRole:
 greeting:
   - hello:

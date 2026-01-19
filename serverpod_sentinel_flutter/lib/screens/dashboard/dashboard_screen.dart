@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math' as math;
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
+import '../../providers/services_provider.dart';
+import '../../providers/incidents_provider.dart';
+import '../../providers/settings_provider.dart';
+import '../../widgets/shimmer_loading.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -33,7 +39,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       _TopRow(isDesktop: isDesktop),
                       const SizedBox(height: 24),
-                      const _EnvironmentStatusSection(),
+                      _EnvironmentsSection(),
                       const SizedBox(height: 24),
                       _BottomSection(isDesktop: isDesktop),
                     ],
@@ -238,9 +244,12 @@ class _TopRow extends StatelessWidget {
   }
 }
 
-class _HealthCard extends StatelessWidget {
+class _HealthCard extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final healthAsync = ref.watch(healthSummaryProvider);
+    final metricsAsync = ref.watch(systemMetricsProvider);
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -255,106 +264,145 @@ class _HealthCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 128,
-            height: 128,
-            child: CustomPaint(
-              painter: _HealthRingPainter(0.992),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text(
-                      '99.2%',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'HEALTH',
-                      style: TextStyle(
-                        color: Color(0xFF94A3B8),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      child: healthAsync.when(
+        loading: () => const ShimmerBox(width: double.infinity, height: 160),
+        error: (e, __) => SizedBox(
+          height: 160,
+          child: Center(
+            child: Text(
+              'Failed to load health: $e',
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(width: 32),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+        ),
+        data: (health) {
+          final score = health.healthPercentage;
+          return Row(
+            children: [
+              SizedBox(
+                width: 128,
+                height: 128,
+                child: CustomPaint(
+                  painter: _HealthRingPainter(score / 100),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${score.toStringAsFixed(1)}%',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Text(
+                          'HEALTH',
+                          style: TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 32),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Overall System Health',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                    Row(
+                      children: [
+                        const Text(
+                          'Overall System Health',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF22C55E).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Row(
+                            children: const [
+                              Icon(
+                                Icons.check_circle,
+                                color: Color(0xFF22C55E),
+                                size: 14,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Operational',
+                                style: TextStyle(
+                                  color: Color(0xFF22C55E),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'All core systems are functioning within normal parameters. Real-time monitoring enabled across ${health.total} services.',
+                      style: const TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 14,
+                        height: 1.5,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
+                    const SizedBox(height: 16),
+                    metricsAsync.when(
+                      loading: () => const Wrap(
+                        spacing: 16,
+                        children: [
+                          _StatChip(label: 'Uptime', value: '...'),
+                          _StatChip(label: 'Avg Latency', value: '...'),
+                        ],
                       ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF22C55E).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(100),
+                      error: (_, __) => const Wrap(
+                        spacing: 16,
+                        children: [
+                          _StatChip(label: 'Uptime', value: 'N/A'),
+                          _StatChip(label: 'Avg Latency', value: 'N/A'),
+                        ],
                       ),
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.check_circle,
-                            color: Color(0xFF22C55E),
-                            size: 14,
+                      data: (metrics) => Wrap(
+                        spacing: 16,
+                        children: [
+                          _StatChip(
+                            label: 'Uptime',
+                            value:
+                                '${metrics.uptimeDays}d ${metrics.uptimeHours}h',
                           ),
-                          SizedBox(width: 4),
-                          Text(
-                            'Operational',
-                            style: TextStyle(
-                              color: Color(0xFF22C55E),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          _StatChip(
+                            label: 'Avg Latency',
+                            value: '${metrics.averageLatencyMs}ms',
                           ),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'All core systems are functioning within normal parameters. Real-time monitoring enabled across 142 services.',
-                  style: TextStyle(
-                    color: Color(0xFF94A3B8),
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  children: [
-                    _StatChip(label: 'Uptime', value: '14d 2h'),
-                    _StatChip(label: 'Avg Latency', value: '24ms'),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -433,11 +481,13 @@ class _StatChip extends StatelessWidget {
   }
 }
 
-class _CriticalAlertCard extends StatelessWidget {
+class _CriticalAlertCard extends ConsumerWidget {
   const _CriticalAlertCard();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final activeIncidents = ref.watch(activeIncidentsProvider);
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -464,102 +514,127 @@ class _CriticalAlertCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: activeIncidents.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: Color(0xFFEF4444)),
+        ),
+        error: (e, _) => Center(
+          child: Text('Error: $e', style: const TextStyle(color: Colors.white)),
+        ),
+        data: (incidents) {
+          final count = incidents.length;
+          // Find critical incidents
+          final criticalCount = incidents
+              .where((i) => i.severity == IncidentSeverity.CRITICAL)
+              .length;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.warning_amber, color: Color(0xFFEF4444), size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'CRITICAL ALERT',
-                    style: TextStyle(
-                      color: Color(0xFFEF4444),
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.warning_amber,
+                        color: Color(0xFFEF4444),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        count > 0 ? 'CRITICAL ALERT' : 'ALL CLEAR',
+                        style: TextStyle(
+                          color: count > 0
+                              ? const Color(0xFFEF4444)
+                              : Colors.greenAccent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (count > 0)
+                    Text(
+                      'ID: ${incidents.first.id}',
+                      style: const TextStyle(
+                        color: Color(0xFFEF4444),
+                        fontSize: 11,
+                        fontFamily: 'monospace',
+                      ),
                     ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '$count Active Incidents',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                count > 0
+                    ? '$criticalCount critical requiring immediate attention'
+                    : 'Systems are operating normally',
+                style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 14),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => context.go(AppRoutes.incidents),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFEF4444),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 4,
+                        shadowColor: const Color(0xFFEF4444).withOpacity(0.2),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Text(
+                            'View Incidents',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.arrow_forward, size: 18),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.more_horiz, color: Colors.white),
                   ),
                 ],
               ),
-              const Text(
-                'INC-2023-882',
-                style: TextStyle(
-                  color: Color(0xFFEF4444),
-                  fontSize: 11,
-                  fontFamily: 'monospace',
-                ),
-              ),
             ],
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            '3 Active Incidents',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Immediate attention required in API Gateway and User Auth service regions.',
-            style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 14),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => context.go(AppRoutes.incidents),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFEF4444),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 4,
-                    shadowColor: const Color(0xFFEF4444).withOpacity(0.2),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text(
-                        'View Incidents',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, size: 18),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.more_horiz, color: Colors.white),
-              ),
-            ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 }
 
-class _EnvironmentStatusSection extends StatelessWidget {
-  const _EnvironmentStatusSection();
-
+class _EnvironmentsSection extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final environmentsAsync = ref.watch(environmentsProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -576,7 +651,7 @@ class _EnvironmentStatusSection extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () => context.go(AppRoutes.environmentSettings),
               child: const Text(
                 'View all envs',
                 style: TextStyle(color: AppTheme.primary, fontSize: 12),
@@ -585,86 +660,83 @@ class _EnvironmentStatusSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final isSmall = constraints.maxWidth < 700;
-            return isSmall
-                ? Column(
-                    children: [
-                      _EnvCard(
-                        name: 'Production',
-                        region: 'us-east-1',
-                        icon: Icons.rocket_launch,
-                        iconColor: const Color(0xFF6366F1),
-                        status: 'Healthy',
-                        statusColor: const Color(0xFF22C55E),
-                        version: 'v2.4.0',
-                      ),
-                      const SizedBox(height: 16),
-                      _EnvCard(
-                        name: 'Staging',
-                        region: 'CI/CD Active',
-                        icon: Icons.science,
-                        iconColor: const Color(0xFF3B82F6),
-                        status: 'Building',
-                        statusColor: const Color(0xFF3B82F6),
-                        version: '#8291 running',
-                      ),
-                      const SizedBox(height: 16),
-                      _EnvCard(
-                        name: 'Development',
-                        region: 'High Latency',
-                        icon: Icons.code,
-                        iconColor: const Color(0xFFF59E0B),
-                        status: 'Degraded',
-                        statusColor: const Color(0xFFF59E0B),
-                        version: 'Load > 85%',
-                      ),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      Expanded(
-                        child: _EnvCard(
-                          name: 'Production',
-                          region: 'us-east-1',
-                          icon: Icons.rocket_launch,
-                          iconColor: const Color(0xFF6366F1),
-                          status: 'Healthy',
-                          statusColor: const Color(0xFF22C55E),
-                          version: 'v2.4.0',
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _EnvCard(
-                          name: 'Staging',
-                          region: 'CI/CD Active',
-                          icon: Icons.science,
-                          iconColor: const Color(0xFF3B82F6),
-                          status: 'Building',
-                          statusColor: const Color(0xFF3B82F6),
-                          version: '#8291 running',
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _EnvCard(
-                          name: 'Development',
-                          region: 'High Latency',
-                          icon: Icons.code,
-                          iconColor: const Color(0xFFF59E0B),
-                          status: 'Degraded',
-                          statusColor: const Color(0xFFF59E0B),
-                          version: 'Load > 85%',
-                        ),
-                      ),
-                    ],
+        environmentsAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, __) => Text(
+            'Failed to load environments: $e',
+            style: const TextStyle(color: Colors.red),
+          ),
+          data: (environments) {
+            if (environments.isEmpty) {
+              return const Text(
+                'No environments configured',
+                style: TextStyle(color: Color(0xFF94A3B8)),
+              );
+            }
+
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isSmall = constraints.maxWidth < 700;
+                final envWidgets = environments.map((env) {
+                  return _EnvCard(
+                    name: env.name,
+                    region: env.region ?? 'Unknown',
+                    icon: _getEnvIcon(env.name),
+                    iconColor: _getEnvIconColor(env.name),
+                    status: env.isActive ? 'Active' : 'Inactive',
+                    statusColor: env.isActive
+                        ? const Color(0xFF22C55E)
+                        : const Color(0xFF94A3B8),
+                    version: env.description ?? 'No description',
                   );
+                }).toList();
+
+                if (isSmall) {
+                  return Column(
+                    children:
+                        envWidgets
+                            .expand(
+                              (widget) => [widget, const SizedBox(height: 16)],
+                            )
+                            .toList()
+                          ..removeLast(),
+                  );
+                } else {
+                  return Row(
+                    children:
+                        envWidgets
+                            .expand(
+                              (widget) => [
+                                Expanded(child: widget),
+                                const SizedBox(width: 16),
+                              ],
+                            )
+                            .toList()
+                          ..removeLast(),
+                  );
+                }
+              },
+            );
           },
         ),
       ],
     );
+  }
+
+  IconData _getEnvIcon(String envName) {
+    final name = envName.toLowerCase();
+    if (name.contains('prod')) return Icons.rocket_launch;
+    if (name.contains('stag')) return Icons.science;
+    if (name.contains('dev')) return Icons.code;
+    return Icons.dns;
+  }
+
+  Color _getEnvIconColor(String envName) {
+    final name = envName.toLowerCase();
+    if (name.contains('prod')) return const Color(0xFF6366F1);
+    if (name.contains('stag')) return const Color(0xFF3B82F6);
+    if (name.contains('dev')) return const Color(0xFFF59E0B);
+    return const Color(0xFF94A3B8);
   }
 }
 
@@ -814,9 +886,12 @@ class _BottomSection extends StatelessWidget {
   }
 }
 
-class _ServicesAtRiskSection extends StatelessWidget {
+class _ServicesAtRiskSection extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Determine risk based on service status
+    final servicesAsync = ref.watch(servicesProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -830,64 +905,100 @@ class _ServicesAtRiskSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final isSmall = constraints.maxWidth < 500;
-            return isSmall
-                ? Column(
-                    children: [
-                      _RiskCard(
-                        name: 'Main DB Cluster',
-                        subtitle: 'db-prod-primary',
-                        status: 'High Load',
-                        statusColor: const Color(0xFFF59E0B),
-                        value: '88%',
-                        unit: 'CPU Usage',
-                        secondary: '12.4k',
-                        secondaryUnit: 'Ops/Sec',
-                      ),
-                      const SizedBox(height: 16),
-                      _RiskCard(
-                        name: 'Payment Gateway API',
-                        subtitle: 'api-v2-payments',
-                        status: 'Elevated Errors',
-                        statusColor: const Color(0xFFEF4444),
-                        value: '4.2%',
-                        unit: 'Error Rate (5xx)',
-                        secondary: '320ms',
-                        secondaryUnit: 'P99 Latency',
-                      ),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      Expanded(
-                        child: _RiskCard(
-                          name: 'Main DB Cluster',
-                          subtitle: 'db-prod-primary',
-                          status: 'High Load',
-                          statusColor: const Color(0xFFF59E0B),
-                          value: '88%',
-                          unit: 'CPU Usage',
-                          secondary: '12.4k',
-                          secondaryUnit: 'Ops/Sec',
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _RiskCard(
-                          name: 'Payment Gateway API',
-                          subtitle: 'api-v2-payments',
-                          status: 'Elevated Errors',
-                          statusColor: const Color(0xFFEF4444),
-                          value: '4.2%',
-                          unit: 'Error Rate (5xx)',
-                          secondary: '320ms',
-                          secondaryUnit: 'P99 Latency',
-                        ),
+        servicesAsync.when(
+          loading: () => const ShimmerList(itemCount: 2),
+          error: (_, __) => const Text(
+            'Could not load services',
+            style: TextStyle(color: Colors.red),
+          ),
+          data: (services) {
+            // Filter services that are degraded or down
+            final atRisk = services
+                .where(
+                  (s) =>
+                      s.status == ServiceStatus.DEGRADED ||
+                      s.status == ServiceStatus.MAJOR_OUTAGE ||
+                      s.status == ServiceStatus.PARTIAL_OUTAGE,
+                )
+                .toList();
+
+            if (atRisk.isEmpty) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF161E2D),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF2D3748)),
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.check_circle, color: Colors.green),
+                      SizedBox(width: 8),
+                      Text(
+                        'No services currently at risk',
+                        style: TextStyle(color: Colors.white),
                       ),
                     ],
+                  ),
+                ),
+              );
+            }
+
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isSmall = constraints.maxWidth < 500;
+                final cards = atRisk
+                    .map(
+                      (service) => _RiskCard(
+                        name: service.name,
+                        subtitle: service.description ?? 'Service',
+                        status: service.status == ServiceStatus.DEGRADED
+                            ? 'Degraded'
+                            : 'Outage',
+                        statusColor: service.status == ServiceStatus.DEGRADED
+                            ? const Color(0xFFF59E0B)
+                            : const Color(0xFFEF4444),
+                        // Mock realtime metrics until telemetry implemented
+                        value: '0ms',
+                        unit: 'Latency',
+                        secondary: 'v1.0.0',
+                        secondaryUnit: 'Version',
+                      ),
+                    )
+                    .toList();
+
+                if (isSmall) {
+                  return Column(
+                    children: cards
+                        .map(
+                          (c) => Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: c,
+                          ),
+                        )
+                        .toList(),
                   );
+                } else {
+                  return Row(
+                    children: cards
+                        .map(
+                          (c) => Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                              child: c,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  );
+                }
+              },
+            );
           },
         ),
       ],

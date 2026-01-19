@@ -1,0 +1,12 @@
+### Environment model for managing different deployment environments
+
+class: Environment
+table: environment
+fields:
+  name: String
+  region: String
+  description: String?
+  isActive: bool
+  config: String?  # JSON string for flexible config
+  createdAt: DateTime
+  updatedAt: DateTime

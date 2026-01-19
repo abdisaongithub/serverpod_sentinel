@@ -25,12 +25,9 @@ abstract class PlaybookExecution
   PlaybookExecution._({
     this.id,
     required this.playbookId,
-    required this.playbookId,
     this.playbook,
     required this.incidentId,
-    required this.incidentId,
     this.incident,
-    required this.initiatorId,
     required this.initiatorId,
     this.initiator,
     required this.status,
@@ -44,12 +41,9 @@ abstract class PlaybookExecution
   factory PlaybookExecution({
     int? id,
     required int playbookId,
-    required int playbookId,
     _i2.Playbook? playbook,
     required int incidentId,
-    required int incidentId,
     _i3.Incident? incident,
-    required int initiatorId,
     required int initiatorId,
     _i4.OpsUser? initiator,
     required _i5.ExecutionStatus status,
@@ -109,17 +103,11 @@ abstract class PlaybookExecution
 
   int playbookId;
 
-  int playbookId;
-
   _i2.Playbook? playbook;
 
   int incidentId;
 
-  int incidentId;
-
   _i3.Incident? incident;
-
-  int initiatorId;
 
   int initiatorId;
 
@@ -148,12 +136,9 @@ abstract class PlaybookExecution
   PlaybookExecution copyWith({
     int? id,
     int? playbookId,
-    int? playbookId,
     _i2.Playbook? playbook,
     int? incidentId,
-    int? incidentId,
     _i3.Incident? incident,
-    int? initiatorId,
     int? initiatorId,
     _i4.OpsUser? initiator,
     _i5.ExecutionStatus? status,
@@ -167,12 +152,9 @@ abstract class PlaybookExecution
       '__className__': 'PlaybookExecution',
       if (id != null) 'id': id,
       'playbookId': playbookId,
-      'playbookId': playbookId,
       if (playbook != null) 'playbook': playbook?.toJson(),
       'incidentId': incidentId,
-      'incidentId': incidentId,
       if (incident != null) 'incident': incident?.toJson(),
-      'initiatorId': initiatorId,
       'initiatorId': initiatorId,
       if (initiator != null) 'initiator': initiator?.toJson(),
       'status': status.toJson(),
@@ -195,12 +177,9 @@ abstract class PlaybookExecution
       '__className__': 'PlaybookExecution',
       if (id != null) 'id': id,
       'playbookId': playbookId,
-      'playbookId': playbookId,
       if (playbook != null) 'playbook': playbook?.toJsonForProtocol(),
       'incidentId': incidentId,
-      'incidentId': incidentId,
       if (incident != null) 'incident': incident?.toJsonForProtocol(),
-      'initiatorId': initiatorId,
       'initiatorId': initiatorId,
       if (initiator != null) 'initiator': initiator?.toJsonForProtocol(),
       'status': status.toJson(),
@@ -254,12 +233,9 @@ class _PlaybookExecutionImpl extends PlaybookExecution {
   _PlaybookExecutionImpl({
     int? id,
     required int playbookId,
-    required int playbookId,
     _i2.Playbook? playbook,
     required int incidentId,
-    required int incidentId,
     _i3.Incident? incident,
-    required int initiatorId,
     required int initiatorId,
     _i4.OpsUser? initiator,
     required _i5.ExecutionStatus status,
@@ -287,12 +263,9 @@ class _PlaybookExecutionImpl extends PlaybookExecution {
   PlaybookExecution copyWith({
     Object? id = _Undefined,
     int? playbookId,
-    int? playbookId,
     Object? playbook = _Undefined,
     int? incidentId,
-    int? incidentId,
     Object? incident = _Undefined,
-    int? initiatorId,
     int? initiatorId,
     Object? initiator = _Undefined,
     _i5.ExecutionStatus? status,
@@ -332,12 +305,9 @@ class PlaybookExecutionImplicit extends _PlaybookExecutionImpl {
   PlaybookExecutionImplicit._({
     int? id,
     required int playbookId,
-    required int playbookId,
     _i2.Playbook? playbook,
     required int incidentId,
-    required int incidentId,
     _i3.Incident? incident,
-    required int initiatorId,
     required int initiatorId,
     _i4.OpsUser? initiator,
     required _i5.ExecutionStatus status,
@@ -409,23 +379,8 @@ class PlaybookExecutionUpdateTable
     value,
   );
 
-  _i1.ColumnValue<int, int> playbookId(int value) => _i1.ColumnValue(
-    table.playbookId,
-    value,
-  );
-
   _i1.ColumnValue<int, int> incidentId(int value) => _i1.ColumnValue(
     table.incidentId,
-    value,
-  );
-
-  _i1.ColumnValue<int, int> incidentId(int value) => _i1.ColumnValue(
-    table.incidentId,
-    value,
-  );
-
-  _i1.ColumnValue<int, int> initiatorId(int value) => _i1.ColumnValue(
-    table.initiatorId,
     value,
   );
 
@@ -486,20 +441,8 @@ class PlaybookExecutionTable extends _i1.Table<int?> {
       'playbookId',
       this,
     );
-    playbookId = _i1.ColumnInt(
-      'playbookId',
-      this,
-    );
     incidentId = _i1.ColumnInt(
       'incidentId',
-      this,
-    );
-    incidentId = _i1.ColumnInt(
-      'incidentId',
-      this,
-    );
-    initiatorId = _i1.ColumnInt(
-      'initiatorId',
       this,
     );
     initiatorId = _i1.ColumnInt(
@@ -541,17 +484,11 @@ class PlaybookExecutionTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt playbookId;
 
-  late final _i1.ColumnInt playbookId;
-
   _i2.PlaybookTable? _playbook;
 
   late final _i1.ColumnInt incidentId;
 
-  late final _i1.ColumnInt incidentId;
-
   _i3.IncidentTable? _incident;
-
-  late final _i1.ColumnInt initiatorId;
 
   late final _i1.ColumnInt initiatorId;
 
@@ -614,10 +551,7 @@ class PlaybookExecutionTable extends _i1.Table<int?> {
   List<_i1.Column> get columns => [
     id,
     playbookId,
-    playbookId,
     incidentId,
-    incidentId,
-    initiatorId,
     initiatorId,
     status,
     startedAt,
@@ -632,10 +566,7 @@ class PlaybookExecutionTable extends _i1.Table<int?> {
   List<_i1.Column> get managedColumns => [
     id,
     playbookId,
-    playbookId,
     incidentId,
-    incidentId,
-    initiatorId,
     initiatorId,
     status,
     startedAt,

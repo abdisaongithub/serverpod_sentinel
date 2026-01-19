@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:intl/intl.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
+import '../../providers/settings_provider.dart';
 
-class AuditLogScreen extends StatefulWidget {
+class AuditLogScreen extends ConsumerStatefulWidget {
   const AuditLogScreen({super.key});
 
   @override
-  State<AuditLogScreen> createState() => _AuditLogScreenState();
+  ConsumerState<AuditLogScreen> createState() => _AuditLogScreenState();
 }
 
-class _AuditLogScreenState extends State<AuditLogScreen> {
+class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
   String _selectedFilter = 'All Events';
+  final _dateFormat = DateFormat('HH:mm:ss');
+  final _dayFormat = DateFormat('EEEE, MMM d');
 
   void _onFilterChanged(String filter) {
     setState(() {
@@ -22,6 +28,8 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auditLogsAsync = ref.watch(auditLogsProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
@@ -33,7 +41,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
               : null,
           body: Column(
             children: [
-              const _Header(),
+              _Header(isDesktop: isDesktop),
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
@@ -42,13 +50,24 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
                         selectedFilter: _selectedFilter,
                         onFilterChanged: _onFilterChanged,
                       ),
-                      _AuditTable(
-                        isDesktop: isDesktop,
-                        activeFilter: _selectedFilter,
+                      auditLogsAsync.when(
+                        data: (logs) => _buildLogList(logs, isDesktop),
+                        loading: () => const SizedBox(
+                          height: 200,
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                        error: (err, stack) => SizedBox(
+                          height: 200,
+                          child: Center(
+                            child: Text(
+                              'Error: $err',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ),
                       ),
                       const _Footer(),
-                      if (!isDesktop)
-                        const SizedBox(height: 80), // Fab space on mobile
+                      if (!isDesktop) const SizedBox(height: 80),
                     ],
                   ),
                 ),
@@ -60,10 +79,83 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
       },
     );
   }
+
+  Widget _buildLogList(List<AuditLog> logs, bool isDesktop) {
+    // 1. Filter locally
+    final filtered = logs.where((log) {
+      if (_selectedFilter == 'All Events') return true;
+      if (_selectedFilter == 'Critical Errors') {
+        // Naive heuristic since we lack severity field
+        return log.action.toUpperCase().contains('DELETE') ||
+            log.action.toUpperCase().contains('ERROR') ||
+            log.action.toUpperCase().contains('FAIL');
+      }
+      if (_selectedFilter == 'Warnings') {
+        return log.action.toUpperCase().contains('WARN');
+      }
+      if (_selectedFilter == 'User Actions') {
+        // Assuming system actor has Id 0 or specific name, otherwise assume user
+        // This is heuristic.
+        return true;
+      }
+      return true;
+    }).toList();
+
+    // 2. Group by Day
+    // Sort desc first
+    filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    final grouped = <String, List<AuditLog>>{};
+    for (var log in filtered) {
+      final dayKey = _dayFormat.format(log.createdAt);
+      grouped.putIfAbsent(dayKey, () => []).add(log);
+    }
+
+    if (grouped.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(48),
+        child: const Text(
+          'No logs found for this filter.',
+          style: TextStyle(color: AppTheme.textMuted),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        _AuditTableHeader(isDesktop: isDesktop),
+        ...grouped.entries.map((entry) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _DateSeparator(label: entry.key),
+              ...entry.value.map(
+                (log) => _AuditRow(
+                  timestamp: _dateFormat.format(log.createdAt),
+                  actorName: 'User ${log.actor?.userInfoId ?? "Unknown"}',
+                  actorSub: 'ID: ${log.actorId}', // Could be role or email
+                  actorImageUrl: null, // Add to OpsUser if available
+                  actorIcon: LucideIcons.user,
+                  actorIconColor: AppTheme.primary,
+                  event: log.action,
+                  details:
+                      '${log.entityType} #${log.entityId} ${log.changes ?? ""}',
+                  isSystem: false, // heuristic
+                  isCritical: log.action.contains('DELETE'),
+                  isDesktop: isDesktop,
+                ),
+              ),
+            ],
+          );
+        }),
+      ],
+    );
+  }
 }
 
 class _Header extends StatelessWidget {
-  const _Header();
+  final bool isDesktop;
+  const _Header({required this.isDesktop});
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +170,13 @@ class _Header extends StatelessWidget {
         children: [
           Row(
             children: [
+              if (!isDesktop)
+                Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(LucideIcons.menu, color: Colors.white),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
+                ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,114 +193,99 @@ class _Header extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: const Color(0xFF10B981).withOpacity(0.2),
+                        if (isDesktop)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF10B981).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFF10B981).withOpacity(0.2),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(
+                                  LucideIcons.shieldCheck,
+                                  size: 14,
+                                  color: Color(0xFF10B981),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  'Immutable Record',
+                                  style: TextStyle(
+                                    color: Color(0xFF10B981),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(
-                                LucideIcons.shieldCheck,
-                                size: 14,
-                                color: Color(0xFF10B981),
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                'Immutable Record',
-                                style: TextStyle(
-                                  color: Color(0xFF10B981),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Track and monitor all system activities for compliance.',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
+                      maxLines: 2,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 24),
-              // Search & Export
-              Row(
-                children: [
-                  Container(
-                    width: 320,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1C2433),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF252E42)),
-                    ),
-                    child: TextField(
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
-                      decoration: InputDecoration(
-                        hintText: 'Search by ID, User, or Event...',
-                        hintStyle: const TextStyle(
-                          color: Color(0xFF64748B),
+              if (isDesktop) ...[
+                const SizedBox(width: 24),
+                // Search & Export
+                Row(
+                  children: [
+                    Container(
+                      width: 320,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1C2433),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFF252E42)),
+                      ),
+                      child: TextField(
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 13,
                         ),
-                        prefixIcon: const Icon(
-                          LucideIcons.search,
-                          size: 18,
-                          color: Color(0xFF64748B),
-                        ),
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0B0E14),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: const Color(0xFF334155),
-                              ),
-                            ),
-                            child: const Text(
-                              '⌘K',
-                              style: TextStyle(
-                                color: Color(0xFF64748B),
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                        decoration: InputDecoration(
+                          hintText: 'Search by ID, User, or Event...',
+                          hintStyle: const TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 13,
+                          ),
+                          prefixIcon: const Icon(
+                            LucideIcons.search,
+                            size: 18,
+                            color: Color(0xFF64748B),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 8,
                           ),
                         ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  _HeaderIconButton(
-                    icon: LucideIcons.download,
-                    onPressed: () {},
-                    tooltip: 'Export Logs',
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 12),
+                    _HeaderIconButton(
+                      icon: LucideIcons.download,
+                      onPressed: () {},
+                      tooltip: 'Export Logs',
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ],
@@ -390,146 +474,80 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-class _AuditTable extends StatelessWidget {
+class _AuditTableHeader extends StatelessWidget {
   final bool isDesktop;
-  final String activeFilter;
-
-  const _AuditTable({required this.isDesktop, required this.activeFilter});
+  const _AuditTableHeader({required this.isDesktop});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Table Header
-        Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: isDesktop ? 32 : 16,
-            vertical: 12,
-          ),
-          decoration: const BoxDecoration(
-            color: Color(0xFF0B0E14),
-            border: Border.symmetric(
-              horizontal: BorderSide(color: Color(0xFF252E42)),
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 32 : 16,
+        vertical: 12,
+      ),
+      decoration: const BoxDecoration(
+        color: Color(0xFF0B0E14),
+        border: Border.symmetric(
+          horizontal: BorderSide(color: Color(0xFF252E42)),
+        ),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(
+            width: 100,
+            child: Text(
+              'TIME (UTC)',
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+              ),
             ),
           ),
-          child: Row(
-            children: [
-              const SizedBox(
-                width: 100,
-                child: Text(
-                  'TIME (UTC)',
-                  style: TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                  ),
+          SizedBox(width: isDesktop ? 32 : 16),
+          const Expanded(
+            flex: 2,
+            child: Text(
+              'ACTOR',
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          SizedBox(width: isDesktop ? 32 : 16),
+          const Expanded(
+            flex: 3,
+            child: Text(
+              'EVENT',
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          if (isDesktop) ...[
+            const SizedBox(width: 32),
+            const Expanded(
+              flex: 4,
+              child: Text(
+                'DETAILS',
+                style: TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
                 ),
               ),
-              SizedBox(width: isDesktop ? 32 : 16),
-              const Expanded(
-                flex: 2,
-                child: Text(
-                  'ACTOR',
-                  style: TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-              SizedBox(width: isDesktop ? 32 : 16),
-              const Expanded(
-                flex: 3,
-                child: Text(
-                  'EVENT',
-                  style: TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-              if (isDesktop) ...[
-                const SizedBox(width: 32),
-                const Expanded(
-                  flex: 4,
-                  child: Text(
-                    'DETAILS',
-                    style: TextStyle(
-                      color: Color(0xFF64748B),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        // Table Content
-        const _DateSeparator(label: 'Today, Oct 27'),
-        if (activeFilter == 'All Events' || activeFilter == 'User Actions')
-          _AuditRow(
-            timestamp: '14:03:22',
-            actorName: 'Sarah Jenkins',
-            actorSub: 'US-East-1',
-            actorImageUrl: 'https://i.pravatar.cc/150?img=9',
-            event: 'Service XYZ Deployed',
-            details: 'commit: 8f32a9 | image: sha256:e3b0c442...',
-            isDesktop: isDesktop,
-          ),
-        if (activeFilter == 'All Events' || activeFilter == 'Warnings')
-          _AuditRow(
-            timestamp: '13:45:10',
-            actorName: 'System Bot',
-            actorSub: 'Cluster-Alpha',
-            actorIcon: LucideIcons.bot,
-            actorIconColor: Colors.purple,
-            event: 'Auto-scaling Triggered',
-            details: 'SCALED_UP: nodes: 3 → 5',
-            isSystem: true,
-            isDesktop: isDesktop,
-          ),
-        if (activeFilter == 'All Events' || activeFilter == 'Critical Errors')
-          _AuditRow(
-            timestamp: '12:12:05',
-            actorName: 'Unknown User',
-            actorSub: 'Auth Service',
-            actorIcon: LucideIcons.shieldAlert,
-            actorIconColor: Colors.red,
-            event: 'Unusual Login Attempt',
-            details: 'IP: 192.168.1.XX | Status: BLOCKED',
-            isCritical: true,
-            isDesktop: isDesktop,
-          ),
-        const _DateSeparator(label: 'Yesterday, Oct 26'),
-        if (activeFilter == 'All Events' || activeFilter == 'User Actions')
-          _AuditRow(
-            timestamp: '23:55:01',
-            actorName: 'Mark Chen',
-            actorSub: 'Infra-Net',
-            actorImageUrl: 'https://i.pravatar.cc/150?img=11',
-            event: 'Updated Load Balancer',
-            details: 'modified: /etc/lb/config.yaml',
-            isDesktop: isDesktop,
-          ),
-        if (activeFilter == 'All Events' || activeFilter == 'Warnings')
-          _AuditRow(
-            timestamp: '22:00:00',
-            actorName: 'Auto-Backup',
-            actorSub: 'Prod-DB-01',
-            actorIcon: LucideIcons.database,
-            actorIconColor: Colors.green,
-            event: 'Database Backup',
-            details: 'COMPLETE: size: 450GB',
-            isSystem: true,
-            isDesktop: isDesktop,
-          ),
-      ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -797,10 +815,6 @@ class _MobileNav extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Icon(LucideIcons.bell),
             label: 'Alerts',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(LucideIcons.settings),
-            label: 'Settings',
           ),
         ],
       ),

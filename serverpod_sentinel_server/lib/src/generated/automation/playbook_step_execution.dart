@@ -23,7 +23,6 @@ abstract class PlaybookStepExecution
   PlaybookStepExecution._({
     this.id,
     required this.executionId,
-    required this.executionId,
     this.execution,
     required this.stepId,
     required this.status,
@@ -35,7 +34,6 @@ abstract class PlaybookStepExecution
 
   factory PlaybookStepExecution({
     int? id,
-    required int executionId,
     required int executionId,
     _i2.PlaybookExecution? execution,
     required String stepId,
@@ -83,8 +81,6 @@ abstract class PlaybookStepExecution
 
   int executionId;
 
-  int executionId;
-
   _i2.PlaybookExecution? execution;
 
   String stepId;
@@ -108,7 +104,6 @@ abstract class PlaybookStepExecution
   PlaybookStepExecution copyWith({
     int? id,
     int? executionId,
-    int? executionId,
     _i2.PlaybookExecution? execution,
     String? stepId,
     _i3.ExecutionStatus? status,
@@ -122,7 +117,6 @@ abstract class PlaybookStepExecution
     return {
       '__className__': 'PlaybookStepExecution',
       if (id != null) 'id': id,
-      'executionId': executionId,
       'executionId': executionId,
       if (execution != null) 'execution': execution?.toJson(),
       'stepId': stepId,
@@ -139,7 +133,6 @@ abstract class PlaybookStepExecution
     return {
       '__className__': 'PlaybookStepExecution',
       if (id != null) 'id': id,
-      'executionId': executionId,
       'executionId': executionId,
       if (execution != null) 'execution': execution?.toJsonForProtocol(),
       'stepId': stepId,
@@ -189,7 +182,6 @@ class _PlaybookStepExecutionImpl extends PlaybookStepExecution {
   _PlaybookStepExecutionImpl({
     int? id,
     required int executionId,
-    required int executionId,
     _i2.PlaybookExecution? execution,
     required String stepId,
     required _i3.ExecutionStatus status,
@@ -215,7 +207,6 @@ class _PlaybookStepExecutionImpl extends PlaybookStepExecution {
   @override
   PlaybookStepExecution copyWith({
     Object? id = _Undefined,
-    int? executionId,
     int? executionId,
     Object? execution = _Undefined,
     String? stepId,
@@ -244,11 +235,6 @@ class _PlaybookStepExecutionImpl extends PlaybookStepExecution {
 class PlaybookStepExecutionUpdateTable
     extends _i1.UpdateTable<PlaybookStepExecutionTable> {
   PlaybookStepExecutionUpdateTable(super.table);
-
-  _i1.ColumnValue<int, int> executionId(int value) => _i1.ColumnValue(
-    table.executionId,
-    value,
-  );
 
   _i1.ColumnValue<int, int> executionId(int value) => _i1.ColumnValue(
     table.executionId,
@@ -298,10 +284,6 @@ class PlaybookStepExecutionTable extends _i1.Table<int?> {
       'executionId',
       this,
     );
-    executionId = _i1.ColumnInt(
-      'executionId',
-      this,
-    );
     stepId = _i1.ColumnString(
       'stepId',
       this,
@@ -330,8 +312,6 @@ class PlaybookStepExecutionTable extends _i1.Table<int?> {
   }
 
   late final PlaybookStepExecutionUpdateTable updateTable;
-
-  late final _i1.ColumnInt executionId;
 
   late final _i1.ColumnInt executionId;
 
@@ -365,7 +345,6 @@ class PlaybookStepExecutionTable extends _i1.Table<int?> {
   @override
   List<_i1.Column> get columns => [
     id,
-    executionId,
     executionId,
     stepId,
     status,

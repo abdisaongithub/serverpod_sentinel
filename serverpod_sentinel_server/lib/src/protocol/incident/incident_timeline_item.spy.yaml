@@ -2,9 +2,7 @@
 class: IncidentTimelineItem
 table: incident_timeline_item
 fields:
-  incidentId: int
   incident: Incident?, relation
-  authorId: int?
   author: OpsUser?, relation
   
   type: TimelineItemType

@@ -7,18 +7,10 @@ class RuleEvaluator {
   bool evaluate(Rule rule, HealthSignal signal) {
     try {
       final config = parseConfig(rule.condition);
-      final condition = config['condition'];
 
-      if (condition == null) return false;
-
-      // Check if this rule applies to this signal
-      // In a real system, we might query by signal identifier specifically,
-      // but here we verify match.
-      // Assumes Rule -> one signal identifier mapping or similar logic.
-      // For now, we assume the caller has matched the signal to the rule.
-
-      final operator = condition['operator'];
-      final threshold = condition['value'];
+      // Removed nested 'condition' check to support flat JSON
+      final operator = config['operator'];
+      final threshold = config['value'];
 
       if (operator == null || threshold == null) return false;
 

@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
+import '../../providers/incidents_provider.dart';
 
-class RemediationRequestScreen extends StatelessWidget {
-  const RemediationRequestScreen({super.key});
+class RemediationRequestScreen extends ConsumerWidget {
+  final int incidentId;
+
+  const RemediationRequestScreen({required this.incidentId, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final incidentAsync = ref.watch(incidentProvider(incidentId));
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
@@ -21,52 +27,74 @@ class RemediationRequestScreen extends StatelessWidget {
                   child: AppSidebar(activeRoute: AppRoutes.incidents),
                 )
               : null,
-          body: Row(
-            children: [
-              if (isDesktop) const AppSidebar(activeRoute: AppRoutes.incidents),
-              Expanded(
-                child: Column(
-                  children: [
-                    const _Header(),
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          SingleChildScrollView(
-                            padding: EdgeInsets.only(
-                              left: isDesktop ? 32 : 16,
-                              right: isDesktop ? 32 : 16,
-                              top: isDesktop ? 32 : 16,
-                              bottom: 120, // space for sticky footer
-                            ),
-                            child: Center(
-                              child: Container(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 1200,
+          body: incidentAsync.when(
+            data: (incident) {
+              if (incident == null) {
+                return const Center(
+                  child: Text(
+                    'Incident not found',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              }
+
+              return Row(
+                children: [
+                  if (isDesktop)
+                    const AppSidebar(activeRoute: AppRoutes.incidents),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        _Header(incidentId: incident.id!),
+                        Expanded(
+                          child: Stack(
+                            children: [
+                              SingleChildScrollView(
+                                padding: EdgeInsets.only(
+                                  left: isDesktop ? 32 : 16,
+                                  right: isDesktop ? 32 : 16,
+                                  top: isDesktop ? 32 : 16,
+                                  bottom: 120, // space for sticky footer
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const GridViewLayout(),
-                                    const SizedBox(height: 24),
-                                    const _PlaybookStrategy(),
-                                  ],
+                                child: Center(
+                                  child: Container(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 1200,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        GridViewLayout(incident: incident),
+                                        const SizedBox(height: 24),
+                                        const _PlaybookStrategy(),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: _Footer(incidentId: incident.id!),
+                              ),
+                            ],
                           ),
-                          const Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: _Footer(),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => Center(
+              child: Text(
+                'Error: $error',
+                style: const TextStyle(color: Colors.red),
               ),
-            ],
+            ),
           ),
         );
       },
@@ -75,7 +103,9 @@ class RemediationRequestScreen extends StatelessWidget {
 }
 
 class GridViewLayout extends StatelessWidget {
-  const GridViewLayout({super.key});
+  final dynamic incident;
+
+  const GridViewLayout({required this.incident, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -86,17 +116,17 @@ class GridViewLayout extends StatelessWidget {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(flex: 2, child: _IncidentContext()),
+              Expanded(flex: 2, child: _IncidentContext(incident: incident)),
               const SizedBox(width: 24),
               const Expanded(child: _RiskAssessment()),
             ],
           );
         } else {
-          return const Column(
+          return Column(
             children: [
-              _IncidentContext(),
-              SizedBox(height: 24),
-              _RiskAssessment(),
+              _IncidentContext(incident: incident),
+              const SizedBox(height: 24),
+              const _RiskAssessment(),
             ],
           );
         }
@@ -106,7 +136,9 @@ class GridViewLayout extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header();
+  final int incidentId;
+
+  const _Header({required this.incidentId});
 
   @override
   Widget build(BuildContext context) {
@@ -135,8 +167,8 @@ class _Header extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          const Text(
-            '#4921',
+          Text(
+            '#$incidentId',
             style: TextStyle(
               color: Color(0xFF64748B),
               fontSize: 14,
@@ -224,7 +256,9 @@ class _StatusBadgeState extends State<_StatusBadge>
 }
 
 class _IncidentContext extends StatelessWidget {
-  const _IncidentContext();
+  final dynamic incident;
+
+  const _IncidentContext({required this.incident});
 
   @override
   Widget build(BuildContext context) {
@@ -287,9 +321,9 @@ class _IncidentContext extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'High Latency Spike',
-                          style: TextStyle(
+                        Text(
+                          incident.title ?? 'Unknown Incident',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -297,16 +331,16 @@ class _IncidentContext extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         RichText(
-                          text: const TextSpan(
-                            style: TextStyle(
+                          text: TextSpan(
+                            style: const TextStyle(
                               color: Color(0xFF94A3B8),
                               fontSize: 14,
                             ),
                             children: [
-                              TextSpan(text: 'Service: '),
+                              const TextSpan(text: 'Service: '),
                               TextSpan(
-                                text: 'Payment-Gateway-API',
-                                style: TextStyle(
+                                text: incident.serviceName ?? 'Unknown',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontFamily: 'monospace',
                                   fontWeight: FontWeight.w500,
@@ -966,7 +1000,9 @@ class _StepRow extends StatelessWidget {
 }
 
 class _Footer extends StatelessWidget {
-  const _Footer();
+  final int incidentId;
+
+  const _Footer({required this.incidentId});
 
   @override
   Widget build(BuildContext context) {

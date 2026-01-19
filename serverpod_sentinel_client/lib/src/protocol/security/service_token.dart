@@ -21,7 +21,6 @@ abstract class ServiceToken implements _i1.SerializableModel {
     required this.name,
     required this.token,
     required this.serviceId,
-    required this.serviceId,
     this.service,
     this.lastUsedAt,
     this.expiresAt,
@@ -32,7 +31,6 @@ abstract class ServiceToken implements _i1.SerializableModel {
     int? id,
     required String name,
     required String token,
-    required int serviceId,
     required int serviceId,
     _i2.Service? service,
     DateTime? lastUsedAt,
@@ -74,8 +72,6 @@ abstract class ServiceToken implements _i1.SerializableModel {
 
   int serviceId;
 
-  int serviceId;
-
   _i2.Service? service;
 
   DateTime? lastUsedAt;
@@ -92,7 +88,6 @@ abstract class ServiceToken implements _i1.SerializableModel {
     String? name,
     String? token,
     int? serviceId,
-    int? serviceId,
     _i2.Service? service,
     DateTime? lastUsedAt,
     DateTime? expiresAt,
@@ -105,7 +100,6 @@ abstract class ServiceToken implements _i1.SerializableModel {
       if (id != null) 'id': id,
       'name': name,
       'token': token,
-      'serviceId': serviceId,
       'serviceId': serviceId,
       if (service != null) 'service': service?.toJson(),
       if (lastUsedAt != null) 'lastUsedAt': lastUsedAt?.toJson(),
@@ -127,7 +121,6 @@ class _ServiceTokenImpl extends ServiceToken {
     int? id,
     required String name,
     required String token,
-    required int serviceId,
     required int serviceId,
     _i2.Service? service,
     DateTime? lastUsedAt,
@@ -152,7 +145,6 @@ class _ServiceTokenImpl extends ServiceToken {
     Object? id = _Undefined,
     String? name,
     String? token,
-    int? serviceId,
     int? serviceId,
     Object? service = _Undefined,
     Object? lastUsedAt = _Undefined,

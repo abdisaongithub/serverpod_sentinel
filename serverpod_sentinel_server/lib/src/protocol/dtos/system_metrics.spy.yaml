@@ -1,0 +1,7 @@
+class: SystemMetrics
+fields:
+  uptimeDays: int
+  uptimeHours: int
+  averageLatencyMs: int
+  totalRequests: int?
+  errorRate: double?

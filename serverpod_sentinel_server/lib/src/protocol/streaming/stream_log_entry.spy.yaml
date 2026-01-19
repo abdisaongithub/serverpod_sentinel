@@ -1,0 +1,10 @@
+### Stream log entry for real-time log streaming
+
+class: StreamLogEntry
+fields:
+  serviceId: int
+  timestamp: DateTime
+  level: String  # debug, info, warning, error
+  message: String
+  source: String?  # Component or file that generated the log
+  metadata: String?  # JSON for additional context

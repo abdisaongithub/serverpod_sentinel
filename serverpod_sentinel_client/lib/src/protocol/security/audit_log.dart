@@ -19,7 +19,6 @@ abstract class AuditLog implements _i1.SerializableModel {
   AuditLog._({
     this.id,
     required this.actorId,
-    required this.actorId,
     this.actor,
     required this.action,
     required this.entityType,
@@ -31,7 +30,6 @@ abstract class AuditLog implements _i1.SerializableModel {
 
   factory AuditLog({
     int? id,
-    required int actorId,
     required int actorId,
     _i2.OpsUser? actor,
     required String action,
@@ -67,8 +65,6 @@ abstract class AuditLog implements _i1.SerializableModel {
 
   int actorId;
 
-  int actorId;
-
   _i2.OpsUser? actor;
 
   String action;
@@ -89,7 +85,6 @@ abstract class AuditLog implements _i1.SerializableModel {
   AuditLog copyWith({
     int? id,
     int? actorId,
-    int? actorId,
     _i2.OpsUser? actor,
     String? action,
     String? entityType,
@@ -103,7 +98,6 @@ abstract class AuditLog implements _i1.SerializableModel {
     return {
       '__className__': 'AuditLog',
       if (id != null) 'id': id,
-      'actorId': actorId,
       'actorId': actorId,
       if (actor != null) 'actor': actor?.toJson(),
       'action': action,
@@ -126,7 +120,6 @@ class _Undefined {}
 class _AuditLogImpl extends AuditLog {
   _AuditLogImpl({
     int? id,
-    required int actorId,
     required int actorId,
     _i2.OpsUser? actor,
     required String action,
@@ -153,7 +146,6 @@ class _AuditLogImpl extends AuditLog {
   @override
   AuditLog copyWith({
     Object? id = _Undefined,
-    int? actorId,
     int? actorId,
     Object? actor = _Undefined,
     String? action,

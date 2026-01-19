@@ -22,7 +22,6 @@ abstract class AuditLog
   AuditLog._({
     this.id,
     required this.actorId,
-    required this.actorId,
     this.actor,
     required this.action,
     required this.entityType,
@@ -34,7 +33,6 @@ abstract class AuditLog
 
   factory AuditLog({
     int? id,
-    required int actorId,
     required int actorId,
     _i2.OpsUser? actor,
     required String action,
@@ -74,8 +72,6 @@ abstract class AuditLog
 
   int actorId;
 
-  int actorId;
-
   _i2.OpsUser? actor;
 
   String action;
@@ -101,7 +97,6 @@ abstract class AuditLog
   AuditLog copyWith({
     int? id,
     int? actorId,
-    int? actorId,
     _i2.OpsUser? actor,
     String? action,
     String? entityType,
@@ -115,7 +110,6 @@ abstract class AuditLog
     return {
       '__className__': 'AuditLog',
       if (id != null) 'id': id,
-      'actorId': actorId,
       'actorId': actorId,
       if (actor != null) 'actor': actor?.toJson(),
       'action': action,
@@ -134,7 +128,6 @@ abstract class AuditLog
     return {
       '__className__': 'AuditLog',
       if (id != null) 'id': id,
-      'actorId': actorId,
       'actorId': actorId,
       if (actor != null) 'actor': actor?.toJsonForProtocol(),
       'action': action,
@@ -182,7 +175,6 @@ class _AuditLogImpl extends AuditLog {
   _AuditLogImpl({
     int? id,
     required int actorId,
-    required int actorId,
     _i2.OpsUser? actor,
     required String action,
     required String entityType,
@@ -208,7 +200,6 @@ class _AuditLogImpl extends AuditLog {
   @override
   AuditLog copyWith({
     Object? id = _Undefined,
-    int? actorId,
     int? actorId,
     Object? actor = _Undefined,
     String? action,
@@ -236,7 +227,6 @@ class _AuditLogImpl extends AuditLog {
 class AuditLogImplicit extends _AuditLogImpl {
   AuditLogImplicit._({
     int? id,
-    required int actorId,
     required int actorId,
     _i2.OpsUser? actor,
     required String action,
@@ -289,11 +279,6 @@ class AuditLogUpdateTable extends _i1.UpdateTable<AuditLogTable> {
     value,
   );
 
-  _i1.ColumnValue<int, int> actorId(int value) => _i1.ColumnValue(
-    table.actorId,
-    value,
-  );
-
   _i1.ColumnValue<String, String> action(String value) => _i1.ColumnValue(
     table.action,
     value,
@@ -339,10 +324,6 @@ class AuditLogTable extends _i1.Table<int?> {
       'actorId',
       this,
     );
-    actorId = _i1.ColumnInt(
-      'actorId',
-      this,
-    );
     action = _i1.ColumnString(
       'action',
       this,
@@ -374,8 +355,6 @@ class AuditLogTable extends _i1.Table<int?> {
   }
 
   late final AuditLogUpdateTable updateTable;
-
-  late final _i1.ColumnInt actorId;
 
   late final _i1.ColumnInt actorId;
 
@@ -412,7 +391,6 @@ class AuditLogTable extends _i1.Table<int?> {
   List<_i1.Column> get columns => [
     id,
     actorId,
-    actorId,
     action,
     entityType,
     entityId,
@@ -425,7 +403,6 @@ class AuditLogTable extends _i1.Table<int?> {
   @override
   List<_i1.Column> get managedColumns => [
     id,
-    actorId,
     actorId,
     action,
     entityType,

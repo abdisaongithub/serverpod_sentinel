@@ -4,6 +4,22 @@ import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
 import 'package:serverpod_sentinel_server/src/future_calls/step_executor_call.dart';
 
 class PlaybookController {
+  /// Parses the playbook content JSON into a list of step configurations.
+  List<Map<String, dynamic>> parseSteps(String content) {
+    try {
+      final decoded = jsonDecode(content);
+      if (decoded is List) {
+        return decoded.cast<Map<String, dynamic>>();
+      } else if (decoded is Map && decoded.containsKey('steps')) {
+        return (decoded['steps'] as List).cast<Map<String, dynamic>>();
+      }
+      return [];
+    } catch (e) {
+      print('Error parsing playbook content: $e');
+      return [];
+    }
+  }
+
   /// Evaluates the DAG and schedules pending steps.
   Future<void> evaluateNextSteps(Session session, int executionId) async {
     final execution = await PlaybookExecution.db.findById(
@@ -24,11 +40,7 @@ class PlaybookController {
     );
 
     // Parse Playbook JSON to get the DAG
-    // TODO: Use a robust parsing helper
-    final playbookConfig = jsonDecode(
-      execution.playbook?.content ?? '{}',
-    );
-    final List<dynamic> stepsConfig = playbookConfig['steps'] ?? [];
+    final stepsConfig = parseSteps(execution.playbook?.content ?? '{}');
 
     bool allCompleted = true;
     bool anyFailed = false;
@@ -74,12 +86,15 @@ class PlaybookController {
           status: ExecutionStatus.PENDING, // Using PENDING or RUNNING
           startedAt: DateTime.now(),
         );
-        await PlaybookStepExecution.db.insertRow(session, newRecord);
+        final createdRecord = await PlaybookStepExecution.db.insertRow(
+          session,
+          newRecord,
+        );
 
         // Schedule FutureCall
         await session.serverpod.futureCallWithDelay(
           'stepExecutor',
-          StepExecutorPayload(stepExecutionId: newRecord.id!),
+          StepExecutorPayload(stepExecutionId: createdRecord.id!),
           Duration(seconds: 1), // Immediate async
         );
       } else {

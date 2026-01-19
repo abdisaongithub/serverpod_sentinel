@@ -24,7 +24,6 @@ abstract class ServiceToken
     required this.name,
     required this.token,
     required this.serviceId,
-    required this.serviceId,
     this.service,
     this.lastUsedAt,
     this.expiresAt,
@@ -35,7 +34,6 @@ abstract class ServiceToken
     int? id,
     required String name,
     required String token,
-    required int serviceId,
     required int serviceId,
     _i2.Service? service,
     DateTime? lastUsedAt,
@@ -79,8 +77,6 @@ abstract class ServiceToken
 
   int serviceId;
 
-  int serviceId;
-
   _i2.Service? service;
 
   DateTime? lastUsedAt;
@@ -100,7 +96,6 @@ abstract class ServiceToken
     String? name,
     String? token,
     int? serviceId,
-    int? serviceId,
     _i2.Service? service,
     DateTime? lastUsedAt,
     DateTime? expiresAt,
@@ -113,7 +108,6 @@ abstract class ServiceToken
       if (id != null) 'id': id,
       'name': name,
       'token': token,
-      'serviceId': serviceId,
       'serviceId': serviceId,
       if (service != null) 'service': service?.toJson(),
       if (lastUsedAt != null) 'lastUsedAt': lastUsedAt?.toJson(),
@@ -129,7 +123,6 @@ abstract class ServiceToken
       if (id != null) 'id': id,
       'name': name,
       'token': token,
-      'serviceId': serviceId,
       'serviceId': serviceId,
       if (service != null) 'service': service?.toJsonForProtocol(),
       if (lastUsedAt != null) 'lastUsedAt': lastUsedAt?.toJson(),
@@ -176,7 +169,6 @@ class _ServiceTokenImpl extends ServiceToken {
     required String name,
     required String token,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
     DateTime? lastUsedAt,
     DateTime? expiresAt,
@@ -200,7 +192,6 @@ class _ServiceTokenImpl extends ServiceToken {
     Object? id = _Undefined,
     String? name,
     String? token,
-    int? serviceId,
     int? serviceId,
     Object? service = _Undefined,
     Object? lastUsedAt = _Undefined,
@@ -230,11 +221,6 @@ class ServiceTokenUpdateTable extends _i1.UpdateTable<ServiceTokenTable> {
 
   _i1.ColumnValue<String, String> token(String value) => _i1.ColumnValue(
     table.token,
-    value,
-  );
-
-  _i1.ColumnValue<int, int> serviceId(int value) => _i1.ColumnValue(
-    table.serviceId,
     value,
   );
 
@@ -277,10 +263,6 @@ class ServiceTokenTable extends _i1.Table<int?> {
       'serviceId',
       this,
     );
-    serviceId = _i1.ColumnInt(
-      'serviceId',
-      this,
-    );
     lastUsedAt = _i1.ColumnDateTime(
       'lastUsedAt',
       this,
@@ -300,8 +282,6 @@ class ServiceTokenTable extends _i1.Table<int?> {
   late final _i1.ColumnString name;
 
   late final _i1.ColumnString token;
-
-  late final _i1.ColumnInt serviceId;
 
   late final _i1.ColumnInt serviceId;
 
@@ -331,7 +311,6 @@ class ServiceTokenTable extends _i1.Table<int?> {
     id,
     name,
     token,
-    serviceId,
     serviceId,
     lastUsedAt,
     expiresAt,

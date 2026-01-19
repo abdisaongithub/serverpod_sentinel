@@ -3,11 +3,25 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 
-class LiveStreamScreen extends StatelessWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
+import '../../providers/services_provider.dart';
+import '../../providers/streaming_provider.dart';
+
+class LiveStreamScreen extends ConsumerWidget {
   const LiveStreamScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Activate polling
+    // Activate streaming subscriptions
+    ref.watch(liveAlertsStreamProvider);
+    ref.watch(globalServiceUpdatesProvider);
+    // ref.watch(serviceStreamProvider); // Disable polling
+    // ref.watch(incidentStreamProvider); // Disable polling
+
+    // Watch health summary
+    final healthSummaryAsync = ref.watch(healthSummaryProvider);
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
@@ -23,7 +37,7 @@ class LiveStreamScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const _StatsRow(),
+                      _StatsRow(healthSummary: healthSummaryAsync.valueOrNull),
                       const SizedBox(height: 24),
                       const _FilterBar(),
                       const SizedBox(height: 24),
@@ -246,10 +260,18 @@ class _PulsingDotState extends State<_PulsingDot>
 }
 
 class _StatsRow extends StatelessWidget {
-  const _StatsRow();
+  final HealthSummary? healthSummary;
+  const _StatsRow({this.healthSummary});
 
   @override
   Widget build(BuildContext context) {
+    // Parse health summary
+    final healthy = healthSummary?.healthy ?? 0;
+    final degraded = healthSummary?.degraded ?? 0;
+    final down = healthSummary?.down ?? 0;
+    final total = healthSummary?.total ?? 0;
+    final uptime = 99.9; // Default uptime value (not in HealthSummary)
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isSmall = constraints.maxWidth < 600;
@@ -262,7 +284,7 @@ class _StatsRow extends StatelessWidget {
           children: [
             _StatCard(
               label: 'Sys Uptime',
-              value: '98.9%',
+              value: '${uptime.toStringAsFixed(1)}%',
               trend: '+0.1%',
               trendUp: true,
               icon: Icons.dns,
@@ -270,32 +292,34 @@ class _StatsRow extends StatelessWidget {
             ),
             _StatCard(
               label: 'Active Nodes',
-              value: '124',
-              trend: '+2 New',
+              value: '$total',
+              trend: '+0 New',
               trendUp: true,
               icon: Icons.hub,
-              progress: 0.85,
+              progress: total > 0 ? healthy / total : 0,
               width: cardWidth,
             ),
             _StatCard(
-              label: 'Error Rate',
-              value: '0.02%',
-              trend: '-0.01%',
-              trendUp: false,
-              icon: Icons.bug_report,
-              progress: 0.05,
+              label: 'Healthy',
+              value: '$healthy',
+              trend: 'Services',
+              trendUp: true,
+              icon: Icons.check_circle,
+              progress: total > 0 ? healthy / total : 0,
               color: AppTheme.success,
               width: cardWidth,
             ),
             _StatCard(
-              label: 'Latency',
-              value: '345ms',
-              trend: 'Spiking',
-              trendUp: null,
-              icon: Icons.speed,
-              progress: 0.75,
-              color: const Color(0xFFF59E0B),
-              isWarning: true,
+              label: 'Issues',
+              value: '${degraded + down}',
+              trend: down > 0 ? 'Critical' : 'Degraded',
+              trendUp: (degraded + down) == 0,
+              icon: Icons.warning,
+              progress: total > 0 ? (degraded + down) / total : 0,
+              color: down > 0
+                  ? const Color(0xFFEF4444)
+                  : const Color(0xFFF59E0B),
+              isWarning: (degraded + down) > 0,
               width: cardWidth,
             ),
           ],
@@ -562,60 +586,119 @@ class _FilterTab extends StatelessWidget {
   }
 }
 
-class _EventGrid extends StatelessWidget {
+class _EventGrid extends ConsumerWidget {
   final bool isDesktop;
   const _EventGrid({required this.isDesktop});
 
   @override
-  Widget build(BuildContext context) {
-    final events = [
-      _EventData(
-        type: EventType.critical,
-        time: '14:05:01.42',
-        title: 'Database Connection Timeout',
-        description:
-            'Connection to shard 04 timed out after 5000ms. Retrying connection pool...',
-        tags: ['Database-Shard-04', 'us-east-1a'],
-        showActions: true,
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch alerts stream to auto-refresh
+    // Watch live alerts (unified list from streaming service)
+    final alertsAsync = ref.watch(unifiedAlertsProvider);
+
+    // Merge live alerts with historical alerts (simplified for now: just show historical + live updates handled by provider if we were merging lists)
+    // Actually, let's just use the alertsProvider which should be invalidated by stream events if we want seamless integration,
+    // OR we can listen to the stream and update a local state.
+    // For this implementation, let's stick to the plan:
+    // The streaming provider emits events. We can use a StateNotifier to maintain the list
+    // OR simple approach: invalidate providers when stream events come in.
+
+    // Better approach: The StreamingProvider can expose a StateNotifier that merges initial load + stream updates.
+    // For now, let's just stick to the existing UI but invalidate on stream events.
+
+    // In live_stream_screen.dart, we are already watching liveAlertsStreamProvider.
+    // Let's modify the provider to invalidate alertsProvider when an event comes in.
+
+    return alertsAsync.when(
+      data: (alerts) => _buildGrid(context, alerts),
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(48),
+          child: CircularProgressIndicator(),
+        ),
       ),
-      _EventData(
-        type: EventType.warning,
-        time: '14:04:55.10',
-        title: 'Latency Spike Detected',
-        description: '95th percentile latency exceeded 300ms threshold.',
-        tags: ['API-Gateway'],
+      error: (err, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(48),
+          child: Text(
+            'Error loading events: $err',
+            style: const TextStyle(color: Colors.red),
+          ),
+        ),
       ),
-      _EventData(
-        type: EventType.info,
-        time: '14:04:22.05',
-        title: 'Deployment Successful',
-        description: 'v2.4.1 deployed to 12 instances. Health checks passing.',
-        tags: ['Auth-Service'],
-      ),
-      _EventData(
-        type: EventType.system,
-        time: '14:04:10.00',
-        title: 'Daily Cleanup Completed',
-        description: 'Temp files removed. 4.2GB space reclaimed.',
-        tags: ['System'],
-      ),
-      _EventData(
-        type: EventType.system,
-        time: '14:03:55.88',
-        title: 'Scale Down Event',
-        description: 'Worker nodes scaled from 15 to 12.',
-      ),
-    ];
+    );
+  }
+
+  Widget _buildGrid(BuildContext context, List<StreamAlert> alerts) {
+    // Convert StreamAlert to _EventData
+    final events = alerts.map((alert) {
+      EventType type;
+      switch (alert.severity) {
+        case 'critical':
+          type = EventType.critical;
+          break;
+        case 'warning':
+          type = EventType.warning;
+          break;
+        case 'info':
+          type = EventType.info;
+          break;
+        default:
+          type = EventType.system;
+      }
+
+      final timeStr =
+          '${alert.timestamp.hour.toString().padLeft(2, '0')}:'
+          '${alert.timestamp.minute.toString().padLeft(2, '0')}:'
+          '${alert.timestamp.second.toString().padLeft(2, '0')}';
+
+      return _EventData(
+        type: type,
+        time: timeStr,
+        title: alert.title,
+        description: alert.message,
+        tags: [alert.source],
+        showActions: alert.severity == 'critical' && !alert.acknowledged,
+      );
+    }).toList();
 
     return LayoutBuilder(
       builder: (context, constraints) {
         int crossAxisCount = 1;
-        if (constraints.maxWidth >= 1400)
+        if (constraints.maxWidth >= 1400) {
           crossAxisCount = 4;
-        else if (constraints.maxWidth >= 1000)
+        } else if (constraints.maxWidth >= 1000) {
           crossAxisCount = 3;
-        else if (constraints.maxWidth >= 600)
+        } else if (constraints.maxWidth >= 600) {
           crossAxisCount = 2;
+        }
+
+        if (events.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(48),
+              child: Column(
+                children: [
+                  Icon(Icons.check_circle, color: Color(0xFF10B981), size: 48),
+                  SizedBox(height: 16),
+                  Text(
+                    'No active alerts',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'All systems operating normally',
+                    style: TextStyle(color: Color(0xFF94A3B8)),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
 
         return Wrap(
           spacing: 16,

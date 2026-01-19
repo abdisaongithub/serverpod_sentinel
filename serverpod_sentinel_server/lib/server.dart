@@ -8,6 +8,7 @@ import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
 import 'src/web/routes/app_config_route.dart';
 import 'src/web/routes/root.dart';
+import 'src/web/routes/health_route.dart';
 import 'src/future_calls/incident_evaluation_call.dart';
 import 'src/future_calls/step_executor_call.dart';
 
@@ -65,6 +66,9 @@ void run(List<String> args) async {
   // These are used by the default web page.
   final root = Directory(Uri(path: 'web/static').toFilePath());
   pod.webServer.addRoute(StaticRoute.directory(root));
+
+  // Register Health Route
+  pod.webServer.addRoute(HealthRoute(), '/health');
 
   // Setup the app config route.
   // We build this configuration based on the servers api url and serve it to

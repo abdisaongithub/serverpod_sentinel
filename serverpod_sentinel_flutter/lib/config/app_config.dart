@@ -1,26 +1,21 @@
-import 'dart:convert';
+import 'environment.dart';
 
-import 'package:flutter/services.dart';
-
+/// Application configuration facade.
 class AppConfig {
-  final String? apiUrl;
+  AppConfig._();
 
-  AppConfig({
-    required this.apiUrl,
-  });
+  /// API base URL for the current environment.
+  static String get apiUrl => EnvConfig.current.apiUrl;
 
-  static Future<AppConfig> loadConfig() async {
-    final config = await _loadJsonConfig();
-    final String? apiUrl = config['apiUrl'];
+  /// WebSocket URL for real-time streaming.
+  static String get webSocketUrl => EnvConfig.current.wsUrl;
 
-    return AppConfig(apiUrl: apiUrl);
-  }
+  /// Whether debug logging is enabled.
+  static bool get enableLogging => EnvConfig.current.enableLogging;
 
-  static Future<Map<String, dynamic>> _loadJsonConfig() async {
-    final data = await rootBundle.loadString(
-      'assets/config.json',
-    );
+  /// Current environment.
+  static Environment get environment => EnvConfig.current.environment;
 
-    return jsonDecode(data);
-  }
+  /// Whether running in production mode.
+  static bool get isProduction => environment == Environment.prod;
 }

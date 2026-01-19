@@ -1,0 +1,6 @@
+class: TeamMember
+fields:
+  user: OpsUser
+  userName: String
+  email: String?
+  imageUrl: String?

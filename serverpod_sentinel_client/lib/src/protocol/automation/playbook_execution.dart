@@ -22,12 +22,9 @@ abstract class PlaybookExecution implements _i1.SerializableModel {
   PlaybookExecution._({
     this.id,
     required this.playbookId,
-    required this.playbookId,
     this.playbook,
     required this.incidentId,
-    required this.incidentId,
     this.incident,
-    required this.initiatorId,
     required this.initiatorId,
     this.initiator,
     required this.status,
@@ -39,12 +36,9 @@ abstract class PlaybookExecution implements _i1.SerializableModel {
   factory PlaybookExecution({
     int? id,
     required int playbookId,
-    required int playbookId,
     _i2.Playbook? playbook,
     required int incidentId,
-    required int incidentId,
     _i3.Incident? incident,
-    required int initiatorId,
     required int initiatorId,
     _i4.OpsUser? initiator,
     required _i5.ExecutionStatus status,
@@ -96,17 +90,11 @@ abstract class PlaybookExecution implements _i1.SerializableModel {
 
   int playbookId;
 
-  int playbookId;
-
   _i2.Playbook? playbook;
 
   int incidentId;
 
-  int incidentId;
-
   _i3.Incident? incident;
-
-  int initiatorId;
 
   int initiatorId;
 
@@ -126,12 +114,9 @@ abstract class PlaybookExecution implements _i1.SerializableModel {
   PlaybookExecution copyWith({
     int? id,
     int? playbookId,
-    int? playbookId,
     _i2.Playbook? playbook,
     int? incidentId,
-    int? incidentId,
     _i3.Incident? incident,
-    int? initiatorId,
     int? initiatorId,
     _i4.OpsUser? initiator,
     _i5.ExecutionStatus? status,
@@ -145,12 +130,9 @@ abstract class PlaybookExecution implements _i1.SerializableModel {
       '__className__': 'PlaybookExecution',
       if (id != null) 'id': id,
       'playbookId': playbookId,
-      'playbookId': playbookId,
       if (playbook != null) 'playbook': playbook?.toJson(),
       'incidentId': incidentId,
-      'incidentId': incidentId,
       if (incident != null) 'incident': incident?.toJson(),
-      'initiatorId': initiatorId,
       'initiatorId': initiatorId,
       if (initiator != null) 'initiator': initiator?.toJson(),
       'status': status.toJson(),
@@ -172,12 +154,9 @@ class _PlaybookExecutionImpl extends PlaybookExecution {
   _PlaybookExecutionImpl({
     int? id,
     required int playbookId,
-    required int playbookId,
     _i2.Playbook? playbook,
     required int incidentId,
-    required int incidentId,
     _i3.Incident? incident,
-    required int initiatorId,
     required int initiatorId,
     _i4.OpsUser? initiator,
     required _i5.ExecutionStatus status,
@@ -205,12 +184,9 @@ class _PlaybookExecutionImpl extends PlaybookExecution {
   PlaybookExecution copyWith({
     Object? id = _Undefined,
     int? playbookId,
-    int? playbookId,
     Object? playbook = _Undefined,
     int? incidentId,
-    int? incidentId,
     Object? incident = _Undefined,
-    int? initiatorId,
     int? initiatorId,
     Object? initiator = _Undefined,
     _i5.ExecutionStatus? status,

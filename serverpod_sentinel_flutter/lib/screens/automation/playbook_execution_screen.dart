@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
+import '../../providers/playbooks_provider.dart';
 
-class PlaybookExecutionScreen extends StatelessWidget {
-  const PlaybookExecutionScreen({super.key});
+class PlaybookExecutionScreen extends ConsumerWidget {
+  final int playbookId;
+  const PlaybookExecutionScreen({super.key, required this.playbookId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Note: Since we're using playbookId as the execution ID for now
+    // In a real scenario, you'd get an execution ID from the route or somewhere else
+    final executionAsync = ref.watch(playbookExecutionProvider(playbookId));
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
@@ -20,25 +27,45 @@ class PlaybookExecutionScreen extends StatelessWidget {
                   child: AppSidebar(activeRoute: AppRoutes.playbooks),
                 )
               : null,
-          body: Column(
-            children: [
-              const _Header(),
-              Expanded(
-                child: Flex(
-                  direction: isDesktop ? Axis.horizontal : Axis.vertical,
-                  children: [
-                    // Left Section: Execution Steps
-                    SizedBox(
-                      width: isDesktop ? 400 : double.infinity,
-                      height: isDesktop ? double.infinity : 400,
-                      child: const _ExecutionSteps(),
+          body: executionAsync.when(
+            data: (execution) {
+              if (execution == null) {
+                return const Center(
+                  child: Text(
+                    'Execution not found',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              }
+
+              return Column(
+                children: [
+                  _Header(execution: execution),
+                  Expanded(
+                    child: Flex(
+                      direction: isDesktop ? Axis.horizontal : Axis.vertical,
+                      children: [
+                        // Left Section: Execution Steps
+                        SizedBox(
+                          width: isDesktop ? 400 : double.infinity,
+                          height: isDesktop ? double.infinity : 400,
+                          child: _ExecutionSteps(execution: execution),
+                        ),
+                        // Right Section: Live Logs
+                        Expanded(child: _LiveLogs(execution: execution)),
+                      ],
                     ),
-                    // Right Section: Live Logs
-                    const Expanded(child: _LiveLogs()),
-                  ],
-                ),
+                  ),
+                ],
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => Center(
+              child: Text(
+                'Error: $error',
+                style: const TextStyle(color: Colors.red),
               ),
-            ],
+            ),
           ),
         );
       },
@@ -47,7 +74,9 @@ class PlaybookExecutionScreen extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header();
+  final dynamic execution;
+
+  const _Header({required this.execution});
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +121,9 @@ class _Header extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Text(
-                          'Database Migration',
-                          style: TextStyle(
+                        Text(
+                          execution.playbook?.name ?? 'Unknown Playbook',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -111,9 +140,9 @@ class _Header extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(color: const Color(0xFF334155)),
                           ),
-                          child: const Text(
-                            '#8492-AC',
-                            style: TextStyle(
+                          child: Text(
+                            '#${execution.id}',
+                            style: const TextStyle(
                               color: Color(0xFF64748B),
                               fontSize: 10,
                               fontFamily: 'monospace',
@@ -301,7 +330,9 @@ class _TrackingBar extends StatelessWidget {
 }
 
 class _ExecutionSteps extends StatelessWidget {
-  const _ExecutionSteps();
+  final dynamic execution;
+
+  const _ExecutionSteps({required this.execution});
 
   @override
   Widget build(BuildContext context) {
@@ -670,7 +701,9 @@ class _StepItem extends StatelessWidget {
 }
 
 class _LiveLogs extends StatefulWidget {
-  const _LiveLogs();
+  final dynamic execution;
+
+  const _LiveLogs({required this.execution});
 
   @override
   State<_LiveLogs> createState() => _LiveLogsState();

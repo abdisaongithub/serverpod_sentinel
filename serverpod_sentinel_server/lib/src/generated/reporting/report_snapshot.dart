@@ -23,10 +23,8 @@ abstract class ReportSnapshot
   ReportSnapshot._({
     this.id,
     required this.incidentId,
-    required this.incidentId,
     this.incident,
     required this.generatedAt,
-    this.generatedById,
     required this.generatedById,
     this.generatedBy,
     required this.content,
@@ -35,10 +33,8 @@ abstract class ReportSnapshot
   factory ReportSnapshot({
     int? id,
     required int incidentId,
-    required int incidentId,
     _i2.Incident? incident,
     required DateTime generatedAt,
-    int? generatedById,
     required int generatedById,
     _i3.OpsUser? generatedBy,
     required String content,
@@ -75,13 +71,9 @@ abstract class ReportSnapshot
 
   int incidentId;
 
-  int incidentId;
-
   _i2.Incident? incident;
 
   DateTime generatedAt;
-
-  int? generatedById;
 
   int generatedById;
 
@@ -98,10 +90,8 @@ abstract class ReportSnapshot
   ReportSnapshot copyWith({
     int? id,
     int? incidentId,
-    int? incidentId,
     _i2.Incident? incident,
     DateTime? generatedAt,
-    int? generatedById,
     int? generatedById,
     _i3.OpsUser? generatedBy,
     String? content,
@@ -112,10 +102,8 @@ abstract class ReportSnapshot
       '__className__': 'ReportSnapshot',
       if (id != null) 'id': id,
       'incidentId': incidentId,
-      'incidentId': incidentId,
       if (incident != null) 'incident': incident?.toJson(),
       'generatedAt': generatedAt.toJson(),
-      if (generatedById != null) 'generatedById': generatedById,
       'generatedById': generatedById,
       if (generatedBy != null) 'generatedBy': generatedBy?.toJson(),
       'content': content,
@@ -128,10 +116,8 @@ abstract class ReportSnapshot
       '__className__': 'ReportSnapshot',
       if (id != null) 'id': id,
       'incidentId': incidentId,
-      'incidentId': incidentId,
       if (incident != null) 'incident': incident?.toJsonForProtocol(),
       'generatedAt': generatedAt.toJson(),
-      if (generatedById != null) 'generatedById': generatedById,
       'generatedById': generatedById,
       if (generatedBy != null) 'generatedBy': generatedBy?.toJsonForProtocol(),
       'content': content,
@@ -180,10 +166,8 @@ class _ReportSnapshotImpl extends ReportSnapshot {
   _ReportSnapshotImpl({
     int? id,
     required int incidentId,
-    required int incidentId,
     _i2.Incident? incident,
     required DateTime generatedAt,
-    int? generatedById,
     required int generatedById,
     _i3.OpsUser? generatedBy,
     required String content,
@@ -204,10 +188,8 @@ class _ReportSnapshotImpl extends ReportSnapshot {
   ReportSnapshot copyWith({
     Object? id = _Undefined,
     int? incidentId,
-    int? incidentId,
     Object? incident = _Undefined,
     DateTime? generatedAt,
-    Object? generatedById = _Undefined,
     int? generatedById,
     Object? generatedBy = _Undefined,
     String? content,
@@ -236,21 +218,11 @@ class ReportSnapshotUpdateTable extends _i1.UpdateTable<ReportSnapshotTable> {
     value,
   );
 
-  _i1.ColumnValue<int, int> incidentId(int value) => _i1.ColumnValue(
-    table.incidentId,
-    value,
-  );
-
   _i1.ColumnValue<DateTime, DateTime> generatedAt(DateTime value) =>
       _i1.ColumnValue(
         table.generatedAt,
         value,
       );
-
-  _i1.ColumnValue<int, int> generatedById(int? value) => _i1.ColumnValue(
-    table.generatedById,
-    value,
-  );
 
   _i1.ColumnValue<int, int> generatedById(int value) => _i1.ColumnValue(
     table.generatedById,
@@ -271,16 +243,8 @@ class ReportSnapshotTable extends _i1.Table<int?> {
       'incidentId',
       this,
     );
-    incidentId = _i1.ColumnInt(
-      'incidentId',
-      this,
-    );
     generatedAt = _i1.ColumnDateTime(
       'generatedAt',
-      this,
-    );
-    generatedById = _i1.ColumnInt(
-      'generatedById',
       this,
     );
     generatedById = _i1.ColumnInt(
@@ -297,13 +261,9 @@ class ReportSnapshotTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt incidentId;
 
-  late final _i1.ColumnInt incidentId;
-
   _i2.IncidentTable? _incident;
 
   late final _i1.ColumnDateTime generatedAt;
-
-  late final _i1.ColumnInt generatedById;
 
   late final _i1.ColumnInt generatedById;
 
@@ -341,9 +301,7 @@ class ReportSnapshotTable extends _i1.Table<int?> {
   List<_i1.Column> get columns => [
     id,
     incidentId,
-    incidentId,
     generatedAt,
-    generatedById,
     generatedById,
     content,
   ];

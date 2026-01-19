@@ -1,0 +1,7 @@
+class: HealthSummary
+fields:
+  total: int
+  healthy: int
+  degraded: int
+  down: int
+  healthPercentage: double

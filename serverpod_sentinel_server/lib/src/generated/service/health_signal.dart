@@ -23,7 +23,6 @@ abstract class HealthSignal
   HealthSignal._({
     this.id,
     required this.serviceId,
-    required this.serviceId,
     this.service,
     required this.name,
     required this.identifier,
@@ -40,7 +39,6 @@ abstract class HealthSignal
 
   factory HealthSignal({
     int? id,
-    required int serviceId,
     required int serviceId,
     _i2.Service? service,
     required String name,
@@ -98,8 +96,6 @@ abstract class HealthSignal
 
   int serviceId;
 
-  int serviceId;
-
   _i2.Service? service;
 
   String name;
@@ -135,7 +131,6 @@ abstract class HealthSignal
   HealthSignal copyWith({
     int? id,
     int? serviceId,
-    int? serviceId,
     _i2.Service? service,
     String? name,
     String? identifier,
@@ -154,7 +149,6 @@ abstract class HealthSignal
     return {
       '__className__': 'HealthSignal',
       if (id != null) 'id': id,
-      'serviceId': serviceId,
       'serviceId': serviceId,
       if (service != null) 'service': service?.toJson(),
       'name': name,
@@ -178,7 +172,6 @@ abstract class HealthSignal
     return {
       '__className__': 'HealthSignal',
       if (id != null) 'id': id,
-      'serviceId': serviceId,
       'serviceId': serviceId,
       if (service != null) 'service': service?.toJsonForProtocol(),
       'name': name,
@@ -231,7 +224,6 @@ class _HealthSignalImpl extends HealthSignal {
   _HealthSignalImpl({
     int? id,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
     required String name,
     required String identifier,
@@ -267,7 +259,6 @@ class _HealthSignalImpl extends HealthSignal {
   @override
   HealthSignal copyWith({
     Object? id = _Undefined,
-    int? serviceId,
     int? serviceId,
     Object? service = _Undefined,
     String? name,
@@ -307,7 +298,6 @@ class _HealthSignalImpl extends HealthSignal {
 class HealthSignalImplicit extends _HealthSignalImpl {
   HealthSignalImplicit._({
     int? id,
-    required int serviceId,
     required int serviceId,
     _i2.Service? service,
     required String name,
@@ -369,11 +359,6 @@ class HealthSignalImplicit extends _HealthSignalImpl {
 
 class HealthSignalUpdateTable extends _i1.UpdateTable<HealthSignalTable> {
   HealthSignalUpdateTable(super.table);
-
-  _i1.ColumnValue<int, int> serviceId(int value) => _i1.ColumnValue(
-    table.serviceId,
-    value,
-  );
 
   _i1.ColumnValue<int, int> serviceId(int value) => _i1.ColumnValue(
     table.serviceId,
@@ -454,10 +439,6 @@ class HealthSignalTable extends _i1.Table<int?> {
       'serviceId',
       this,
     );
-    serviceId = _i1.ColumnInt(
-      'serviceId',
-      this,
-    );
     name = _i1.ColumnString(
       'name',
       this,
@@ -513,8 +494,6 @@ class HealthSignalTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt serviceId;
 
-  late final _i1.ColumnInt serviceId;
-
   _i2.ServiceTable? _service;
 
   late final _i1.ColumnString name;
@@ -558,7 +537,6 @@ class HealthSignalTable extends _i1.Table<int?> {
   List<_i1.Column> get columns => [
     id,
     serviceId,
-    serviceId,
     name,
     identifier,
     type,
@@ -576,7 +554,6 @@ class HealthSignalTable extends _i1.Table<int?> {
   @override
   List<_i1.Column> get managedColumns => [
     id,
-    serviceId,
     serviceId,
     name,
     identifier,

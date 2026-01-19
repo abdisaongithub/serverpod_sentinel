@@ -27,14 +27,11 @@ abstract class Incident implements _i1.SerializableModel {
     required this.title,
     this.summary,
     required this.serviceId,
-    required this.serviceId,
     this.service,
-    this.ruleId,
     required this.ruleId,
     this.rule,
     required this.status,
     required this.severity,
-    this.commanderId,
     required this.commanderId,
     this.commander,
     this.timeline,
@@ -50,14 +47,11 @@ abstract class Incident implements _i1.SerializableModel {
     required String title,
     String? summary,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
-    int? ruleId,
     required int ruleId,
     _i3.Rule? rule,
     required _i4.IncidentStatus status,
     required _i5.IncidentSeverity severity,
-    int? commanderId,
     required int commanderId,
     _i6.OpsUser? commander,
     List<_i7.IncidentTimelineItem>? timeline,
@@ -131,11 +125,7 @@ abstract class Incident implements _i1.SerializableModel {
 
   int serviceId;
 
-  int serviceId;
-
   _i2.Service? service;
-
-  int? ruleId;
 
   int ruleId;
 
@@ -144,8 +134,6 @@ abstract class Incident implements _i1.SerializableModel {
   _i4.IncidentStatus status;
 
   _i5.IncidentSeverity severity;
-
-  int? commanderId;
 
   int commanderId;
 
@@ -171,14 +159,11 @@ abstract class Incident implements _i1.SerializableModel {
     String? title,
     String? summary,
     int? serviceId,
-    int? serviceId,
     _i2.Service? service,
-    int? ruleId,
     int? ruleId,
     _i3.Rule? rule,
     _i4.IncidentStatus? status,
     _i5.IncidentSeverity? severity,
-    int? commanderId,
     int? commanderId,
     _i6.OpsUser? commander,
     List<_i7.IncidentTimelineItem>? timeline,
@@ -196,14 +181,11 @@ abstract class Incident implements _i1.SerializableModel {
       'title': title,
       if (summary != null) 'summary': summary,
       'serviceId': serviceId,
-      'serviceId': serviceId,
       if (service != null) 'service': service?.toJson(),
-      if (ruleId != null) 'ruleId': ruleId,
       'ruleId': ruleId,
       if (rule != null) 'rule': rule?.toJson(),
       'status': status.toJson(),
       'severity': severity.toJson(),
-      if (commanderId != null) 'commanderId': commanderId,
       'commanderId': commanderId,
       if (commander != null) 'commander': commander?.toJson(),
       if (timeline != null)
@@ -231,14 +213,11 @@ class _IncidentImpl extends Incident {
     required String title,
     String? summary,
     required int serviceId,
-    required int serviceId,
     _i2.Service? service,
-    int? ruleId,
     required int ruleId,
     _i3.Rule? rule,
     required _i4.IncidentStatus status,
     required _i5.IncidentSeverity severity,
-    int? commanderId,
     required int commanderId,
     _i6.OpsUser? commander,
     List<_i7.IncidentTimelineItem>? timeline,
@@ -276,14 +255,11 @@ class _IncidentImpl extends Incident {
     String? title,
     Object? summary = _Undefined,
     int? serviceId,
-    int? serviceId,
     Object? service = _Undefined,
-    Object? ruleId = _Undefined,
     int? ruleId,
     Object? rule = _Undefined,
     _i4.IncidentStatus? status,
     _i5.IncidentSeverity? severity,
-    Object? commanderId = _Undefined,
     int? commanderId,
     Object? commander = _Undefined,
     Object? timeline = _Undefined,

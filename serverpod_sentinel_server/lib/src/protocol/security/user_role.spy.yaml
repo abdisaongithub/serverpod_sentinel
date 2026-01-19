@@ -2,9 +2,7 @@
 class: UserRole
 table: user_role
 fields:
-  userId: int
   user: OpsUser?, relation
-  roleId: int
   role: Role?, relation
 
 indexes:

@@ -1,30 +1,25 @@
 import 'package:serverpod/serverpod.dart';
 
-class AppConfigWidget extends JsonWidget {
-  final String apiUrl;
+class AppConfigRoute extends Route {
+  final ServerConfig apiConfig;
 
-  AppConfigWidget({
-    required this.apiUrl,
-  }) : super(object: {'apiUrl': apiUrl});
-}
-
-class AppConfigRoute extends WidgetRoute {
-  AppConfigWidget widget;
-
-  AppConfigRoute({
-    required final ServerConfig apiConfig,
-  }) : widget = AppConfigWidget(apiUrl: apiConfig.apiUrl.toString());
+  AppConfigRoute({required this.apiConfig});
 
   @override
-  Future<WebWidget> build(Session session, Request request) async {
-    return widget;
-  }
-}
+  Future<Result> handleCall(Session session, Request request) async {
+    final config = {
+      'apiServer': {
+        'host': apiConfig.publicHost,
+        'port': apiConfig.publicPort,
+        'scheme': apiConfig.publicScheme,
+      },
+    };
 
-extension on ServerConfig {
-  Uri get apiUrl => Uri(
-    scheme: publicScheme,
-    host: publicHost,
-    port: publicPort,
-  );
+    return Response.ok(
+      body: Body.fromString(
+        SerializationManager.encode(config),
+        mimeType: MimeType.json,
+      ),
+    );
+  }
 }

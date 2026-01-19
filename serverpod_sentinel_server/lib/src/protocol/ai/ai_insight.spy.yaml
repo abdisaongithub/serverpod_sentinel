@@ -1,0 +1,21 @@
+### AI Insight model for storing and presenting AI-generated analysis
+
+class: AiInsight
+table: ai_insight
+fields:
+  type: String  # anomaly, prediction, recommendation, analysis
+  title: String
+  content: String
+  severity: String?  # info, warning, critical
+  serviceId: int?, relation(parent=service)
+  incidentId: int?, relation(parent=incident)
+  confidence: double  # 0.0 to 1.0
+  metadata: String?  # JSON for additional data
+  expiresAt: DateTime?
+  createdAt: DateTime
+
+indexes:
+  ai_insight_service_idx:
+    fields: serviceId
+  ai_insight_type_idx:
+    fields: type
