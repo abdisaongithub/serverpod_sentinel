@@ -19,6 +19,7 @@ The backend is implemented using Serverpod 3.2.2 with PostgreSQL and real-time s
 ### Remaining Tasks (Backend)
 - [ ] Implement actual AI integration in `AiInsightsEndpoint`.
 - [ ] Wire up authenticated user IDs in timeline items (currently uses hardcoded values).
+- [ ] Enable real authentication (currently bypassed in `ServerpodClientSingleton` for development).
 - [ ] Implement actual integration test connections (currently stubs).
 - [ ] Add comprehensive unit tests for all endpoints.
 
