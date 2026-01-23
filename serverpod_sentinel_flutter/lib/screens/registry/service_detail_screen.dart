@@ -8,6 +8,7 @@ import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
 import '../../widgets/app_right_sidebar.dart';
 import '../../providers/services_provider.dart';
+import '../../providers/streaming_provider.dart';
 
 class ServiceDetailScreen extends ConsumerWidget {
   final int serviceId;
@@ -59,7 +60,7 @@ class ServiceDetailScreen extends ConsumerWidget {
                                       children: [
                                         _ServiceHeader(service: service),
                                         const SizedBox(height: 24),
-                                        const _MetricsSection(), // Keeping metrics static for now as per plan
+                                        _MetricsSection(serviceId: serviceId),
                                         const SizedBox(height: 24),
                                         _BottomSection(
                                           isDesktop: isDesktop,
@@ -103,6 +104,7 @@ class ServiceDetailScreen extends ConsumerWidget {
     );
   }
 }
+
 
 class _Header extends StatelessWidget {
   final bool isDesktop;
@@ -426,11 +428,55 @@ class _ServiceStats extends StatelessWidget {
   }
 }
 
-class _MetricsSection extends StatelessWidget {
-  const _MetricsSection();
+class _MetricsSection extends ConsumerStatefulWidget {
+  final int serviceId;
+  const _MetricsSection({required this.serviceId});
+
+  @override
+  ConsumerState<_MetricsSection> createState() => _MetricsSectionState();
+}
+
+class _MetricsSectionState extends ConsumerState<_MetricsSection> {
+  // Store latest values
+  double _cpu = 0;
+  double _ram = 0;
+  double _errorRate = 0;
+  double _netIo = 0;
 
   @override
   Widget build(BuildContext context) {
+    // Watch stream and update local state
+    final stream = ref.watch(serviceMetricsStreamProvider(widget.serviceId));
+    
+    stream.whenData((metric) {
+      // Use setState to rebuild when new metric arrives
+      // Note: In a real app we might debounce this or use a more sophisticated state management
+      // to avoid too many rebuilds, but for this demo/prototype it's fine.
+      // However, since `whenData` is called during build, we should schedule update or use a notifier.
+      // Better approach: The provider gives us the LATEST value if it was a StateNotifier, 
+      // but here it's a Stream.
+      // Actually, StreamProvider usually exposes the latest AsyncValue. 
+      // But StreamProvider.stream is what we might want if we want to listen manually.
+      // 
+      // Let's just update our local vars based on the latest value if available.
+      // But `ref.watch` on a StreamProvider returns the latest emitted value wrapped in AsyncValue.
+      
+      switch (metric.name) {
+        case 'cpu_usage':
+          _cpu = metric.value;
+          break;
+        case 'ram_usage':
+          _ram = metric.value;
+          break;
+        case 'error_rate':
+          _errorRate = metric.value;
+          break;
+        case 'net_io':
+          _netIo = metric.value;
+          break;
+      }
+    });
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -473,7 +519,7 @@ class _MetricsSection extends StatelessWidget {
               children: [
                 _MetricCard(
                   label: 'CPU Usage',
-                  value: '45%',
+                  value: '${_cpu.toStringAsFixed(1)}%',
                   subValue: 'Avg 42%',
                   icon: Icons.memory,
                   color: const Color(0xFF3B82F6),
@@ -485,7 +531,7 @@ class _MetricsSection extends StatelessWidget {
                 ),
                 _MetricCard(
                   label: 'RAM Usage',
-                  value: '1.2',
+                  value: (_ram / 1024).toStringAsFixed(2),
                   unit: 'GB',
                   subValue: 'Peak 1.5GB',
                   icon: Icons.storage,
@@ -498,7 +544,7 @@ class _MetricsSection extends StatelessWidget {
                 ),
                 _MetricCard(
                   label: 'Error Rate',
-                  value: '0.01%',
+                  value: '${_errorRate.toStringAsFixed(2)}%',
                   subValue: 'Stable',
                   icon: Icons.bug_report,
                   color: const Color(0xFF22C55E),
@@ -509,7 +555,7 @@ class _MetricsSection extends StatelessWidget {
                 ),
                 _MetricCard(
                   label: 'Net I/O',
-                  value: '32',
+                  value: _netIo.toStringAsFixed(0),
                   unit: 'ms',
                   subValue: 'Latency OK',
                   icon: Icons.network_check,

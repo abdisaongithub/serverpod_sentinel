@@ -13,7 +13,7 @@ class AuditLogger {
     // Get user ID (0 for system actions)
     int actorId = 0;
     try {
-      final authInfo = await session.authenticated;
+      final authInfo = (await session.authenticated) as dynamic;
       actorId = authInfo?.userId ?? 0;
     } catch (_) {
       // System action or anonymous

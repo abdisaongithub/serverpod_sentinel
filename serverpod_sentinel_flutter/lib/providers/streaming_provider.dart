@@ -88,6 +88,17 @@ final globalServiceUpdatesProvider =
       return service.serviceStatusStream;
     });
 
+/// Stream of Service Metrics (Filtered by Service ID)
+final serviceMetricsStreamProvider =
+    StreamProvider.family.autoDispose<protocol.StreamMetric, int>((ref, serviceId) {
+      final service = ref.watch(streamingServiceProvider);
+      final sub = service.subscribeToMetrics(serviceId);
+      ref.onDispose(() {
+        sub.cancel();
+      });
+      return service.metricStream.where((m) => m.serviceId == serviceId);
+    });
+
 class StreamingService {
   final protocol.Client client;
   final SessionManager sessionManager;
@@ -95,6 +106,8 @@ class StreamingService {
       async.StreamController.broadcast();
   final async.StreamController<protocol.StreamServiceStatus>
   _serviceStatusController = async.StreamController.broadcast();
+  final async.StreamController<protocol.StreamMetric> _metricController =
+      async.StreamController.broadcast();
 
   async.Timer? _pollingTimer;
   final Set<int> _polledAlertIds = {};
@@ -104,6 +117,7 @@ class StreamingService {
   async.Stream<protocol.StreamAlert> get alertStream => _alertController.stream;
   async.Stream<protocol.StreamServiceStatus> get serviceStatusStream =>
       _serviceStatusController.stream;
+  async.Stream<protocol.StreamMetric> get metricStream => _metricController.stream;
 
   async.StreamSubscription<dynamic> subscribeToAlerts() {
     try {
@@ -131,18 +145,34 @@ class StreamingService {
     return async.Stream.empty().listen((_) {});
   }
 
+  async.StreamSubscription<dynamic> subscribeToMetrics(int serviceId) {
+    try {
+      client.streaming.sendStreamMessage(
+        protocol.StreamSubscription(
+          type: protocol.StreamSubscriptionType.SERVICE_METRICS,
+          targetId: serviceId,
+        ),
+      );
+    } catch (_) {}
+
+    _startPolling(); // Ensure polling runs for mock data generation
+    return async.Stream.empty().listen((_) {});
+  }
+
   void _startPolling() {
     if (_pollingTimer != null && _pollingTimer!.isActive) return;
 
     // Poll immediately, then periodic
     _pollAlerts();
     _pollServices();
+    _generateMockMetrics(); // For demo purposes
 
     _pollingTimer = async.Timer.periodic(const Duration(seconds: 3), (
       timer,
     ) async {
       await _pollAlerts();
       await _pollServices();
+      _generateMockMetrics();
     });
   }
 
@@ -182,5 +212,50 @@ class StreamingService {
         );
       }
     } catch (_) {}
+  }
+
+  void _generateMockMetrics() {
+    // Generate realistic looking metrics for all services (since we don't know IDs easily, we assume some ID range or fetch first)
+    // Ideally we would fetch service IDs first.
+    // For now, let's just generate for IDs 1-10 to cover most demo cases.
+    final now = DateTime.now();
+    for (int i = 1; i <= 10; i++) {
+      _metricController.add(
+        protocol.StreamMetric(
+          serviceId: i,
+          timestamp: now,
+          name: 'cpu_usage',
+          value: 40 + (now.second % 20).toDouble(), // 40-60%
+          unit: '%',
+        ),
+      );
+      _metricController.add(
+        protocol.StreamMetric(
+          serviceId: i,
+          timestamp: now,
+          name: 'ram_usage',
+          value: 1024 + (now.second % 100).toDouble(), // ~1GB
+          unit: 'MB',
+        ),
+      );
+      _metricController.add(
+        protocol.StreamMetric(
+          serviceId: i,
+          timestamp: now,
+          name: 'error_rate',
+          value: (now.second % 10) == 0 ? 1.0 : 0.0, // Occasional spike
+          unit: '%',
+        ),
+      );
+      _metricController.add(
+        protocol.StreamMetric(
+          serviceId: i,
+          timestamp: now,
+          name: 'net_io',
+          value: 50 + (now.second % 30).toDouble(), // 50-80ms
+          unit: 'ms',
+        ),
+      );
+    }
   }
 }

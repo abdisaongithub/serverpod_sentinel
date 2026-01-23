@@ -1,21 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
+import '../../providers/streaming_provider.dart';
 
-class InstallAgentScreen extends StatefulWidget {
+class InstallAgentScreen extends ConsumerStatefulWidget {
   const InstallAgentScreen({super.key});
 
   @override
-  State<InstallAgentScreen> createState() => _InstallAgentScreenState();
+  ConsumerState<InstallAgentScreen> createState() => _InstallAgentScreenState();
 }
 
-class _InstallAgentScreenState extends State<InstallAgentScreen> {
+class _InstallAgentScreenState extends ConsumerState<InstallAgentScreen> {
   String _selectedTab = 'Docker';
+  int? _serviceId;
+  bool _isConnected = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final state = GoRouterState.of(context);
+    if (state.extra != null && state.extra is Map) {
+      final extra = state.extra as Map;
+      if (extra.containsKey('serviceId')) {
+        _serviceId = extra['serviceId'] as int;
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Listen for updates
+    ref.listen(globalServiceUpdatesProvider, (previous, next) {
+      next.whenData((status) {
+        if (_serviceId != null && status.serviceId == _serviceId) {
+          if (status.newStatus == ServiceStatus.OPERATIONAL) {
+            setState(() => _isConnected = true);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Agent connected successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      });
+    });
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: LayoutBuilder(
@@ -63,6 +97,8 @@ class _InstallAgentScreenState extends State<InstallAgentScreen> {
                                   selectedTab: _selectedTab,
                                   onTabChanged: (tab) =>
                                       setState(() => _selectedTab = tab),
+                                  isConnected: _isConnected,
+                                  onContinue: () => context.go(AppRoutes.dashboard),
                                 ),
                               ],
                             ),
@@ -434,8 +470,15 @@ class _Header extends StatelessWidget {
 class _CommandCard extends StatelessWidget {
   final String selectedTab;
   final Function(String) onTabChanged;
+  final bool isConnected;
+  final VoidCallback? onContinue;
 
-  const _CommandCard({required this.selectedTab, required this.onTabChanged});
+  const _CommandCard({
+    required this.selectedTab,
+    required this.onTabChanged,
+    this.isConnected = false,
+    this.onContinue,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -542,7 +585,9 @@ class _CommandCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             decoration: BoxDecoration(
-              color: const Color(0xFF151A23).withOpacity(0.3),
+              color: isConnected
+                  ? const Color(0xFF10b981).withOpacity(0.1)
+                  : const Color(0xFF151A23).withOpacity(0.3),
               border: const Border(top: BorderSide(color: Color(0x0DFFFFFF))),
             ),
             child: Row(
@@ -554,20 +599,34 @@ class _CommandCard extends StatelessWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withOpacity(0.1),
+                    color: isConnected
+                        ? const Color(0xFF10b981).withOpacity(0.2)
+                        : AppTheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(100),
                     border: Border.all(
-                      color: AppTheme.primary.withOpacity(0.2),
+                      color: isConnected
+                          ? const Color(0xFF10b981)
+                          : AppTheme.primary.withOpacity(0.2),
                     ),
                   ),
                   child: Row(
                     children: [
-                      _PulsingDot(),
+                      isConnected
+                          ? const Icon(
+                              Icons.check_circle,
+                              color: Color(0xFF10b981),
+                              size: 14,
+                            )
+                          : _PulsingDot(),
                       const SizedBox(width: 10),
-                      const Text(
-                        'Listening for agent connection...',
+                      Text(
+                        isConnected
+                            ? 'Agent Connected Successfully'
+                            : 'Listening for agent connection...',
                         style: TextStyle(
-                          color: AppTheme.primary,
+                          color: isConnected
+                              ? const Color(0xFF10b981)
+                              : AppTheme.primary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -577,21 +636,27 @@ class _CommandCard extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        'Trouble connecting?',
-                        style: TextStyle(
-                          color: Color(0xFF94A3B8),
-                          fontSize: 14,
+                    if (!isConnected) ...[
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'Trouble connecting?',
+                          style: TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 14,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
+                      const SizedBox(width: 16),
+                    ],
                     ElevatedButton(
-                      onPressed: () => context.go(AppRoutes.defineRules),
+                      onPressed: isConnected
+                          ? onContinue
+                          : () => context.go(AppRoutes.defineRules),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primary,
+                        backgroundColor: isConnected
+                            ? const Color(0xFF10b981)
+                            : AppTheme.primary,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 32,
                           vertical: 14,
@@ -600,16 +665,18 @@ class _CommandCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 8,
-                        shadowColor: AppTheme.primary.withOpacity(0.2),
+                        shadowColor: isConnected
+                            ? const Color(0xFF10b981).withOpacity(0.2)
+                            : AppTheme.primary.withOpacity(0.2),
                       ),
                       child: Row(
-                        children: const [
+                        children: [
                           Text(
-                            'Verify Installation',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            isConnected ? 'Go to Dashboard' : 'Verify Installation',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward, size: 18),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward, size: 18),
                         ],
                       ),
                     ),

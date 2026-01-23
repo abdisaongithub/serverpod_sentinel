@@ -1,0 +1,12 @@
+### Model for agent-specific monitoring tasks and playbooks.
+class: AgentTask
+table: agent_task
+fields:
+  serviceId: int
+  command: String
+  arguments: List<String>?
+  timestamp: DateTime
+  timeoutSeconds: int
+  status: AgentTaskStatus
+  output: String?
+  exitCode: int?

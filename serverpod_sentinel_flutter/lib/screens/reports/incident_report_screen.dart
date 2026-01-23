@@ -23,11 +23,42 @@ class IncidentReportScreen extends ConsumerWidget {
     final id = reportId ?? (idParam != null ? int.tryParse(idParam) : null);
 
     if (id == null) {
-      return const Scaffold(
+      return Scaffold(
+        backgroundColor: AppTheme.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(LucideIcons.arrowLeft, color: Colors.white),
+            onPressed: () => context.go(AppRoutes.reports),
+          ),
+        ),
         body: Center(
-          child: Text(
-            'Report ID not provided',
-            style: TextStyle(color: Colors.red),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(LucideIcons.fileX, size: 64, color: AppTheme.textMuted),
+              const SizedBox(height: 16),
+              const Text(
+                'No Report Selected',
+                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Please select a report from the list.',
+                style: TextStyle(color: AppTheme.textMuted),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => context.go(AppRoutes.reports),
+                icon: const Icon(LucideIcons.list, size: 16),
+                label: const Text('View All Reports'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -116,7 +147,7 @@ class _Header extends StatelessWidget {
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF111620).withOpacity(0.8),
+        color: const Color(0xFF111620).withValues(alpha: 0.8),
         border: const Border(
           bottom: BorderSide(color: AppTheme.surfaceHighlight),
         ),
@@ -176,7 +207,7 @@ class _Header extends StatelessWidget {
                       _HeaderBadge(
                         label: data['reportType'].toString().toUpperCase(),
                         color: Colors.blue.shade400,
-                        bgColor: Colors.blue.withOpacity(0.1),
+                        bgColor: Colors.blue.withValues(alpha: 0.1),
                       ),
                   ],
                 ),
@@ -221,7 +252,7 @@ class _HeaderBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         label,
@@ -254,7 +285,7 @@ class _ExecutiveSummaryCard extends StatelessWidget {
         border: Border.all(color: AppTheme.surfaceHighlight),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -313,7 +344,7 @@ class _ExecutiveSummaryCard extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Container(
-                color: Colors.white.withOpacity(0.02),
+                color: Colors.white.withValues(alpha: 0.02),
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../providers/reports_provider.dart';
+import '../../providers/client_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 import '../../widgets/shimmer_loading.dart';
@@ -11,6 +12,57 @@ import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 
 class ReportsScreen extends ConsumerWidget {
   const ReportsScreen({super.key});
+
+  Future<void> _generateHealthReport(BuildContext context, WidgetRef ref) async {
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Generating Health Report...')),
+      );
+
+      final client = ref.read(clientProvider);
+      
+      // 1. Generate Report
+      final reportData = await client.report.generateHealthReport();
+      
+      // 2. Save Snapshot
+      // Note: We need a dummy incidentId or 0 for non-incident reports if the schema requires it.
+      // Protocol says incidentId is int, not nullable. We should probably use 0 or a dedicated "System" incident.
+      // And generatedById requires a user ID. We can try to get it from auth or use 0.
+      // Ideally backend handles this, but saveGeneratedReport takes raw params.
+      // Let's assume 0 for now as "System/General".
+      
+      // We need to fetch current user ID. 
+      // For now, hardcode 1 or 0 if auth provider not handy in this scope, 
+      // but client usually handles auth.
+      
+      await client.report.saveGeneratedReport(
+        reportData: reportData,
+        incidentId: 0, 
+        generatedById: 1, // Placeholder, normally from auth state
+      );
+
+      // 3. Refresh List
+      ref.invalidate(reportSnapshotsProvider);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Health Report Generated Successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to generate report: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,7 +72,9 @@ class ReportsScreen extends ConsumerWidget {
       backgroundColor: AppTheme.background,
       body: Column(
         children: [
-          _Header(),
+          _Header(
+            onGenerate: () => _generateHealthReport(context, ref),
+          ),
           Expanded(
             child: snapshotsAsync.when(
               data: (snapshots) {
@@ -57,6 +111,10 @@ class ReportsScreen extends ConsumerWidget {
 }
 
 class _Header extends StatelessWidget {
+  final VoidCallback onGenerate;
+
+  const _Header({required this.onGenerate});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -67,15 +125,29 @@ class _Header extends StatelessWidget {
         border: Border(bottom: BorderSide(color: Color(0xFF334155))),
       ),
       child: Row(
-        children: const [
-          Icon(LucideIcons.fileText, color: Colors.white),
-          SizedBox(width: 12),
-          Text(
-            'Reports',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: const [
+              Icon(LucideIcons.fileText, color: Colors.white),
+              SizedBox(width: 12),
+              Text(
+                'Reports',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          ElevatedButton.icon(
+            onPressed: onGenerate,
+            icon: const Icon(LucideIcons.plus, size: 16),
+            label: const Text('New Report'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary,
+              foregroundColor: Colors.white,
             ),
           ),
         ],
@@ -99,7 +171,7 @@ class _ReportCard extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withOpacity(0.1),
+            color: AppTheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(LucideIcons.fileBarChart, color: AppTheme.primary),

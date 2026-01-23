@@ -1,18 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
+import '../../providers/services_provider.dart';
 
-class RegisterServiceScreen extends StatefulWidget {
+class RegisterServiceScreen extends ConsumerStatefulWidget {
   const RegisterServiceScreen({super.key});
 
   @override
-  State<RegisterServiceScreen> createState() => _RegisterServiceScreenState();
+  ConsumerState<RegisterServiceScreen> createState() =>
+      _RegisterServiceScreenState();
 }
 
-class _RegisterServiceScreenState extends State<RegisterServiceScreen> {
+class _RegisterServiceScreenState extends ConsumerState<RegisterServiceScreen> {
+  final _nameController = TextEditingController();
   String _selectedServiceType = 'Web Service';
   bool _envVarsExpanded = false;
+  bool _isRegistering = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _registerService() async {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a service name')),
+      );
+      return;
+    }
+
+    setState(() => _isRegistering = true);
+
+    try {
+      final service = Service(
+        name: name,
+        description: 'A ${_selectedServiceType.toLowerCase()} registered via onboarding.',
+        tier: _mapTypeToTier(_selectedServiceType),
+        status: ServiceStatus.DEGRADED, // Initial status pending agent
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        ownerId: 1, // Default owner for onboarding
+        tags: [
+          'type:${_selectedServiceType.toLowerCase().replaceAll(' ', '-')}',
+          'env:production',
+          'region:us-east-1',
+        ],
+      );
+
+      final created = await ref.read(serviceMutationProvider.notifier).create(service);
+
+      if (created != null && mounted) {
+        context.go(AppRoutes.installAgent, extra: {'serviceId': created.id});
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error registering service: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isRegistering = false);
+    }
+  }
+
+  ServiceTier _mapTypeToTier(String type) {
+    switch (type) {
+      case 'Web Service': return ServiceTier.TIER_1;
+      case 'Worker': return ServiceTier.TIER_2;
+      case 'Cron Job': return ServiceTier.TIER_3;
+      default: return ServiceTier.TIER_2;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +107,7 @@ class _RegisterServiceScreenState extends State<RegisterServiceScreen> {
                                 _IntroSection(isDesktop: isDesktop),
                                 const SizedBox(height: 32),
                                 _FormCard(
+                                  nameController: _nameController,
                                   selectedServiceType: _selectedServiceType,
                                   onServiceTypeChanged: (type) => setState(
                                     () => _selectedServiceType = type,
@@ -59,7 +124,11 @@ class _RegisterServiceScreenState extends State<RegisterServiceScreen> {
                         ),
                       ),
                     ),
-                    _BottomBar(isDesktop: isDesktop),
+                    _BottomBar(
+                      isDesktop: isDesktop,
+                      onRegister: _registerService,
+                      isLoading: _isRegistering,
+                    ),
                   ],
                 ),
               ),
@@ -70,6 +139,7 @@ class _RegisterServiceScreenState extends State<RegisterServiceScreen> {
     );
   }
 }
+
 
 class _OnboardingSidebar extends StatelessWidget {
   const _OnboardingSidebar();
@@ -299,12 +369,14 @@ class _IntroSection extends StatelessWidget {
 }
 
 class _FormCard extends StatelessWidget {
+  final TextEditingController nameController;
   final String selectedServiceType;
   final Function(String) onServiceTypeChanged;
   final bool envVarsExpanded;
   final VoidCallback onEnvVarsToggle;
 
   const _FormCard({
+    required this.nameController,
     required this.selectedServiceType,
     required this.onServiceTypeChanged,
     required this.envVarsExpanded,
@@ -331,6 +403,7 @@ class _FormCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
+                  controller: nameController,
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     hintText: 'e.g., my-backend-api',
@@ -819,7 +892,14 @@ class _EnvVarsSection extends StatelessWidget {
 
 class _BottomBar extends StatelessWidget {
   final bool isDesktop;
-  const _BottomBar({required this.isDesktop});
+  final VoidCallback onRegister;
+  final bool isLoading;
+
+  const _BottomBar({
+    required this.isDesktop,
+    required this.onRegister,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -843,7 +923,7 @@ class _BottomBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               OutlinedButton.icon(
-                onPressed: () => context.pop(),
+                onPressed: isLoading ? null : () => context.pop(),
                 icon: const Icon(Icons.arrow_back, size: 20),
                 label: const Text('Back'),
                 style: OutlinedButton.styleFrom(
@@ -872,7 +952,7 @@ class _BottomBar extends StatelessWidget {
                       ),
                     ),
                   ElevatedButton(
-                    onPressed: () => context.go(AppRoutes.installAgent),
+                    onPressed: isLoading ? null : onRegister,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primary,
                       padding: const EdgeInsets.symmetric(
@@ -885,16 +965,25 @@ class _BottomBar extends StatelessWidget {
                       elevation: 4,
                       shadowColor: AppTheme.primary.withOpacity(0.25),
                     ),
-                    child: Row(
-                      children: const [
-                        Text(
-                          'Register & Continue',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward, size: 20),
-                      ],
-                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Row(
+                            children: const [
+                              Text(
+                                'Register & Continue',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward, size: 20),
+                            ],
+                          ),
                   ),
                 ],
               ),

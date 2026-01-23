@@ -6,6 +6,7 @@ import '../../theme/app_theme.dart';
 import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/client_provider.dart';
 
 class IntegrationsManagerScreen extends ConsumerStatefulWidget {
   const IntegrationsManagerScreen({super.key});
@@ -74,6 +75,42 @@ class _IntegrationsManagerScreenState
           icon: LucideIcons.plug,
           color: Colors.grey,
         );
+    }
+  }
+
+  Future<void> _testConnection(Integration integration) async {
+    if (integration.id == null) return;
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Testing connection for ${integration.name}...')),
+    );
+
+    try {
+      final client = ref.read(clientProvider);
+      final result = await client.integration.testConnection(integration.id!);
+      final isSuccess = result['success'] == true;
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isSuccess 
+              ? 'Connection successful!' 
+              : 'Connection failed. Check configuration.'),
+            backgroundColor: isSuccess ? Colors.green : Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error testing connection: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -165,7 +202,7 @@ class _IntegrationsManagerScreenState
         border: Border.all(color: AppTheme.surfaceHighlight),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -176,7 +213,7 @@ class _IntegrationsManagerScreenState
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: uiInfo.color.withOpacity(0.1),
+            color: uiInfo.color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(uiInfo.icon, color: uiInfo.color),
@@ -193,7 +230,7 @@ class _IntegrationsManagerScreenState
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withOpacity(0.1),
+                  color: AppTheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
@@ -212,13 +249,24 @@ class _IntegrationsManagerScreenState
           item.type,
           style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
         ),
-        trailing: item.isEnabled
-            ? const Icon(
-                LucideIcons.checkCircle,
-                color: Color(0xFF10b981),
-                size: 20,
-              )
-            : const Icon(LucideIcons.chevronRight, color: AppTheme.textMuted),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (item.isEnabled == true)
+              IconButton(
+                icon: const Icon(LucideIcons.refreshCw, size: 18),
+                color: AppTheme.textMuted,
+                onPressed: () => _testConnection(item),
+              ),
+            (item.isEnabled == true)
+                ? const Icon(
+                    LucideIcons.checkCircle,
+                    color: Color(0xFF10b981),
+                    size: 20,
+                  )
+                : const Icon(LucideIcons.chevronRight, color: AppTheme.textMuted),
+          ],
+        ),
         onTap: () {
           // Navigate to detail or show sheet to connect
           // For now, toggle logic placeholder
@@ -339,7 +387,7 @@ class _IntegrationsManagerScreenState
         border: Border.all(color: AppTheme.surfaceHighlight),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -354,42 +402,53 @@ class _IntegrationsManagerScreenState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: uiInfo.color.withOpacity(0.1),
+                  color: uiInfo.color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(uiInfo.icon, color: uiInfo.color, size: 28),
               ),
-              if (item.isEnabled)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10b981).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: const Color(0xFF10b981).withOpacity(0.2),
-                    ),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        LucideIcons.check,
-                        size: 12,
-                        color: Color(0xFF10b981),
+              if (item.isEnabled == true)
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
                       ),
-                      SizedBox(width: 4),
-                      Text(
-                        'Active',
-                        style: TextStyle(
-                          color: Color(0xFF10b981),
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10b981).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: const Color(0xFF10b981).withValues(alpha: 0.2),
                         ),
                       ),
-                    ],
-                  ),
+                      child: const Row(
+                        children: [
+                          Icon(
+                            LucideIcons.check,
+                            size: 12,
+                            color: Color(0xFF10b981),
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            'Active',
+                            style: TextStyle(
+                              color: Color(0xFF10b981),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(LucideIcons.refreshCw, size: 16),
+                      color: AppTheme.textMuted,
+                      tooltip: 'Test Connection',
+                      onPressed: () => _testConnection(item),
+                    ),
+                  ],
                 )
               else
                 OutlinedButton(
@@ -426,7 +485,7 @@ class _IntegrationsManagerScreenState
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withOpacity(0.1),
+                    color: AppTheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
@@ -458,7 +517,7 @@ class _IntegrationsManagerScreenState
               Icon(
                 LucideIcons.tag,
                 size: 14,
-                color: AppTheme.textMuted.withOpacity(0.7),
+                color: AppTheme.textMuted.withValues(alpha: 0.7),
               ),
               const SizedBox(width: 6),
               Text(

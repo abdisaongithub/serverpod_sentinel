@@ -130,25 +130,117 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
             children: [
               _DateSeparator(label: entry.key),
               ...entry.value.map(
-                (log) => _AuditRow(
-                  timestamp: _dateFormat.format(log.createdAt),
-                  actorName: 'User ${log.actor?.userInfoId ?? "Unknown"}',
-                  actorSub: 'ID: ${log.actorId}', // Could be role or email
-                  actorImageUrl: null, // Add to OpsUser if available
-                  actorIcon: LucideIcons.user,
-                  actorIconColor: AppTheme.primary,
-                  event: log.action,
-                  details:
-                      '${log.entityType} #${log.entityId} ${log.changes ?? ""}',
-                  isSystem: false, // heuristic
-                  isCritical: log.action.contains('DELETE'),
-                  isDesktop: isDesktop,
+                (log) => GestureDetector(
+                  onTap: () => _showAuditDetails(context, log),
+                  child: _AuditRow(
+                    timestamp: _dateFormat.format(log.createdAt),
+                    actorName: 'User ${log.actor?.userInfoId ?? "Unknown"}',
+                    actorSub: 'ID: ${log.actorId}', // Could be role or email
+                    actorImageUrl: null, // Add to OpsUser if available
+                    actorIcon: LucideIcons.user,
+                    actorIconColor: AppTheme.primary,
+                    event: log.action,
+                    details:
+                        '${log.entityType} #${log.entityId} ${log.changes ?? ""}',
+                    isSystem: false, // heuristic
+                    isCritical: log.action.contains('DELETE'),
+                    isDesktop: isDesktop,
+                  ),
                 ),
               ),
             ],
           );
         }),
       ],
+    );
+  }
+
+  void _showAuditDetails(BuildContext context, AuditLog log) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: Text(
+          'Audit Log Details #${log.id}',
+          style: const TextStyle(color: Colors.white),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _DetailRow(label: 'Action', value: log.action),
+              _DetailRow(label: 'Entity', value: '${log.entityType} #${log.entityId}'),
+              _DetailRow(label: 'Actor ID', value: '${log.actorId}'),
+              _DetailRow(label: 'IP Address', value: log.ipAddress ?? 'N/A'),
+              _DetailRow(label: 'Timestamp', value: log.createdAt.toString()),
+              const SizedBox(height: 16),
+              const Text(
+                'Changes / Payload:',
+                style: TextStyle(
+                  color: AppTheme.textMuted,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                width: double.maxFinite,
+                child: Text(
+                  log.changes ?? 'No details recorded',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _DetailRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              '$label:',
+              style: const TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.w600),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

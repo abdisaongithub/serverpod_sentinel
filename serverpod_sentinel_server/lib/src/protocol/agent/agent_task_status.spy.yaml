@@ -1,0 +1,7 @@
+enum: AgentTaskStatus
+values:
+  - pending
+  - inProgress
+  - completed
+  - failed
+  - timedOut

@@ -108,7 +108,7 @@ class _Header extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF161E2D).withOpacity(0.8),
+        color: const Color(0xFF161E2D).withValues(alpha: 0.8),
         border: const Border(bottom: BorderSide(color: Color(0xFF2D3748))),
         boxShadow: [
           BoxShadow(
@@ -333,7 +333,7 @@ class _HealthCard extends ConsumerWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF22C55E).withOpacity(0.1),
+                            color: const Color(0xFF22C55E).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Row(
@@ -493,17 +493,17 @@ class _CriticalAlertCard extends ConsumerWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF7F1D1D).withOpacity(0.9),
+            const Color(0xFF7F1D1D).withValues(alpha: 0.9),
             const Color(0xFF101622),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFEF4444).withOpacity(0.15),
+            color: const Color(0xFFEF4444).withValues(alpha: 0.15),
             blurRadius: 30,
             spreadRadius: 2,
           ),
@@ -595,7 +595,7 @@ class _CriticalAlertCard extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         elevation: 4,
-                        shadowColor: const Color(0xFFEF4444).withOpacity(0.2),
+                        shadowColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -615,7 +615,7 @@ class _CriticalAlertCard extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(Icons.more_horiz, color: Colors.white),
@@ -781,7 +781,7 @@ class _EnvCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: iconColor, size: 24),
@@ -1081,7 +1081,7 @@ class _RiskCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -1168,7 +1168,7 @@ class _MiniBarChart extends StatelessWidget {
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(h < 0.8 ? 0.3 : 1.0),
+                    color: color.withValues(alpha: h < 0.8 ? 0.3 : 1.0),
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(2),
                     ),
@@ -1351,7 +1351,7 @@ class _ActivityItem extends StatelessWidget {
                 height: 36,
                 decoration: BoxDecoration(
                   color:
-                      iconBgColor?.withOpacity(0.1) ?? const Color(0xFF1E293B),
+                      iconBgColor?.withValues(alpha: 0.1) ?? const Color(0xFF1E293B),
                   shape: BoxShape.circle,
                 ),
                 child: avatar
@@ -1386,7 +1386,7 @@ class _ActivityItem extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color:
-                                  tagColor?.withOpacity(0.1) ??
+                                  tagColor?.withValues(alpha: 0.1) ??
                                   Colors.transparent,
                               borderRadius: BorderRadius.circular(4),
                             ),

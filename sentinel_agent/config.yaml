@@ -1,0 +1,19 @@
+# Sentinel Agent Configuration
+server_url: http://localhost:8080/
+service_id: 1
+api_key: sentinel_secret_key_123
+interval_seconds: 5
+max_backoff_seconds: 60
+
+# Process Monitoring (Nginx, PM2, etc.)
+monitor_processes:
+  - name: "nginx"
+    command: "nginx" # Used to check if process is in tasklist/ps
+  - name: "pm2"
+    command: "PM2"
+
+# Log Scraping Configuration
+watch_logs:
+  - path: "app.log"
+    patterns: ["ERROR", "FATAL", "Exception", "CRITICAL"]
+    severity: "CRITICAL"

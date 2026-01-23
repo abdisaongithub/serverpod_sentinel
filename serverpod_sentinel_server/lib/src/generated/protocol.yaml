@@ -8,6 +8,10 @@ emailIdp:
   - finishPasswordReset:
 jwtRefresh:
   - refreshAccessToken:
+agent:
+  - pollTask:
+  - updateTaskStatus:
+  - createTask:
 aiInsights:
   - getInsights:
   - analyzeIncident:

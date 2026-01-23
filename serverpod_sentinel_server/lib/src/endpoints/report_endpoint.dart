@@ -252,8 +252,58 @@ class ReportEndpoint extends Endpoint {
     required int incidentId,
     required int generatedById,
   }) async {
+    int targetIncidentId = incidentId;
+
+    // Handle case where report is global/general (incidentId 0)
+    // We try to attach it to a special "System Reports" incident or the latest one
+    if (targetIncidentId == 0) {
+      final latest = await Incident.db.findFirstRow(
+        session,
+        orderBy: (t) => t.createdAt,
+        orderDescending: true,
+      );
+      
+      if (latest != null) {
+        targetIncidentId = latest.id!;
+      } else {
+        // If no incidents exist, we cannot satisfy the FK constraint easily without creating one.
+        // For now, we will create a dummy incident if possible, or throw.
+        // Creating a dummy incident requires Service, User, Rule.
+        // Let's check for a service first.
+        final service = await Service.db.findFirstRow(session);
+        final user = await OpsUser.db.findFirstRow(session);
+        
+        if (service != null && user != null) {
+           // We can create a dummy incident
+           // Note: Rule is also required by FK usually? Incident table has ruleId.
+           // Let's check rule.
+           final rule = await Rule.db.findFirstRow(session);
+           
+           if (rule != null) {
+             final systemIncident = Incident(
+               title: 'System Reports Placeholder',
+               summary: 'Container for general system reports',
+               serviceId: service.id!,
+               ruleId: rule.id!,
+               commanderId: user.id!,
+               status: IncidentStatus.RESOLVED,
+               severity: IncidentSeverity.LOW,
+               startedAt: DateTime.now(),
+               createdAt: DateTime.now(),
+               updatedAt: DateTime.now(),
+             );
+             final created = await Incident.db.insertRow(session, systemIncident);
+             targetIncidentId = created.id!;
+           }
+        }
+      }
+    }
+
+    // If we still don't have a valid ID (e.g. empty DB), this will fail at DB level.
+    // But this logic covers most cases where seed data exists.
+
     final snapshot = ReportSnapshot(
-      incidentId: incidentId,
+      incidentId: targetIncidentId,
       generatedAt: DateTime.now(),
       generatedById: generatedById,
       content: jsonEncode(reportData),

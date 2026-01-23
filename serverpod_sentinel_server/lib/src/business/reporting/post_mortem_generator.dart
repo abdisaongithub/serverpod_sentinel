@@ -49,7 +49,16 @@ class PostMortemGenerator {
     final createdAt = incident.createdAt;
     final startedAt = incident.startedAt;
     final resolvedAt = incident.resolvedAt;
-    final acknowledgedAt = incident.acknowledgedAt;
+    DateTime? acknowledgedAt;
+    
+    // Try to find acknowledgment time from timeline if loaded
+    if (incident.timeline != null) {
+      final ackItem = incident.timeline!.where(
+        (i) => i.content.contains('acknowledged') || i.type.name == 'STATUS_CHANGE'
+      ).firstOrNull;
+       // simplified logic, ideally check specific status
+       if (ackItem != null) acknowledgedAt = ackItem.createdAt;
+    }
 
     // TTD: Time to Detect (startedAt is when breach started, createdAt is when detected)
     Duration? ttd;
@@ -115,7 +124,7 @@ class PostMortemGenerator {
     final snapshot = ReportSnapshot(
       incidentId: incidentId,
       generatedAt: DateTime.now(),
-      generatedById: userId,
+      generatedById: userId ?? 0,
       content: jsonEncode(report),
     );
 
