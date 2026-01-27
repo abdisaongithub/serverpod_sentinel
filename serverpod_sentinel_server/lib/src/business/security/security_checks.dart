@@ -1,23 +1,18 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
-
-class ForbiddenException implements Exception {
-  final String message;
-  ForbiddenException(this.message);
-  @override
-  String toString() => 'ForbiddenException: $message';
-}
+import 'package:serverpod_sentinel_server/src/exceptions/app_exceptions.dart';
+import 'package:serverpod_sentinel_server/src/business/extensibility/api_key_service.dart';
 
 class SecurityChecks {
   /// Verifies the user is authenticated and has the specified role.
-  /// Throws ForbiddenException if authorization fails.
   static Future<void> requireRole(Session session, String roleName) async {
-    final userId = await _getUserId(session);
-    if (userId == null) {
-      throw ForbiddenException('Authentication required');
+    final userId = await requireAuthentication(session);
+    
+    if (userId == 0) {
+      // API Keys/Service Tokens bypass role checks but are subject to permission checks.
+      return; 
     }
 
-    // Query UserRole join table to check if user has this role
     final userRoles = await UserRole.db.find(
       session,
       where: (t) => t.userId.equals(userId),
@@ -30,46 +25,76 @@ class SecurityChecks {
     }
   }
 
-  /// Verifies the user has at least one of the specified roles.
-  static Future<void> requireAnyRole(
-    Session session,
-    List<String> roleNames,
-  ) async {
-    final userId = await _getUserId(session);
-    if (userId == null) {
-      throw ForbiddenException('Authentication required');
-    }
-
-    final userRoles = await UserRole.db.find(
-      session,
-      where: (t) => t.userId.equals(userId),
-      include: UserRole.include(role: Role.include()),
-    );
-
-    final hasAnyRole = userRoles.any((ur) => roleNames.contains(ur.role?.name));
-    if (!hasAnyRole) {
-      throw ForbiddenException(
-        'One of roles "${roleNames.join(', ')}" required',
+  /// Verifies the user has the specified permission.
+  static Future<void> requirePermission(Session session, AppPermission permission) async {
+    final authResult = await _authenticate(session);
+    
+    if (authResult is OpsUser) {
+      final userRoles = await UserRole.db.find(
+        session,
+        where: (t) => t.userId.equals(authResult.id!),
+        include: UserRole.include(role: Role.include()),
       );
+
+      final allPermissions = userRoles
+          .where((ur) => ur.role != null)
+          .expand((ur) => ur.role!.permissions)
+          .toSet();
+
+      if (!allPermissions.contains(permission.name)) {
+        throw ForbiddenException('Permission "${permission.name}" required');
+      }
+    } else if (authResult is SentinelApiKey) {
+      if (!authResult.scopes.contains(permission.name) && !authResult.scopes.contains('all')) {
+        throw ForbiddenException('API Key does not have scope "${permission.name}"');
+      }
+    } else if (authResult == 0) {
+       // Service Token (Agent) - currently broad access for telemetry
+       return;
+    } else {
+      throw UnauthorizedException('Authentication required');
     }
   }
 
   /// Ensures the user is logged in.
   static Future<int> requireAuthentication(Session session) async {
-    final userId = await _getUserId(session);
-    if (userId == null) {
-      throw ForbiddenException('Authentication required');
+    final auth = await _authenticate(session);
+    if (auth == null) {
+      throw UnauthorizedException('Authentication required');
     }
-    return userId;
+    if (auth is OpsUser) return auth.userInfoId;
+    if (auth is SentinelApiKey) return auth.userId ?? 0;
+    return 0; // Service Token
   }
 
-  /// Helper to get user ID from session (leverages serverpod_auth).
+  static Future<dynamic> _authenticate(Session session) async {
+    final userId = await _getUserId(session);
+    if (userId != null) {
+      return await OpsUser.db.findFirstRow(session, where: (t) => t.userInfoId.equals(userId));
+    }
+
+    final token = session.authenticationKey;
+    if (token == null) return null;
+
+    // 1. Try Platform API Key
+    final apiKey = await ApiKeyService.validate(session, token);
+    if (apiKey != null) return apiKey;
+
+    // 2. Try Service Token (Agent)
+    final validToken = await ServiceToken.db.findFirstRow(
+      session,
+      where: (t) => t.token.equals(token),
+    );
+    if (validToken != null && (validToken.expiresAt == null || validToken.expiresAt!.isAfter(DateTime.now()))) {
+      return 0; 
+    }
+
+    return null;
+  }
+
+  /// Helper to get user ID from session.
   static Future<int?> _getUserId(Session session) async {
-    // Serverpod auth stores authenticated user info in session.
-    // This depends on how auth is configured. Typically:
-    // session.auth.authenticatedUserId or similar.
-    // For serverpod_auth_idp, check session.authenticationInfo?.userId
-    final authInfo = (await session.authenticated) as dynamic;
-    return authInfo?.userId;
+    final authInfo = await session.authenticated;
+    return (authInfo as dynamic)?.userId;
   }
 }

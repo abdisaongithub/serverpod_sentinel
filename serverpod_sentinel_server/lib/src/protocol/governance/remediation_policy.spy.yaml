@@ -1,0 +1,18 @@
+### Autonomous remediation policy for automated incident response.
+class: RemediationPolicy
+table: remediation_policy
+fields:
+  name: String
+  event: String # e.g. service.outage, high_cpu
+  serviceId: int?, relation(parent=service)
+  playbookId: int, relation(parent=playbook)
+  
+  autoExecute: bool, default=true
+  requireApproval: bool, default=false
+  isEnabled: bool, default=true
+  
+  maxRetries: int, default=3
+  cooldownPeriod: int # seconds
+  
+  createdAt: DateTime
+  updatedAt: DateTime

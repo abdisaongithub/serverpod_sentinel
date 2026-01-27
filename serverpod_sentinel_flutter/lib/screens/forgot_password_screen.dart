@@ -15,13 +15,13 @@ class ForgotPasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => context.go(AppRoutes.login),
         ),
       ),
@@ -67,7 +67,6 @@ class _ForgotPasswordFormState extends ConsumerState<_ForgotPasswordForm> {
     final notifier = ref.read(authProvider.notifier);
 
     if (!_codeSent) {
-      // Request Code
       final id = await notifier.startPasswordReset(_emailController.text);
       if (id != null && mounted) {
         setState(() {
@@ -76,7 +75,6 @@ class _ForgotPasswordFormState extends ConsumerState<_ForgotPasswordForm> {
         });
       }
     } else {
-      // Verify Code
       if (_requestId == null) return;
       final token = await notifier.verifyPasswordReset(
         _requestId!,
@@ -84,14 +82,6 @@ class _ForgotPasswordFormState extends ConsumerState<_ForgotPasswordForm> {
       );
 
       if (token != null && mounted) {
-        // Navigate to Reset Password Screen with the token
-        // Since we can't easily pass args via route without query params or state,
-        // we might store it in a global state or pass it via extra.
-        // For now, let's assume route parameter or simple state provider.
-        // But better yet, let's keep it simple and maybe merge ResetPasswordScreen here
-        // or just use query parameter.
-        // However, token might be long/sensitive.
-        // Let's use `extra` in go_router.
         context.go(AppRoutes.resetPassword, extra: token);
       }
     }
@@ -99,6 +89,8 @@ class _ForgotPasswordFormState extends ConsumerState<_ForgotPasswordForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final authState = ref.watch(authProvider);
 
     return Form(
@@ -109,28 +101,22 @@ class _ForgotPasswordFormState extends ConsumerState<_ForgotPasswordForm> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.primary.withOpacity(0.1),
+              color: colorScheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.lock_reset,
-              color: AppTheme.primary,
-              size: 32,
-            ),
+            child: Icon(Icons.lock_reset, color: colorScheme.primary, size: 32),
           ),
           const SizedBox(height: 24),
           Text(
             _codeSent ? 'Enter Verification Code' : 'Reset password',
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: theme.textTheme.headlineMedium,
           ),
           const SizedBox(height: 8),
           Text(
             _codeSent
                 ? 'We sent a code to ${_emailController.text}'
                 : 'Enter the email address associated with your account and we\'ll send you a link to reset your password.',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: AppTheme.textMuted),
+            style: theme.textTheme.bodyMedium,
           ),
 
           if (authState.error != null)
@@ -138,7 +124,7 @@ class _ForgotPasswordFormState extends ConsumerState<_ForgotPasswordForm> {
               padding: const EdgeInsets.only(top: 16),
               child: Text(
                 authState.error!,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: colorScheme.error),
               ),
             ),
 
@@ -174,17 +160,13 @@ class _ForgotPasswordFormState extends ConsumerState<_ForgotPasswordForm> {
               icon: Icons.arrow_forward,
               isLoading: authState.isLoading,
               onPressed: _handleSubmit,
-              backgroundColor: AppTheme.primary,
             ),
           ),
           const SizedBox(height: 24),
           Center(
             child: TextButton(
               onPressed: () => context.go(AppRoutes.login),
-              child: const Text(
-                'Return to Login',
-                style: TextStyle(color: Color(0xFF94A3B8)),
-              ),
+              child: Text('Return to Login', style: theme.textTheme.bodySmall),
             ),
           ),
         ],

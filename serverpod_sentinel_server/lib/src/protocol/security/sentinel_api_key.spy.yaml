@@ -1,0 +1,19 @@
+### Scoped API keys for platform-level access.
+class: SentinelApiKey
+table: sentinel_api_key
+fields:
+  name: String
+  key: String # Encrypted
+  keyHash: String # SHA-256 for fast lookup
+  scopes: List<String> # Maps to AppPermission names
+  userId: int?, relation(parent=ops_user)
+  
+  lastUsedAt: DateTime?
+  expiresAt: DateTime?
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  sentinel_api_key_hash_idx:
+    fields: keyHash
+    unique: true

@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
@@ -7,8 +9,11 @@ import '../../theme/app_theme.dart';
 import '../../widgets/app_sidebar.dart';
 import '../../routes.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/telemetry_provider.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class EnvironmentSettingsScreen extends ConsumerStatefulWidget {
+
   const EnvironmentSettingsScreen({super.key});
 
   @override
@@ -65,9 +70,10 @@ class _EnvironmentSettingsScreenState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildResourceUsageSection(isDesktop: true),
+                            _TelemetryUsageSection(isDesktop: true, serviceId: 1), // Using Service ID 1 for default
                             const SizedBox(height: 24),
                             _buildMainContent(selectedEnv, isDesktop: true),
+
                           ],
                         ),
                       ),
@@ -130,12 +136,13 @@ class _EnvironmentSettingsScreenState
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      _buildResourceUsageSection(isDesktop: false),
+                      _TelemetryUsageSection(isDesktop: false, serviceId: 1),
                       const SizedBox(height: 24),
                       _buildMainContent(selectedEnv, isDesktop: false),
                     ],
                   ),
                 ),
+
               );
             }
           },
@@ -376,121 +383,8 @@ class _EnvironmentSettingsScreenState
     );
   }
 
-  Widget _buildResourceUsageSection({required bool isDesktop}) {
-    // These are mock stats for visual completeness as we don't have a metrics endpoint yet
-    final cards = [
-      _buildUsageCard(
-        title: 'CPU USAGE',
-        value: '42%',
-        icon: LucideIcons.cpu,
-        color: Colors.blue,
-        chartData: [0.3, 0.4, 0.35, 0.5, 0.42],
-      ),
-      _buildUsageCard(
-        title: 'MEMORY',
-        value: '2.4 GB',
-        icon: LucideIcons.server,
-        color: Colors.purple,
-        chartData: [0.6, 0.65, 0.62, 0.68, 0.7],
-      ),
-      _buildUsageCard(
-        title: 'REQUESTS/SEC',
-        value: '1,240',
-        icon: LucideIcons.globe,
-        color: const Color(0xFF10b981),
-        chartData: [0.4, 0.5, 0.8, 0.7, 0.6],
-      ),
-    ];
-
-    if (isDesktop) {
-      return Row(
-        children: [
-          Expanded(child: cards[0]),
-          const SizedBox(width: 16),
-          Expanded(child: cards[1]),
-          const SizedBox(width: 16),
-          Expanded(child: cards[2]),
-        ],
-      );
-    } else {
-      return Column(
-        children: cards
-            .map(
-              (c) =>
-                  Padding(padding: const EdgeInsets.only(bottom: 16), child: c),
-            )
-            .toList(),
-      );
-    }
-  }
-
-  Widget _buildUsageCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-    required List<double> chartData,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.surfaceHighlight),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AppTheme.textMuted,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              Icon(icon, size: 16, color: AppTheme.textMuted),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 40,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: chartData.map((d) {
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                    child: FractionallySizedBox(
-                      heightFactor: d,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: color.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMainContent(Environment env, {required bool isDesktop}) {
+
     final leftColumn = Column(
       children: [
         _buildScalingPolicyCard(),
@@ -838,3 +732,232 @@ class _EnvironmentSettingsScreenState
     );
   }
 }
+
+class _TelemetryUsageSection extends ConsumerWidget {
+  final bool isDesktop;
+  final int serviceId;
+
+  const _TelemetryUsageSection({required this.isDesktop, required this.serviceId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final signalsAsync = ref.watch(serviceSignalsProvider(serviceId));
+
+    return signalsAsync.when(
+      data: (signals) {
+        if (signals.isEmpty) return const SizedBox();
+
+        final cpuSignal = signals.firstWhere((s) => s.identifier.contains('cpu'), orElse: () => signals.first);
+        final memSignal = signals.firstWhere((s) => s.identifier.contains('memory'), orElse: () => signals.length > 1 ? signals[1] : signals.first);
+
+        final cards = [
+          _TelemetryCard(
+            title: 'CPU USAGE',
+            signal: cpuSignal,
+            icon: LucideIcons.cpu,
+            color: Colors.blue,
+          ),
+          _TelemetryCard(
+            title: 'MEMORY',
+            signal: memSignal,
+            icon: LucideIcons.server,
+            color: Colors.purple,
+          ),
+          _buildUsageCard(
+            title: 'REQUESTS/SEC',
+            value: '1,240',
+            icon: LucideIcons.globe,
+            color: const Color(0xFF10b981),
+            chartData: [0.4, 0.5, 0.8, 0.7, 0.6],
+          ),
+        ];
+
+        if (isDesktop) {
+          return Row(
+            children: [
+              Expanded(child: cards[0]),
+              const SizedBox(width: 16),
+              Expanded(child: cards[1]),
+              const SizedBox(width: 16),
+              Expanded(child: cards[2]),
+            ],
+          );
+        } else {
+          return Column(
+            children: cards.map((c) => Padding(padding: const EdgeInsets.only(bottom: 16), child: c)).toList(),
+          );
+        }
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Text('Telemetry Error: $e', style: const TextStyle(color: Colors.red)),
+    );
+  }
+
+  Widget _buildUsageCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+    required List<double> chartData,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.surfaceHighlight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: AppTheme.textMuted,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              Icon(icon, size: 16, color: AppTheme.textMuted),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 40,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: chartData.map((d) {
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                    child: FractionallySizedBox(
+                      heightFactor: d,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: color.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TelemetryCard extends ConsumerWidget {
+  final String title;
+  final HealthSignal signal;
+  final IconData icon;
+  final Color color;
+
+  const _TelemetryCard({
+    required this.title,
+    required this.signal,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final historyAsync = ref.watch(metricHistoryProvider(signal.id!));
+    final liveSignal = ref.watch(liveSignalProvider((serviceId: signal.serviceId!, identifier: signal.identifier)));
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.surfaceHighlight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: AppTheme.textMuted,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              Icon(icon, size: 16, color: AppTheme.textMuted),
+            ],
+          ),
+          const SizedBox(height: 12),
+          liveSignal.when(
+            data: (StreamMetric metric) => Text(
+              '${metric.value.toStringAsFixed(1)}${metric.unit}',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            loading: () => Text(
+              '${signal.currentValue?.toStringAsFixed(1) ?? '0'}${signal.unit ?? ''}',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            error: (_, __) => Text(
+              '${signal.currentValue?.toStringAsFixed(1) ?? '0'}${signal.unit ?? ''}',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 40,
+            child: historyAsync.when(
+              data: (history) {
+                if (history.isEmpty) return const SizedBox();
+                final values = history.map((e) => (e as dynamic).value as double).toList();
+                final maxVal = values.reduce(math.max);
+                final minVal = values.reduce(math.min);
+                final range = (maxVal - minVal) > 0 ? (maxVal - minVal) : 1.0;
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: history.take(20).map((p) {
+                    final val = (p as dynamic).value as double;
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1.0),
+                        child: FractionallySizedBox(
+                          heightFactor: ((val - minVal) / range).clamp(0.1, 1.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: color.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+              loading: () => Container(width: double.infinity, height: 40, color: Colors.white10),
+              error: (_, __) => const SizedBox(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

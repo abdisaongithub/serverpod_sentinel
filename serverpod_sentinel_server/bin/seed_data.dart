@@ -4,8 +4,10 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/module.dart' as auth;
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
 import 'package:serverpod_sentinel_server/src/generated/endpoints.dart';
+import 'package:serverpod_sentinel_server/src/utils/security_config.dart';
 
 Future<void> main(List<String> args) async {
+
   final pod = Serverpod(
     args,
     Protocol(),
@@ -60,6 +62,57 @@ Future<void> main(List<String> args) async {
       );
     }
     final ownerId = opsUser.id!;
+
+    // ==========================================
+    // 1b. Roles & Permissions (RBAC)
+    // ==========================================
+    print('Seeding RBAC Roles...');
+    for (var entry in SecurityConfig.defaultRolePermissions.entries) {
+      final roleName = entry.key;
+      final permissions = entry.value.map((p) => p.name).toList();
+
+      var role = await Role.db.findFirstRow(
+        session,
+        where: (t) => t.name.equals(roleName),
+      );
+
+      if (role == null) {
+        print('Creating role: $roleName');
+        role = await Role.db.insertRow(
+          session,
+          Role(
+            name: roleName,
+            description: 'Default $roleName role',
+            permissions: permissions,
+          ),
+        );
+      } else {
+        // Update permissions if they changed
+        role.permissions = permissions;
+        await Role.db.updateRow(session, role);
+      }
+
+      // Assign role to admin user if not already assigned
+      final roleId = role.id;
+      if (roleId != null) {
+        final hasRole = await UserRole.db.findFirstRow(
+          session,
+          where: (t) => t.userId.equals(ownerId) & t.roleId.equals(roleId),
+        );
+
+        if (hasRole == null) {
+          print('Assigning $roleName to admin user');
+          await UserRole.db.insertRow(
+            session,
+            UserRole(
+              userId: ownerId,
+              roleId: roleId,
+            ),
+          );
+        }
+      }
+    }
+
 
     // ==========================================
     // 2. Environments

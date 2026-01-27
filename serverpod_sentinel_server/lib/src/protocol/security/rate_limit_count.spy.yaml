@@ -1,0 +1,5 @@
+### Internal model for tracking rate limits in cache.
+class: RateLimitCount
+fields:
+  count: int
+  resetAt: DateTime

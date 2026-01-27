@@ -1,0 +1,41 @@
+### Granular permissions for the Sentinel platform.
+enum: AppPermission
+values:
+  # Service Permissions
+  - service_view
+  - service_create
+  - service_edit
+  - service_delete
+  - service_manage_rules
+  
+  # Incident Permissions
+  - incident_view
+  - incident_create
+  - incident_acknowledge
+  - incident_resolve
+  - incident_manage_timeline
+  - incident_delete
+  
+  # Automation Permissions
+  - playbook_view
+  - playbook_create
+  - playbook_execute
+  - playbook_manage
+  
+  # Telemetry & Reports
+  - telemetry_view
+  - telemetry_export
+  - report_generate
+  - report_view_snapshots
+  
+  # System & Security
+  - system_settings_view
+  - system_settings_edit
+  - user_manage
+  - role_manage
+  - audit_log_view
+  - integration_manage
+  
+  # AI Insights
+  - ai_insight_view
+  - ai_insight_regenerate

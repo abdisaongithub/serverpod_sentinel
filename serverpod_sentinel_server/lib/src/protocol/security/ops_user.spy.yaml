@@ -14,7 +14,11 @@ fields:
   playbookExecutions: List<PlaybookExecution>?, relation
   auditLogs: List<AuditLog>?, relation
   
+  mfaSecret: String? # Encrypted TOTP secret
+  mfaEnabled: bool, default=false
+  
   createdAt: DateTime
+
   updatedAt: DateTime
   
 indexes:

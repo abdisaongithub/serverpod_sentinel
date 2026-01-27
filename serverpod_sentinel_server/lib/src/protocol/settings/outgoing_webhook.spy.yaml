@@ -1,0 +1,15 @@
+### Outgoing webhooks to notify external systems of platform events.
+class: OutgoingWebhook
+table: outgoing_webhook
+fields:
+  name: String
+  url: String
+  events: List<String> # e.g., incident.created, service.status_changed
+  secret: String? # For signing payloads (HMAC-SHA256)
+  isEnabled: bool
+  
+  lastTriggeredAt: DateTime?
+  lastResponseCode: int?
+  
+  createdAt: DateTime
+  updatedAt: DateTime

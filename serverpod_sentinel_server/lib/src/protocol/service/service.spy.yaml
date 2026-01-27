@@ -7,7 +7,9 @@ fields:
   owner: OpsUser?, relation
   status: ServiceStatus
   tier: ServiceTier
+  region: String, default='us-east-1'
   tags: List<String>
+
   
   # Relations
   signals: List<HealthSignal>?, relation

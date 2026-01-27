@@ -9,19 +9,18 @@ import '../widgets/loading_button.dart';
 import '../widgets/app_text_field.dart';
 
 class ResetPasswordScreen extends StatelessWidget {
-  final String? token; // Token passed from Verify Step or Email Link
+  final String? token;
   const ResetPasswordScreen({this.token, super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('OpsCenter'),
         centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: const SizedBox.shrink(), // No back button
+        leading: const SizedBox.shrink(),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -60,10 +59,7 @@ class _ResetPasswordFormState extends ConsumerState<_ResetPasswordForm> {
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (widget.token == null) {
-      // In real app, might show error that link is invalid
-      return;
-    }
+    if (widget.token == null) return;
 
     final success = await ref
         .read(authProvider.notifier)
@@ -78,6 +74,9 @@ class _ResetPasswordFormState extends ConsumerState<_ResetPasswordForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     if (_isSuccess) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -93,15 +92,13 @@ class _ResetPasswordFormState extends ConsumerState<_ResetPasswordForm> {
           const SizedBox(height: 24),
           Text(
             'Password Reset Complete',
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: theme.textTheme.headlineMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
           Text(
             'Your password has been successfully updated. You can now log in with your new password.',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: AppTheme.textMuted),
+            style: theme.textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
@@ -109,10 +106,6 @@ class _ResetPasswordFormState extends ConsumerState<_ResetPasswordForm> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => context.go(AppRoutes.login),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
               child: const Text('Log In Now'),
             ),
           ),
@@ -127,16 +120,11 @@ class _ResetPasswordFormState extends ConsumerState<_ResetPasswordForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Set new password',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
+          Text('Set new password', style: theme.textTheme.headlineMedium),
           const SizedBox(height: 8),
           Text(
             'Keep your account secure with a strong password.',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: AppTheme.textMuted),
+            style: theme.textTheme.bodyMedium,
           ),
 
           if (authState.error != null)
@@ -144,7 +132,7 @@ class _ResetPasswordFormState extends ConsumerState<_ResetPasswordForm> {
               padding: const EdgeInsets.only(top: 16),
               child: Text(
                 authState.error!,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: colorScheme.error),
               ),
             ),
 
@@ -154,17 +142,17 @@ class _ResetPasswordFormState extends ConsumerState<_ResetPasswordForm> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: colorScheme.errorContainer,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Colors.red),
+                  Icon(Icons.error, color: colorScheme.error),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Missing reset token. Please request a new link.',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: colorScheme.onErrorContainer),
                     ),
                   ),
                 ],
@@ -214,7 +202,6 @@ class _ResetPasswordFormState extends ConsumerState<_ResetPasswordForm> {
                 icon: Icons.check_circle_outline,
                 isLoading: authState.isLoading,
                 onPressed: _handleSubmit,
-                backgroundColor: AppTheme.primary,
               ),
             ),
           ],

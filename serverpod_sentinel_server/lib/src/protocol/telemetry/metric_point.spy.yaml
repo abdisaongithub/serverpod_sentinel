@@ -1,0 +1,9 @@
+class: MetricPoint
+table: metric_point
+fields:
+  signal: HealthSignal?, relation
+  timestamp: DateTime
+  value: double
+indexes:
+  metric_point_signal_ts_idx:
+    fields: signalId, timestamp

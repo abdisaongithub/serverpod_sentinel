@@ -11,14 +11,17 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
-import '../enums/service_status.dart' as _i2;
-import '../telemetry/telemetry_resources.dart' as _i3;
-import 'package:serverpod_sentinel_client/src/protocol/protocol.dart' as _i4;
+import '../service/service.dart' as _i2;
+import '../enums/service_status.dart' as _i3;
+import '../telemetry/telemetry_resources.dart' as _i4;
+import 'package:serverpod_sentinel_client/src/protocol/protocol.dart' as _i5;
 
 /// Payload for agent heartbeat.
 abstract class TelemetryHeartbeat implements _i1.SerializableModel {
   TelemetryHeartbeat._({
     this.id,
+    required this.serviceId,
+    this.service,
     required this.timestamp,
     required this.uptimeSeconds,
     required this.version,
@@ -28,27 +31,35 @@ abstract class TelemetryHeartbeat implements _i1.SerializableModel {
 
   factory TelemetryHeartbeat({
     int? id,
+    required int serviceId,
+    _i2.Service? service,
     required DateTime timestamp,
     required int uptimeSeconds,
     required String version,
-    required _i2.ServiceStatus status,
-    _i3.TelemetryResources? resources,
+    required _i3.ServiceStatus status,
+    _i4.TelemetryResources? resources,
   }) = _TelemetryHeartbeatImpl;
 
   factory TelemetryHeartbeat.fromJson(Map<String, dynamic> jsonSerialization) {
     return TelemetryHeartbeat(
       id: jsonSerialization['id'] as int?,
+      serviceId: jsonSerialization['serviceId'] as int,
+      service: jsonSerialization['service'] == null
+          ? null
+          : _i5.Protocol().deserialize<_i2.Service>(
+              jsonSerialization['service'],
+            ),
       timestamp: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['timestamp'],
       ),
       uptimeSeconds: jsonSerialization['uptimeSeconds'] as int,
       version: jsonSerialization['version'] as String,
-      status: _i2.ServiceStatus.fromJson(
+      status: _i3.ServiceStatus.fromJson(
         (jsonSerialization['status'] as String),
       ),
       resources: jsonSerialization['resources'] == null
           ? null
-          : _i4.Protocol().deserialize<_i3.TelemetryResources>(
+          : _i5.Protocol().deserialize<_i4.TelemetryResources>(
               jsonSerialization['resources'],
             ),
     );
@@ -59,32 +70,40 @@ abstract class TelemetryHeartbeat implements _i1.SerializableModel {
   /// the id will be null.
   int? id;
 
+  int serviceId;
+
+  _i2.Service? service;
+
   DateTime timestamp;
 
   int uptimeSeconds;
 
   String version;
 
-  _i2.ServiceStatus status;
+  _i3.ServiceStatus status;
 
-  _i3.TelemetryResources? resources;
+  _i4.TelemetryResources? resources;
 
   /// Returns a shallow copy of this [TelemetryHeartbeat]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   TelemetryHeartbeat copyWith({
     int? id,
+    int? serviceId,
+    _i2.Service? service,
     DateTime? timestamp,
     int? uptimeSeconds,
     String? version,
-    _i2.ServiceStatus? status,
-    _i3.TelemetryResources? resources,
+    _i3.ServiceStatus? status,
+    _i4.TelemetryResources? resources,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'TelemetryHeartbeat',
       if (id != null) 'id': id,
+      'serviceId': serviceId,
+      if (service != null) 'service': service?.toJson(),
       'timestamp': timestamp.toJson(),
       'uptimeSeconds': uptimeSeconds,
       'version': version,
@@ -104,13 +123,17 @@ class _Undefined {}
 class _TelemetryHeartbeatImpl extends TelemetryHeartbeat {
   _TelemetryHeartbeatImpl({
     int? id,
+    required int serviceId,
+    _i2.Service? service,
     required DateTime timestamp,
     required int uptimeSeconds,
     required String version,
-    required _i2.ServiceStatus status,
-    _i3.TelemetryResources? resources,
+    required _i3.ServiceStatus status,
+    _i4.TelemetryResources? resources,
   }) : super._(
          id: id,
+         serviceId: serviceId,
+         service: service,
          timestamp: timestamp,
          uptimeSeconds: uptimeSeconds,
          version: version,
@@ -124,19 +147,23 @@ class _TelemetryHeartbeatImpl extends TelemetryHeartbeat {
   @override
   TelemetryHeartbeat copyWith({
     Object? id = _Undefined,
+    int? serviceId,
+    Object? service = _Undefined,
     DateTime? timestamp,
     int? uptimeSeconds,
     String? version,
-    _i2.ServiceStatus? status,
+    _i3.ServiceStatus? status,
     Object? resources = _Undefined,
   }) {
     return TelemetryHeartbeat(
       id: id is int? ? id : this.id,
+      serviceId: serviceId ?? this.serviceId,
+      service: service is _i2.Service? ? service : this.service?.copyWith(),
       timestamp: timestamp ?? this.timestamp,
       uptimeSeconds: uptimeSeconds ?? this.uptimeSeconds,
       version: version ?? this.version,
       status: status ?? this.status,
-      resources: resources is _i3.TelemetryResources?
+      resources: resources is _i4.TelemetryResources?
           ? resources
           : this.resources?.copyWith(),
     );

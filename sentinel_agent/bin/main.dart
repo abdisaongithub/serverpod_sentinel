@@ -12,7 +12,26 @@ import 'package:sentinel_agent/task_executor.dart';
 import 'package:sentinel_agent/log_manager.dart';
 import 'package:sentinel_agent/update_manager.dart';
 
+import 'package:serverpod_client/serverpod_client.dart';
+
 final _log = Logger('SentinelAgent');
+
+class ApiKeyManager extends AuthenticationKeyManager {
+  final String key;
+  ApiKeyManager(this.key);
+
+  @override
+  Future<String?> get() async => key;
+
+  @override
+  Future<void> put(String key) async {}
+  
+  @override
+  Future<void> remove() async {}
+
+  @override
+  Future<String?> toHeaderValue(String? method) async => 'Bearer $key';
+}
 
 void main() async {
   // 1. Setup Logging
@@ -36,8 +55,11 @@ void main() async {
   final interval = Duration(seconds: config['interval_seconds'] as int);
   final maxBackoff = Duration(seconds: config['max_backoff_seconds'] as int);
 
-  // 3. Initialize Client (Auth disabled for testing)
-  final client = Client(serverUrl);
+  // 3. Initialize Client (Auth enabled)
+  final client = Client(
+    serverUrl,
+    authenticationKeyManager: ApiKeyManager(config['api_key']?.toString() ?? ''),
+  );
 
   // 4. Initialize Components
   final List<LogScraper> scrapers = [];
@@ -83,8 +105,7 @@ void main() async {
         await UpdateManager.checkForUpdates(updateUrl);
       }
 
-      // C. Remote Task Execution (Disabled for testing)
-      /*
+      // C. Remote Task Execution
       try {
         final remoteTask = await client.agent.pollTask(serviceId);
         if (remoteTask != null) {
@@ -93,7 +114,6 @@ void main() async {
       } catch (e) {
         _log.warning('Failed to poll for remote tasks: $e');
       }
-      */
 
       // D. Log Scraping & Rotation
       for (var s in scrapers) {
@@ -132,6 +152,7 @@ void main() async {
       await client.telemetry.heartbeat(
         serviceId,
         TelemetryHeartbeat(
+          serviceId: serviceId,
           timestamp: DateTime.now(),
           uptimeSeconds: DateTime.now().difference(startTime).inSeconds,
           version: UpdateManager.currentVersion,

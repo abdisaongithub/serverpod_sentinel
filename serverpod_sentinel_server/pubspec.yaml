@@ -11,6 +11,8 @@ dependencies:
   serverpod: ^3.2.2
   serverpod_auth_idp_server: ^3.2.2
   serverpod_auth_server: ^3.2.2
+  cryptography: ^2.5.0
+  otp: ^3.1.5
 
 dev_dependencies:
   lints: '>=3.0.0 <7.0.0'

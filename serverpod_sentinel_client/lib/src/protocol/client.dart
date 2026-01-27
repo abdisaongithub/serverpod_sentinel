@@ -40,46 +40,52 @@ import 'package:serverpod_sentinel_client/src/protocol/settings/integration.dart
     as _i15;
 import 'package:serverpod_sentinel_client/src/protocol/settings/notification_preference.dart'
     as _i16;
-import 'package:serverpod_sentinel_client/src/protocol/automation/playbook.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/outgoing_webhook.dart'
     as _i17;
-import 'package:serverpod_sentinel_client/src/protocol/enums/playbook_type.dart'
+import 'package:serverpod_sentinel_client/src/protocol/automation/playbook.dart'
     as _i18;
-import 'package:serverpod_sentinel_client/src/protocol/automation/playbook_execution.dart'
+import 'package:serverpod_sentinel_client/src/protocol/enums/playbook_type.dart'
     as _i19;
-import 'package:serverpod_sentinel_client/src/protocol/reporting/report_snapshot.dart'
+import 'package:serverpod_sentinel_client/src/protocol/automation/playbook_execution.dart'
     as _i20;
-import 'package:serverpod_sentinel_client/src/protocol/service/rule.dart'
+import 'package:serverpod_sentinel_client/src/protocol/reporting/report_snapshot.dart'
     as _i21;
-import 'package:serverpod_sentinel_client/src/protocol/service/service.dart'
+import 'package:serverpod_sentinel_client/src/protocol/service/rule.dart'
     as _i22;
-import 'package:serverpod_sentinel_client/src/protocol/enums/service_status.dart'
+import 'package:serverpod_sentinel_client/src/protocol/security/sentinel_api_key.dart'
     as _i23;
-import 'package:serverpod_sentinel_client/src/protocol/enums/service_tier.dart'
+import 'package:serverpod_sentinel_client/src/protocol/service/service.dart'
     as _i24;
-import 'package:serverpod_sentinel_client/src/protocol/dtos/health_summary.dart'
+import 'package:serverpod_sentinel_client/src/protocol/enums/service_status.dart'
     as _i25;
-import 'package:serverpod_sentinel_client/src/protocol/dtos/system_metrics.dart'
+import 'package:serverpod_sentinel_client/src/protocol/enums/service_tier.dart'
     as _i26;
-import 'package:serverpod_sentinel_client/src/protocol/settings/system_setting.dart'
+import 'package:serverpod_sentinel_client/src/protocol/dtos/health_summary.dart'
     as _i27;
-import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_signal_payload.dart'
+import 'package:serverpod_sentinel_client/src/protocol/dtos/system_metrics.dart'
     as _i28;
-import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_signal_batch.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/system_setting.dart'
     as _i29;
-import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_heartbeat.dart'
+import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_signal_payload.dart'
     as _i30;
-import 'package:serverpod_sentinel_client/src/protocol/service/health_signal.dart'
+import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_signal_batch.dart'
     as _i31;
-import 'package:serverpod_sentinel_client/src/protocol/dtos/team_member.dart'
+import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_heartbeat.dart'
     as _i32;
-import 'package:serverpod_sentinel_client/src/protocol/security/ops_user.dart'
+import 'package:serverpod_sentinel_client/src/protocol/service/health_signal.dart'
     as _i33;
-import 'package:serverpod_sentinel_client/src/protocol/security/user_role.dart'
+import 'package:serverpod_sentinel_client/src/protocol/telemetry/metric_point.dart'
     as _i34;
-import 'package:serverpod_sentinel_client/src/protocol/greetings/greeting.dart'
+import 'package:serverpod_sentinel_client/src/protocol/dtos/team_member.dart'
     as _i35;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i36;
-import 'protocol.dart' as _i37;
+import 'package:serverpod_sentinel_client/src/protocol/security/ops_user.dart'
+    as _i36;
+import 'package:serverpod_sentinel_client/src/protocol/security/user_role.dart'
+    as _i37;
+import 'package:serverpod_sentinel_client/src/protocol/greetings/greeting.dart'
+    as _i38;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i39;
+import 'protocol.dart' as _i40;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -346,10 +352,6 @@ class EndpointAgent extends _i2.EndpointRef {
 }
 
 /// AI Insights Endpoint
-///
-/// Provides AI-powered analysis and recommendations for services and incidents.
-/// Note: This is a stub implementation returning mock data until a real AI
-/// integration (e.g., OpenAI, custom ML model) is added.
 /// {@category Endpoint}
 class EndpointAiInsights extends _i2.EndpointRef {
   EndpointAiInsights(_i2.EndpointCaller caller) : super(caller);
@@ -380,36 +382,12 @@ class EndpointAiInsights extends _i2.EndpointRef {
         {'incidentId': incidentId},
       );
 
-  /// Get suggested actions for an incident
-  _i3.Future<List<Map<String, dynamic>>> suggestActions(int incidentId) =>
-      caller.callServerEndpoint<List<Map<String, dynamic>>>(
+  /// Trigger anomaly scan for a service
+  _i3.Future<List<_i7.AiInsight>> scanForAnomalies(int serviceId) =>
+      caller.callServerEndpoint<List<_i7.AiInsight>>(
         'aiInsights',
-        'suggestActions',
-        {'incidentId': incidentId},
-      );
-
-  /// Get predictive insights for a service
-  _i3.Future<Map<String, dynamic>> predictServiceHealth(int serviceId) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
-        'aiInsights',
-        'predictServiceHealth',
+        'scanForAnomalies',
         {'serviceId': serviceId},
-      );
-
-  /// Trigger model retraining (stub)
-  _i3.Future<Map<String, dynamic>> trainModel() =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
-        'aiInsights',
-        'trainModel',
-        {},
-      );
-
-  /// Get available insight types
-  _i3.Future<List<String>> getInsightTypes() =>
-      caller.callServerEndpoint<List<String>>(
-        'aiInsights',
-        'getInsightTypes',
-        {},
       );
 }
 
@@ -501,14 +479,6 @@ class EndpointAuditLog extends _i2.EndpointRef {
         'auditLog',
         'getEntityTypes',
         {},
-      );
-
-  /// Create an audit log entry (typically called internally)
-  _i3.Future<_i9.AuditLog> create(_i9.AuditLog log) =>
-      caller.callServerEndpoint<_i9.AuditLog>(
-        'auditLog',
-        'create',
-        {'log': log},
       );
 }
 
@@ -820,6 +790,22 @@ class EndpointIntegration extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointMarketplace extends _i2.EndpointRef {
+  EndpointMarketplace(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'marketplace';
+
+  /// Returns a list of available (but not necessarily installed) integrations.
+  _i3.Future<List<Map<String, dynamic>>> listAvailableIntegrations() =>
+      caller.callServerEndpoint<List<Map<String, dynamic>>>(
+        'marketplace',
+        'listAvailableIntegrations',
+        {},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointNotificationPreferences extends _i2.EndpointRef {
   EndpointNotificationPreferences(_i2.EndpointCaller caller) : super(caller);
 
@@ -894,6 +880,45 @@ class EndpointNotificationPreferences extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointOutgoingWebhook extends _i2.EndpointRef {
+  EndpointOutgoingWebhook(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'outgoingWebhook';
+
+  /// List all outgoing webhooks
+  _i3.Future<List<_i17.OutgoingWebhook>> list() =>
+      caller.callServerEndpoint<List<_i17.OutgoingWebhook>>(
+        'outgoingWebhook',
+        'list',
+        {},
+      );
+
+  /// Create a new outgoing webhook
+  _i3.Future<_i17.OutgoingWebhook> create(_i17.OutgoingWebhook webhook) =>
+      caller.callServerEndpoint<_i17.OutgoingWebhook>(
+        'outgoingWebhook',
+        'create',
+        {'webhook': webhook},
+      );
+
+  /// Update a webhook
+  _i3.Future<_i17.OutgoingWebhook> update(_i17.OutgoingWebhook webhook) =>
+      caller.callServerEndpoint<_i17.OutgoingWebhook>(
+        'outgoingWebhook',
+        'update',
+        {'webhook': webhook},
+      );
+
+  /// Delete a webhook
+  _i3.Future<bool> delete(int id) => caller.callServerEndpoint<bool>(
+    'outgoingWebhook',
+    'delete',
+    {'id': id},
+  );
+}
+
+/// {@category Endpoint}
 class EndpointPlaybook extends _i2.EndpointRef {
   EndpointPlaybook(_i2.EndpointCaller caller) : super(caller);
 
@@ -901,32 +926,32 @@ class EndpointPlaybook extends _i2.EndpointRef {
   String get name => 'playbook';
 
   /// List all playbooks
-  _i3.Future<List<_i17.Playbook>> list({_i18.PlaybookType? type}) =>
-      caller.callServerEndpoint<List<_i17.Playbook>>(
+  _i3.Future<List<_i18.Playbook>> list({_i19.PlaybookType? type}) =>
+      caller.callServerEndpoint<List<_i18.Playbook>>(
         'playbook',
         'list',
         {'type': type},
       );
 
   /// Get playbook by ID
-  _i3.Future<_i17.Playbook?> get(int id) =>
-      caller.callServerEndpoint<_i17.Playbook?>(
+  _i3.Future<_i18.Playbook?> get(int id) =>
+      caller.callServerEndpoint<_i18.Playbook?>(
         'playbook',
         'get',
         {'id': id},
       );
 
   /// Create playbook
-  _i3.Future<_i17.Playbook> create(_i17.Playbook playbook) =>
-      caller.callServerEndpoint<_i17.Playbook>(
+  _i3.Future<_i18.Playbook> create(_i18.Playbook playbook) =>
+      caller.callServerEndpoint<_i18.Playbook>(
         'playbook',
         'create',
         {'playbook': playbook},
       );
 
   /// Update playbook
-  _i3.Future<_i17.Playbook> update(_i17.Playbook playbook) =>
-      caller.callServerEndpoint<_i17.Playbook>(
+  _i3.Future<_i18.Playbook> update(_i18.Playbook playbook) =>
+      caller.callServerEndpoint<_i18.Playbook>(
         'playbook',
         'update',
         {'playbook': playbook},
@@ -940,11 +965,11 @@ class EndpointPlaybook extends _i2.EndpointRef {
   );
 
   /// Trigger playbook execution for an incident
-  _i3.Future<_i19.PlaybookExecution> execute(
+  _i3.Future<_i20.PlaybookExecution> execute(
     int playbookId,
     int incidentId,
     int initiatorId,
-  ) => caller.callServerEndpoint<_i19.PlaybookExecution>(
+  ) => caller.callServerEndpoint<_i20.PlaybookExecution>(
     'playbook',
     'execute',
     {
@@ -955,8 +980,8 @@ class EndpointPlaybook extends _i2.EndpointRef {
   );
 
   /// Get execution status
-  _i3.Future<_i19.PlaybookExecution?> getExecution(int executionId) =>
-      caller.callServerEndpoint<_i19.PlaybookExecution?>(
+  _i3.Future<_i20.PlaybookExecution?> getExecution(int executionId) =>
+      caller.callServerEndpoint<_i20.PlaybookExecution?>(
         'playbook',
         'getExecution',
         {'executionId': executionId},
@@ -971,12 +996,12 @@ class EndpointReport extends _i2.EndpointRef {
   String get name => 'report';
 
   /// List all report snapshots
-  _i3.Future<List<_i20.ReportSnapshot>> listSnapshots({
+  _i3.Future<List<_i21.ReportSnapshot>> listSnapshots({
     int? incidentId,
     int? generatedById,
     int? limit,
     int? offset,
-  }) => caller.callServerEndpoint<List<_i20.ReportSnapshot>>(
+  }) => caller.callServerEndpoint<List<_i21.ReportSnapshot>>(
     'report',
     'listSnapshots',
     {
@@ -988,16 +1013,16 @@ class EndpointReport extends _i2.EndpointRef {
   );
 
   /// Get a single report snapshot by ID
-  _i3.Future<_i20.ReportSnapshot?> getSnapshot(int id) =>
-      caller.callServerEndpoint<_i20.ReportSnapshot?>(
+  _i3.Future<_i21.ReportSnapshot?> getSnapshot(int id) =>
+      caller.callServerEndpoint<_i21.ReportSnapshot?>(
         'report',
         'getSnapshot',
         {'id': id},
       );
 
   /// Save a new report snapshot
-  _i3.Future<_i20.ReportSnapshot> saveSnapshot(_i20.ReportSnapshot snapshot) =>
-      caller.callServerEndpoint<_i20.ReportSnapshot>(
+  _i3.Future<_i21.ReportSnapshot> saveSnapshot(_i21.ReportSnapshot snapshot) =>
+      caller.callServerEndpoint<_i21.ReportSnapshot>(
         'report',
         'saveSnapshot',
         {'snapshot': snapshot},
@@ -1036,12 +1061,20 @@ class EndpointReport extends _i2.EndpointRef {
     {'serviceIds': serviceIds},
   );
 
+  /// Generate a system security & compliance report
+  _i3.Future<Map<String, dynamic>> generateComplianceReport() =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
+        'report',
+        'generateComplianceReport',
+        {},
+      );
+
   /// Save a generated report as a snapshot
-  _i3.Future<_i20.ReportSnapshot> saveGeneratedReport({
+  _i3.Future<_i21.ReportSnapshot> saveGeneratedReport({
     required Map<String, dynamic> reportData,
     required int incidentId,
     required int generatedById,
-  }) => caller.callServerEndpoint<_i20.ReportSnapshot>(
+  }) => caller.callServerEndpoint<_i21.ReportSnapshot>(
     'report',
     'saveGeneratedReport',
     {
@@ -1060,49 +1093,49 @@ class EndpointRule extends _i2.EndpointRef {
   String get name => 'rule';
 
   /// List all rules
-  _i3.Future<List<_i21.Rule>> list() =>
-      caller.callServerEndpoint<List<_i21.Rule>>(
+  _i3.Future<List<_i22.Rule>> list() =>
+      caller.callServerEndpoint<List<_i22.Rule>>(
         'rule',
         'list',
         {},
       );
 
   /// List rules for a service
-  _i3.Future<List<_i21.Rule>> listForService(int serviceId) =>
-      caller.callServerEndpoint<List<_i21.Rule>>(
+  _i3.Future<List<_i22.Rule>> listForService(int serviceId) =>
+      caller.callServerEndpoint<List<_i22.Rule>>(
         'rule',
         'listForService',
         {'serviceId': serviceId},
       );
 
   /// Get rule by ID
-  _i3.Future<_i21.Rule?> get(int id) => caller.callServerEndpoint<_i21.Rule?>(
+  _i3.Future<_i22.Rule?> get(int id) => caller.callServerEndpoint<_i22.Rule?>(
     'rule',
     'get',
     {'id': id},
   );
 
   /// Create rule
-  _i3.Future<_i21.Rule> create(_i21.Rule rule) =>
-      caller.callServerEndpoint<_i21.Rule>(
+  _i3.Future<_i22.Rule> create(_i22.Rule rule) =>
+      caller.callServerEndpoint<_i22.Rule>(
         'rule',
         'create',
         {'rule': rule},
       );
 
   /// Update rule
-  _i3.Future<_i21.Rule> update(_i21.Rule rule) =>
-      caller.callServerEndpoint<_i21.Rule>(
+  _i3.Future<_i22.Rule> update(_i22.Rule rule) =>
+      caller.callServerEndpoint<_i22.Rule>(
         'rule',
         'update',
         {'rule': rule},
       );
 
   /// Toggle rule enabled/disabled
-  _i3.Future<_i21.Rule> toggleEnabled(
+  _i3.Future<_i22.Rule> toggleEnabled(
     int id,
     bool enabled,
-  ) => caller.callServerEndpoint<_i21.Rule>(
+  ) => caller.callServerEndpoint<_i22.Rule>(
     'rule',
     'toggleEnabled',
     {
@@ -1120,6 +1153,67 @@ class EndpointRule extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointSentinelApiKey extends _i2.EndpointRef {
+  EndpointSentinelApiKey(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'sentinelApiKey';
+
+  /// List all API keys for the current user (or all if SuperAdmin)
+  _i3.Future<List<_i23.SentinelApiKey>> list() =>
+      caller.callServerEndpoint<List<_i23.SentinelApiKey>>(
+        'sentinelApiKey',
+        'list',
+        {},
+      );
+
+  /// Create a new scoped API key
+  _i3.Future<String> create({
+    required String name,
+    required List<String> scopes,
+    DateTime? expiresAt,
+  }) => caller.callServerEndpoint<String>(
+    'sentinelApiKey',
+    'create',
+    {
+      'name': name,
+      'scopes': scopes,
+      'expiresAt': expiresAt,
+    },
+  );
+
+  /// Delete an API key
+  _i3.Future<bool> delete(int id) => caller.callServerEndpoint<bool>(
+    'sentinelApiKey',
+    'delete',
+    {'id': id},
+  );
+}
+
+/// {@category Endpoint}
+class EndpointSentinelHealth extends _i2.EndpointRef {
+  EndpointSentinelHealth(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'sentinelHealth';
+
+  /// Internal health check for the Sentinel platform itself.
+  _i3.Future<Map<String, dynamic>> getPlatformMetrics() =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
+        'sentinelHealth',
+        'getPlatformMetrics',
+        {},
+      );
+
+  /// Verifies that all subsystems are responsive.
+  _i3.Future<bool> ping() => caller.callServerEndpoint<bool>(
+    'sentinelHealth',
+    'ping',
+    {},
+  );
+}
+
+/// {@category Endpoint}
 class EndpointService extends _i2.EndpointRef {
   EndpointService(_i2.EndpointCaller caller) : super(caller);
 
@@ -1127,10 +1221,10 @@ class EndpointService extends _i2.EndpointRef {
   String get name => 'service';
 
   /// Get all services with optional filtering
-  _i3.Future<List<_i22.Service>> list({
-    _i23.ServiceStatus? status,
-    _i24.ServiceTier? tier,
-  }) => caller.callServerEndpoint<List<_i22.Service>>(
+  _i3.Future<List<_i24.Service>> list({
+    _i25.ServiceStatus? status,
+    _i26.ServiceTier? tier,
+  }) => caller.callServerEndpoint<List<_i24.Service>>(
     'service',
     'list',
     {
@@ -1140,24 +1234,24 @@ class EndpointService extends _i2.EndpointRef {
   );
 
   /// Get a single service by ID with full relations
-  _i3.Future<_i22.Service?> get(int id) =>
-      caller.callServerEndpoint<_i22.Service?>(
+  _i3.Future<_i24.Service?> get(int id) =>
+      caller.callServerEndpoint<_i24.Service?>(
         'service',
         'get',
         {'id': id},
       );
 
   /// Create a new service
-  _i3.Future<_i22.Service> create(_i22.Service service) =>
-      caller.callServerEndpoint<_i22.Service>(
+  _i3.Future<_i24.Service> create(_i24.Service service) =>
+      caller.callServerEndpoint<_i24.Service>(
         'service',
         'create',
         {'service': service},
       );
 
   /// Update an existing service
-  _i3.Future<_i22.Service> update(_i22.Service service) =>
-      caller.callServerEndpoint<_i22.Service>(
+  _i3.Future<_i24.Service> update(_i24.Service service) =>
+      caller.callServerEndpoint<_i24.Service>(
         'service',
         'update',
         {'service': service},
@@ -1171,19 +1265,48 @@ class EndpointService extends _i2.EndpointRef {
   );
 
   /// Get health status summary for dashboard
-  _i3.Future<_i25.HealthSummary> getHealthSummary() =>
-      caller.callServerEndpoint<_i25.HealthSummary>(
+  _i3.Future<_i27.HealthSummary> getHealthSummary() =>
+      caller.callServerEndpoint<_i27.HealthSummary>(
         'service',
         'getHealthSummary',
         {},
       );
 
   /// Get system metrics (uptime, latency, etc.)
-  _i3.Future<_i26.SystemMetrics> getSystemMetrics() =>
-      caller.callServerEndpoint<_i26.SystemMetrics>(
+  _i3.Future<_i28.SystemMetrics> getSystemMetrics() =>
+      caller.callServerEndpoint<_i28.SystemMetrics>(
         'service',
         'getSystemMetrics',
         {},
+      );
+}
+
+/// {@category Endpoint}
+class EndpointSlo extends _i2.EndpointRef {
+  EndpointSlo(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'slo';
+
+  /// Get availability SLI for a service
+  _i3.Future<Map<String, dynamic>> getAvailability(
+    int serviceId, {
+    required int days,
+  }) => caller.callServerEndpoint<Map<String, dynamic>>(
+    'slo',
+    'getAvailability',
+    {
+      'serviceId': serviceId,
+      'days': days,
+    },
+  );
+
+  /// Get status of all SLOs for a service
+  _i3.Future<List<Map<String, dynamic>>> getServiceSloStatus(int serviceId) =>
+      caller.callServerEndpoint<List<Map<String, dynamic>>>(
+        'slo',
+        'getServiceSloStatus',
+        {'serviceId': serviceId},
       );
 }
 
@@ -1213,16 +1336,16 @@ class EndpointSystemSettings extends _i2.EndpointRef {
   String get name => 'systemSettings';
 
   /// List all system settings
-  _i3.Future<List<_i27.SystemSetting>> list({String? category}) =>
-      caller.callServerEndpoint<List<_i27.SystemSetting>>(
+  _i3.Future<List<_i29.SystemSetting>> list({String? category}) =>
+      caller.callServerEndpoint<List<_i29.SystemSetting>>(
         'systemSettings',
         'list',
         {'category': category},
       );
 
   /// Get a single setting by key
-  _i3.Future<_i27.SystemSetting?> getByKey(String key) =>
-      caller.callServerEndpoint<_i27.SystemSetting?>(
+  _i3.Future<_i29.SystemSetting?> getByKey(String key) =>
+      caller.callServerEndpoint<_i29.SystemSetting?>(
         'systemSettings',
         'getByKey',
         {'key': key},
@@ -1237,13 +1360,13 @@ class EndpointSystemSettings extends _i2.EndpointRef {
       );
 
   /// Update or create a setting
-  _i3.Future<_i27.SystemSetting> upsert(
+  _i3.Future<_i29.SystemSetting> upsert(
     String key,
     String value, {
     String? description,
     required String category,
     required bool isSecret,
-  }) => caller.callServerEndpoint<_i27.SystemSetting>(
+  }) => caller.callServerEndpoint<_i29.SystemSetting>(
     'systemSettings',
     'upsert',
     {
@@ -1271,17 +1394,17 @@ class EndpointSystemSettings extends _i2.EndpointRef {
       );
 
   /// Bulk update settings
-  _i3.Future<List<_i27.SystemSetting>> bulkUpdate(
-    List<_i27.SystemSetting> settings,
-  ) => caller.callServerEndpoint<List<_i27.SystemSetting>>(
+  _i3.Future<List<_i29.SystemSetting>> bulkUpdate(
+    List<_i29.SystemSetting> settings,
+  ) => caller.callServerEndpoint<List<_i29.SystemSetting>>(
     'systemSettings',
     'bulkUpdate',
     {'settings': settings},
   );
 
   /// Get public settings (non-secret)
-  _i3.Future<List<_i27.SystemSetting>> getPublic() =>
-      caller.callServerEndpoint<List<_i27.SystemSetting>>(
+  _i3.Future<List<_i29.SystemSetting>> getPublic() =>
+      caller.callServerEndpoint<List<_i29.SystemSetting>>(
         'systemSettings',
         'getPublic',
         {},
@@ -1298,7 +1421,7 @@ class EndpointTelemetry extends _i2.EndpointRef {
   /// Ingest health signal from agent
   _i3.Future<void> ingestSignal(
     int serviceId,
-    _i28.TelemetrySignalPayload payload,
+    _i30.TelemetrySignalPayload payload,
   ) => caller.callServerEndpoint<void>(
     'telemetry',
     'ingestSignal',
@@ -1311,7 +1434,7 @@ class EndpointTelemetry extends _i2.EndpointRef {
   /// Ingest batch of signals
   _i3.Future<void> ingestBatch(
     int serviceId,
-    _i29.TelemetrySignalBatch batch,
+    _i31.TelemetrySignalBatch batch,
   ) => caller.callServerEndpoint<void>(
     'telemetry',
     'ingestBatch',
@@ -1324,7 +1447,7 @@ class EndpointTelemetry extends _i2.EndpointRef {
   /// Record heartbeat from agent
   _i3.Future<void> heartbeat(
     int serviceId,
-    _i30.TelemetryHeartbeat heartbeat,
+    _i32.TelemetryHeartbeat heartbeat,
   ) => caller.callServerEndpoint<void>(
     'telemetry',
     'heartbeat',
@@ -1335,12 +1458,27 @@ class EndpointTelemetry extends _i2.EndpointRef {
   );
 
   /// Get signals for a service
-  _i3.Future<List<_i31.HealthSignal>> getSignals(int serviceId) =>
-      caller.callServerEndpoint<List<_i31.HealthSignal>>(
+  _i3.Future<List<_i33.HealthSignal>> getSignals(int serviceId) =>
+      caller.callServerEndpoint<List<_i33.HealthSignal>>(
         'telemetry',
         'getSignals',
         {'serviceId': serviceId},
       );
+
+  /// Get historical metric points for a signal
+  _i3.Future<List<_i34.MetricPoint>> getHistory(
+    int signalId, {
+    int? limit,
+    DateTime? after,
+  }) => caller.callServerEndpoint<List<_i34.MetricPoint>>(
+    'telemetry',
+    'getHistory',
+    {
+      'signalId': signalId,
+      'limit': limit,
+      'after': after,
+    },
+  );
 }
 
 /// {@category Endpoint}
@@ -1351,42 +1489,62 @@ class EndpointUser extends _i2.EndpointRef {
   String get name => 'user';
 
   /// Get current authenticated user profile
-  _i3.Future<_i32.TeamMember?> getCurrentUser() =>
-      caller.callServerEndpoint<_i32.TeamMember?>(
+  _i3.Future<_i35.TeamMember?> getCurrentUser() =>
+      caller.callServerEndpoint<_i35.TeamMember?>(
         'user',
         'getCurrentUser',
         {},
       );
 
+  /// Setup MFA for the current user
+  _i3.Future<String> setupMfa() => caller.callServerEndpoint<String>(
+    'user',
+    'setupMfa',
+    {},
+  );
+
+  /// Verify and enable MFA
+  _i3.Future<bool> verifyAndEnableMfa(
+    String secret,
+    String code,
+  ) => caller.callServerEndpoint<bool>(
+    'user',
+    'verifyAndEnableMfa',
+    {
+      'secret': secret,
+      'code': code,
+    },
+  );
+
   /// List team members
-  _i3.Future<List<_i32.TeamMember>> listTeamMembers() =>
-      caller.callServerEndpoint<List<_i32.TeamMember>>(
+  _i3.Future<List<_i35.TeamMember>> listTeamMembers() =>
+      caller.callServerEndpoint<List<_i35.TeamMember>>(
         'user',
         'listTeamMembers',
         {},
       );
 
   /// Get user by ID
-  _i3.Future<_i32.TeamMember?> get(int id) =>
-      caller.callServerEndpoint<_i32.TeamMember?>(
+  _i3.Future<_i35.TeamMember?> get(int id) =>
+      caller.callServerEndpoint<_i35.TeamMember?>(
         'user',
         'get',
         {'id': id},
       );
 
   /// Update user profile
-  _i3.Future<_i33.OpsUser> update(_i33.OpsUser user) =>
-      caller.callServerEndpoint<_i33.OpsUser>(
+  _i3.Future<_i36.OpsUser> update(_i36.OpsUser user) =>
+      caller.callServerEndpoint<_i36.OpsUser>(
         'user',
         'update',
         {'user': user},
       );
 
   /// Assign role to user
-  _i3.Future<_i34.UserRole> assignRole(
+  _i3.Future<_i37.UserRole> assignRole(
     int userId,
     int roleId,
-  ) => caller.callServerEndpoint<_i34.UserRole>(
+  ) => caller.callServerEndpoint<_i37.UserRole>(
     'user',
     'assignRole',
     {
@@ -1419,8 +1577,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i35.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i35.Greeting>(
+  _i3.Future<_i38.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i38.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -1430,13 +1588,13 @@ class EndpointGreeting extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
-    auth = _i36.Caller(client);
+    auth = _i39.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
-  late final _i36.Caller auth;
+  late final _i39.Caller auth;
 
   late final _i4.Caller serverpod_auth_core;
 }
@@ -1461,7 +1619,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i37.Protocol(),
+         _i40.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -1480,11 +1638,16 @@ class Client extends _i2.ServerpodClientShared {
     health = EndpointHealth(this);
     incident = EndpointIncident(this);
     integration = EndpointIntegration(this);
+    marketplace = EndpointMarketplace(this);
     notificationPreferences = EndpointNotificationPreferences(this);
+    outgoingWebhook = EndpointOutgoingWebhook(this);
     playbook = EndpointPlaybook(this);
     report = EndpointReport(this);
     rule = EndpointRule(this);
+    sentinelApiKey = EndpointSentinelApiKey(this);
+    sentinelHealth = EndpointSentinelHealth(this);
     service = EndpointService(this);
+    slo = EndpointSlo(this);
     streaming = EndpointStreaming(this);
     systemSettings = EndpointSystemSettings(this);
     telemetry = EndpointTelemetry(this);
@@ -1513,7 +1676,11 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointIntegration integration;
 
+  late final EndpointMarketplace marketplace;
+
   late final EndpointNotificationPreferences notificationPreferences;
+
+  late final EndpointOutgoingWebhook outgoingWebhook;
 
   late final EndpointPlaybook playbook;
 
@@ -1521,7 +1688,13 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointRule rule;
 
+  late final EndpointSentinelApiKey sentinelApiKey;
+
+  late final EndpointSentinelHealth sentinelHealth;
+
   late final EndpointService service;
+
+  late final EndpointSlo slo;
 
   late final EndpointStreaming streaming;
 
@@ -1547,11 +1720,16 @@ class Client extends _i2.ServerpodClientShared {
     'health': health,
     'incident': incident,
     'integration': integration,
+    'marketplace': marketplace,
     'notificationPreferences': notificationPreferences,
+    'outgoingWebhook': outgoingWebhook,
     'playbook': playbook,
     'report': report,
     'rule': rule,
+    'sentinelApiKey': sentinelApiKey,
+    'sentinelHealth': sentinelHealth,
     'service': service,
+    'slo': slo,
     'streaming': streaming,
     'systemSettings': systemSettings,
     'telemetry': telemetry,

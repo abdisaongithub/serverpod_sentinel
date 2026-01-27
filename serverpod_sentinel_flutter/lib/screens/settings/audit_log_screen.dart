@@ -6,6 +6,7 @@ import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 import '../../theme/app_theme.dart';
 import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
+import '../../providers/audit_log_provider.dart';
 import '../../providers/settings_provider.dart';
 
 class AuditLogScreen extends ConsumerStatefulWidget {
@@ -28,9 +29,10 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auditLogsAsync = ref.watch(auditLogsProvider);
+    final auditLogsAsync = ref.watch(auditLogsProvider(100));
 
     return LayoutBuilder(
+
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
 

@@ -31,13 +31,15 @@ abstract class Service
     this.owner,
     required this.status,
     required this.tier,
+    String? region,
     required this.tags,
     this.signals,
     this.rules,
     this.incidents,
     required this.createdAt,
     required this.updatedAt,
-  }) : _opsUserServicesOpsUserId = null;
+  }) : region = region ?? 'us-east-1',
+       _opsUserServicesOpsUserId = null;
 
   factory Service({
     int? id,
@@ -47,6 +49,7 @@ abstract class Service
     _i2.OpsUser? owner,
     required _i3.ServiceStatus status,
     required _i4.ServiceTier tier,
+    String? region,
     required List<String> tags,
     List<_i5.HealthSignal>? signals,
     List<_i6.Rule>? rules,
@@ -68,6 +71,7 @@ abstract class Service
         (jsonSerialization['status'] as String),
       ),
       tier: _i4.ServiceTier.fromJson((jsonSerialization['tier'] as String)),
+      region: jsonSerialization['region'] as String?,
       tags: _i8.Protocol().deserialize<List<String>>(jsonSerialization['tags']),
       signals: jsonSerialization['signals'] == null
           ? null
@@ -114,6 +118,8 @@ abstract class Service
 
   _i4.ServiceTier tier;
 
+  String region;
+
   List<String> tags;
 
   List<_i5.HealthSignal>? signals;
@@ -142,6 +148,7 @@ abstract class Service
     _i2.OpsUser? owner,
     _i3.ServiceStatus? status,
     _i4.ServiceTier? tier,
+    String? region,
     List<String>? tags,
     List<_i5.HealthSignal>? signals,
     List<_i6.Rule>? rules,
@@ -160,6 +167,7 @@ abstract class Service
       if (owner != null) 'owner': owner?.toJson(),
       'status': status.toJson(),
       'tier': tier.toJson(),
+      'region': region,
       'tags': tags.toJson(),
       if (signals != null)
         'signals': signals?.toJson(valueToJson: (v) => v.toJson()),
@@ -184,6 +192,7 @@ abstract class Service
       if (owner != null) 'owner': owner?.toJsonForProtocol(),
       'status': status.toJson(),
       'tier': tier.toJson(),
+      'region': region,
       'tags': tags.toJson(),
       if (signals != null)
         'signals': signals?.toJson(valueToJson: (v) => v.toJsonForProtocol()),
@@ -249,6 +258,7 @@ class _ServiceImpl extends Service {
     _i2.OpsUser? owner,
     required _i3.ServiceStatus status,
     required _i4.ServiceTier tier,
+    String? region,
     required List<String> tags,
     List<_i5.HealthSignal>? signals,
     List<_i6.Rule>? rules,
@@ -263,6 +273,7 @@ class _ServiceImpl extends Service {
          owner: owner,
          status: status,
          tier: tier,
+         region: region,
          tags: tags,
          signals: signals,
          rules: rules,
@@ -283,6 +294,7 @@ class _ServiceImpl extends Service {
     Object? owner = _Undefined,
     _i3.ServiceStatus? status,
     _i4.ServiceTier? tier,
+    String? region,
     List<String>? tags,
     Object? signals = _Undefined,
     Object? rules = _Undefined,
@@ -298,6 +310,7 @@ class _ServiceImpl extends Service {
       owner: owner is _i2.OpsUser? ? owner : this.owner?.copyWith(),
       status: status ?? this.status,
       tier: tier ?? this.tier,
+      region: region ?? this.region,
       tags: tags ?? this.tags.map((e0) => e0).toList(),
       signals: signals is List<_i5.HealthSignal>?
           ? signals
@@ -324,6 +337,7 @@ class ServiceImplicit extends _ServiceImpl {
     _i2.OpsUser? owner,
     required _i3.ServiceStatus status,
     required _i4.ServiceTier tier,
+    String? region,
     required List<String> tags,
     List<_i5.HealthSignal>? signals,
     List<_i6.Rule>? rules,
@@ -340,6 +354,7 @@ class ServiceImplicit extends _ServiceImpl {
          owner: owner,
          status: status,
          tier: tier,
+         region: region,
          tags: tags,
          signals: signals,
          rules: rules,
@@ -360,6 +375,7 @@ class ServiceImplicit extends _ServiceImpl {
       owner: service.owner,
       status: service.status,
       tier: service.tier,
+      region: service.region,
       tags: service.tags,
       signals: service.signals,
       rules: service.rules,
@@ -403,6 +419,11 @@ class ServiceUpdateTable extends _i1.UpdateTable<ServiceTable> {
     _i4.ServiceTier value,
   ) => _i1.ColumnValue(
     table.tier,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> region(String value) => _i1.ColumnValue(
+    table.region,
     value,
   );
 
@@ -456,6 +477,11 @@ class ServiceTable extends _i1.Table<int?> {
       this,
       _i1.EnumSerialization.byName,
     );
+    region = _i1.ColumnString(
+      'region',
+      this,
+      hasDefault: true,
+    );
     tags = _i1.ColumnSerializable<List<String>>(
       'tags',
       this,
@@ -487,6 +513,8 @@ class ServiceTable extends _i1.Table<int?> {
   late final _i1.ColumnEnum<_i3.ServiceStatus> status;
 
   late final _i1.ColumnEnum<_i4.ServiceTier> tier;
+
+  late final _i1.ColumnString region;
 
   late final _i1.ColumnSerializable<List<String>> tags;
 
@@ -625,6 +653,7 @@ class ServiceTable extends _i1.Table<int?> {
     ownerId,
     status,
     tier,
+    region,
     tags,
     createdAt,
     updatedAt,
@@ -639,6 +668,7 @@ class ServiceTable extends _i1.Table<int?> {
     ownerId,
     status,
     tier,
+    region,
     tags,
     createdAt,
     updatedAt,

@@ -11,6 +11,7 @@ import 'src/web/routes/root.dart';
 import 'src/web/routes/health_route.dart';
 import 'src/future_calls/incident_evaluation_call.dart';
 import 'src/future_calls/step_executor_call.dart';
+import 'src/future_calls/data_retention.dart';
 
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
@@ -37,6 +38,7 @@ void run(List<String> args) async {
   // Register Future Calls
   pod.registerFutureCall(IncidentEvaluationCall(), 'incidentEvaluation');
   pod.registerFutureCall(StepExecutorCall(), 'stepExecutor');
+  pod.registerFutureCall(DataRetentionCall(), 'dataRetention');
 
   // Schedule the initial incident evaluation to run after server start (e.g., 30s delay)
   // This kicks off the recursive loop defined in the FutureCall itself.

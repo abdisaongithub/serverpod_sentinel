@@ -15,10 +15,7 @@ agent:
 aiInsights:
   - getInsights:
   - analyzeIncident:
-  - suggestActions:
-  - predictServiceHealth:
-  - trainModel:
-  - getInsightTypes:
+  - scanForAnomalies:
 alert:
   - getRecent:
 auditLog:
@@ -27,7 +24,6 @@ auditLog:
   - getForEntity:
   - getActionTypes:
   - getEntityTypes:
-  - create:
 environment:
   - list:
   - get:
@@ -63,6 +59,8 @@ integration:
   - toggleEnabled:
   - testConnection:
   - sync:
+marketplace:
+  - listAvailableIntegrations:
 notificationPreferences:
   - getForUser:
   - getOrCreate:
@@ -70,6 +68,11 @@ notificationPreferences:
   - toggleEnabled:
   - testNotification:
   - getAvailableChannels:
+outgoingWebhook:
+  - list:
+  - create:
+  - update:
+  - delete:
 playbook:
   - list:
   - get:
@@ -85,6 +88,7 @@ report:
   - deleteSnapshot:
   - generateIncidentReport:
   - generateHealthReport:
+  - generateComplianceReport:
   - saveGeneratedReport:
 rule:
   - list:
@@ -94,6 +98,13 @@ rule:
   - update:
   - toggleEnabled:
   - delete:
+sentinelApiKey:
+  - list:
+  - create:
+  - delete:
+sentinelHealth:
+  - getPlatformMetrics:
+  - ping:
 service:
   - list:
   - get:
@@ -102,6 +113,9 @@ service:
   - delete:
   - getHealthSummary:
   - getSystemMetrics:
+slo:
+  - getAvailability:
+  - getServiceSloStatus:
 streaming:
 systemSettings:
   - list:
@@ -117,8 +131,11 @@ telemetry:
   - ingestBatch:
   - heartbeat:
   - getSignals:
+  - getHistory:
 user:
   - getCurrentUser:
+  - setupMfa:
+  - verifyAndEnableMfa:
   - listTeamMembers:
   - get:
   - update:

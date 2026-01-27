@@ -30,9 +30,11 @@ abstract class OpsUser implements _i1.SerializableModel {
     this.timelineItems,
     this.playbookExecutions,
     this.auditLogs,
+    this.mfaSecret,
+    bool? mfaEnabled,
     required this.createdAt,
     required this.updatedAt,
-  });
+  }) : mfaEnabled = mfaEnabled ?? false;
 
   factory OpsUser({
     int? id,
@@ -43,6 +45,8 @@ abstract class OpsUser implements _i1.SerializableModel {
     List<_i5.IncidentTimelineItem>? timelineItems,
     List<_i6.PlaybookExecution>? playbookExecutions,
     List<_i7.AuditLog>? auditLogs,
+    String? mfaSecret,
+    bool? mfaEnabled,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _OpsUserImpl;
@@ -81,6 +85,8 @@ abstract class OpsUser implements _i1.SerializableModel {
           : _i8.Protocol().deserialize<List<_i7.AuditLog>>(
               jsonSerialization['auditLogs'],
             ),
+      mfaSecret: jsonSerialization['mfaSecret'] as String?,
+      mfaEnabled: jsonSerialization['mfaEnabled'] as bool?,
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -109,6 +115,10 @@ abstract class OpsUser implements _i1.SerializableModel {
 
   List<_i7.AuditLog>? auditLogs;
 
+  String? mfaSecret;
+
+  bool mfaEnabled;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -125,6 +135,8 @@ abstract class OpsUser implements _i1.SerializableModel {
     List<_i5.IncidentTimelineItem>? timelineItems,
     List<_i6.PlaybookExecution>? playbookExecutions,
     List<_i7.AuditLog>? auditLogs,
+    String? mfaSecret,
+    bool? mfaEnabled,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -147,6 +159,8 @@ abstract class OpsUser implements _i1.SerializableModel {
         ),
       if (auditLogs != null)
         'auditLogs': auditLogs?.toJson(valueToJson: (v) => v.toJson()),
+      if (mfaSecret != null) 'mfaSecret': mfaSecret,
+      'mfaEnabled': mfaEnabled,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -170,6 +184,8 @@ class _OpsUserImpl extends OpsUser {
     List<_i5.IncidentTimelineItem>? timelineItems,
     List<_i6.PlaybookExecution>? playbookExecutions,
     List<_i7.AuditLog>? auditLogs,
+    String? mfaSecret,
+    bool? mfaEnabled,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) : super._(
@@ -181,6 +197,8 @@ class _OpsUserImpl extends OpsUser {
          timelineItems: timelineItems,
          playbookExecutions: playbookExecutions,
          auditLogs: auditLogs,
+         mfaSecret: mfaSecret,
+         mfaEnabled: mfaEnabled,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -198,6 +216,8 @@ class _OpsUserImpl extends OpsUser {
     Object? timelineItems = _Undefined,
     Object? playbookExecutions = _Undefined,
     Object? auditLogs = _Undefined,
+    Object? mfaSecret = _Undefined,
+    bool? mfaEnabled,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -222,6 +242,8 @@ class _OpsUserImpl extends OpsUser {
       auditLogs: auditLogs is List<_i7.AuditLog>?
           ? auditLogs
           : this.auditLogs?.map((e0) => e0.copyWith()).toList(),
+      mfaSecret: mfaSecret is String? ? mfaSecret : this.mfaSecret,
+      mfaEnabled: mfaEnabled ?? this.mfaEnabled,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

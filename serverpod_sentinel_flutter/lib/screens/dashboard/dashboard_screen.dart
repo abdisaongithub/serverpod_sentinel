@@ -1,215 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:math' as math;
 import '../../theme/app_theme.dart';
-import '../../routes.dart';
+import '../../theme/sentinel_motion.dart';
+import '../../widgets/sentinel_card.dart';
+import '../../widgets/status_pulsar.dart';
+import '../../widgets/sentinel_shimmer.dart';
+import '../../widgets/sparkline_card.dart';
 import '../../providers/services_provider.dart';
 import '../../providers/incidents_provider.dart';
-import '../../providers/settings_provider.dart';
-import '../../widgets/shimmer_loading.dart';
+import '../../providers/telemetry_provider.dart';
 import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  int _currentIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
-
-        return Scaffold(
-          backgroundColor: const Color(0xFF0B1019),
-          body: Column(
-            children: [
-              _Header(isDesktop: isDesktop),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(isDesktop ? 32 : 24),
-                  child: Column(
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      backgroundColor: AppTheme.darkBackground,
+      body: CustomScrollView(
+        slivers: [
+          _DashboardHeader(),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _MetricOverviewRow(),
+                  const SizedBox(height: 32),
+                  _SectionHeader(title: 'Critical Infrastructure', actionLabel: 'View Registry'),
+                  const SizedBox(height: 16),
+                  _OutageGrid(),
+                  const SizedBox(height: 32),
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _TopRow(isDesktop: isDesktop),
-                      const SizedBox(height: 24),
-                      _EnvironmentsSection(),
-                      const SizedBox(height: 24),
-                      _BottomSection(isDesktop: isDesktop),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          bottomNavigationBar: isDesktop
-              ? null
-              : Container(
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF161E2D),
-                    border: Border(top: BorderSide(color: Color(0xFF2D3748))),
-                  ),
-                  child: BottomNavigationBar(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    type: BottomNavigationBarType.fixed,
-                    selectedItemColor: AppTheme.primary,
-                    unselectedItemColor: const Color(0xFF94A3B8),
-                    currentIndex: _currentIndex,
-                    onTap: (index) {
-                      if (index == _currentIndex) return;
-                      setState(() => _currentIndex = index);
-                      if (index == 1) {
-                        context.go(AppRoutes.incidents);
-                      } else if (index == 2) {
-                        context.go(AppRoutes.serviceRegistry);
-                      } else if (index == 3) {
-                        context.go(AppRoutes.settings);
-                      }
-                    },
-                    items: const [
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.dashboard),
-                        label: 'Dashboard',
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _SectionHeader(title: 'Service Health Heatmap'),
+                            const SizedBox(height: 16),
+                            _HealthHeatmap(),
+                          ],
+                        ),
                       ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.notifications),
-                        label: 'Alerts',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.dns),
-                        label: 'Infrastructure',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.settings),
-                        label: 'Settings',
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _SectionHeader(title: 'Throughput Trends'),
+                            const SizedBox(height: 16),
+                            const SparklineCard(
+                              title: 'Requests / Sec',
+                              value: '1.2k',
+                              data: [10, 15, 8, 20, 25, 22, 30, 28, 35, 40],
+                              color: AppTheme.primary,
+                            ),
+                            const SizedBox(height: 16),
+                            const SparklineCard(
+                              title: 'Success Rate',
+                              value: '99.98%',
+                              data: [99, 99.5, 99.8, 98.5, 99.9, 100, 99.9, 99.8, 99.9, 99.98],
+                              color: AppTheme.success,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
-                  ),
-                ),
-        );
-      },
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  final bool isDesktop;
-  const _Header({required this.isDesktop});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161E2D).withValues(alpha: 0.8),
-        border: const Border(bottom: BorderSide(color: Color(0xFF2D3748))),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: const [
-                  Text(
-                    'Operations',
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                  ),
-                  Text(
-                    ' / ',
-                    style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
-                  ),
-                  Text(
-                    'Main Dashboard',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'System Overview',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const Spacer(),
-          if (isDesktop)
-            Container(
-              width: 256,
-              height: 40,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: const [
-                  Icon(Icons.search, color: Color(0xFF64748B), size: 20),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Search services, logs...',
-                      style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
-                    ),
                   ),
                 ],
               ),
             ),
-          const SizedBox(width: 16),
-          Stack(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF2D3748)),
-                ),
-                child: const Icon(
-                  Icons.notifications_outlined,
-                  color: Color(0xFFCBD5E1),
-                  size: 20,
-                ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEF4444),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFF161E2D),
-                      width: 2,
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -217,1222 +82,367 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _TopRow extends StatelessWidget {
-  final bool isDesktop;
-  const _TopRow({required this.isDesktop});
-
+class _DashboardHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    if (isDesktop) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(flex: 2, child: _HealthCard()),
-          const SizedBox(width: 24),
-          const Expanded(flex: 1, child: _CriticalAlertCard()),
-        ],
-      );
-    } else {
-      return Column(
-        children: [
-          _HealthCard(),
-          const SizedBox(height: 16),
-          const _CriticalAlertCard(),
-        ],
-      );
-    }
+    return SliverAppBar(
+      floating: true,
+      pinned: true,
+      expandedHeight: 120,
+      backgroundColor: AppTheme.darkBackground.withOpacity(0.8),
+      flexibleSpace: FlexibleSpaceBar(
+        titlePadding: const EdgeInsets.only(left: 32, bottom: 16),
+        centerTitle: false,
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Operations Dashboard',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+              ),
+            ),
+            Text(
+              'Real-time system monitoring & response',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.search_rounded, color: AppTheme.darkTextMuted),
+        ),
+        const SizedBox(width: 8),
+        _NotificationBell(),
+        const SizedBox(width: 32),
+      ],
+    );
   }
 }
 
-class _HealthCard extends ConsumerWidget {
+class _NotificationBell extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        const Icon(Icons.notifications_none_rounded, color: AppTheme.darkTextMuted),
+        Positioned(
+          top: 12,
+          right: 4,
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: AppTheme.error,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MetricOverviewRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final healthAsync = ref.watch(healthSummaryProvider);
-    final metricsAsync = ref.watch(systemMetricsProvider);
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161E2D),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2D3748)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: healthAsync.when(
-        loading: () => const ShimmerBox(width: double.infinity, height: 160),
-        error: (e, __) => SizedBox(
-          height: 160,
-          child: Center(
-            child: Text(
-              'Failed to load health: $e',
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-        data: (health) {
-          final score = health.healthPercentage;
-          return Row(
-            children: [
-              SizedBox(
-                width: 128,
-                height: 128,
-                child: CustomPaint(
-                  painter: _HealthRingPainter(score / 100),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${score.toStringAsFixed(1)}%',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Text(
-                          'HEALTH',
-                          style: TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 32),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          'Overall System Health',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF22C55E).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: Row(
-                            children: const [
-                              Icon(
-                                Icons.check_circle,
-                                color: Color(0xFF22C55E),
-                                size: 14,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Operational',
-                                style: TextStyle(
-                                  color: Color(0xFF22C55E),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'All core systems are functioning within normal parameters. Real-time monitoring enabled across ${health.total} services.',
-                      style: const TextStyle(
-                        color: Color(0xFF94A3B8),
-                        fontSize: 14,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    metricsAsync.when(
-                      loading: () => const Wrap(
-                        spacing: 16,
-                        children: [
-                          _StatChip(label: 'Uptime', value: '...'),
-                          _StatChip(label: 'Avg Latency', value: '...'),
-                        ],
-                      ),
-                      error: (_, __) => const Wrap(
-                        spacing: 16,
-                        children: [
-                          _StatChip(label: 'Uptime', value: 'N/A'),
-                          _StatChip(label: 'Avg Latency', value: 'N/A'),
-                        ],
-                      ),
-                      data: (metrics) => Wrap(
-                        spacing: 16,
-                        children: [
-                          _StatChip(
-                            label: 'Uptime',
-                            value:
-                                '${metrics.uptimeDays}d ${metrics.uptimeHours}h',
-                          ),
-                          _StatChip(
-                            label: 'Avg Latency',
-                            value: '${metrics.averageLatencyMs}ms',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _HealthRingPainter extends CustomPainter {
-  final double progress;
-  _HealthRingPainter(this.progress);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 8;
-    final strokeWidth = 8.0;
-
-    final bgPaint = Paint()
-      ..color = const Color(0xFF1E293B)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
-    canvas.drawCircle(center, radius, bgPaint);
-
-    final progressPaint = Paint()
-      ..color = const Color(0xFF22C55E)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2,
-      2 * math.pi * progress,
-      false,
-      progressPaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _StatChip extends StatelessWidget {
-  final String label;
-  final String value;
-  const _StatChip({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: const Color(0xFF2D3748)),
-      ),
-      child: Row(
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              color: Color(0xFF64748B),
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CriticalAlertCard extends ConsumerWidget {
-  const _CriticalAlertCard();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final activeIncidents = ref.watch(activeIncidentsProvider);
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF7F1D1D).withValues(alpha: 0.9),
-            const Color(0xFF101622),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFEF4444).withValues(alpha: 0.15),
-            blurRadius: 30,
-            spreadRadius: 2,
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: activeIncidents.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: Color(0xFFEF4444)),
-        ),
-        error: (e, _) => Center(
-          child: Text('Error: $e', style: const TextStyle(color: Colors.white)),
-        ),
-        data: (incidents) {
-          final count = incidents.length;
-          // Find critical incidents
-          final criticalCount = incidents
-              .where((i) => i.severity == IncidentSeverity.CRITICAL)
-              .length;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.warning_amber,
-                        color: Color(0xFFEF4444),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        count > 0 ? 'CRITICAL ALERT' : 'ALL CLEAR',
-                        style: TextStyle(
-                          color: count > 0
-                              ? const Color(0xFFEF4444)
-                              : Colors.greenAccent,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (count > 0)
-                    Text(
-                      'ID: ${incidents.first.id}',
-                      style: const TextStyle(
-                        color: Color(0xFFEF4444),
-                        fontSize: 11,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '$count Active Incidents',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                count > 0
-                    ? '$criticalCount critical requiring immediate attention'
-                    : 'Systems are operating normally',
-                style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 14),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => context.go(AppRoutes.incidents),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFEF4444),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 4,
-                        shadowColor: const Color(0xFFEF4444).withValues(alpha: 0.2),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                            'View Incidents',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward, size: 18),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.more_horiz, color: Colors.white),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _EnvironmentsSection extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final environmentsAsync = ref.watch(environmentsProvider);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    
+    return Row(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'ENVIRONMENT STATUS',
-              style: TextStyle(
-                color: Color(0xFF94A3B8),
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
+        Expanded(
+          child: _MetricCard(
+            title: 'Global Uptime',
+            value: healthAsync.when(
+              data: (h) => '${h.healthPercentage.toStringAsFixed(2)}%',
+              loading: () => '...',
+              error: (_, __) => 'N/A',
             ),
-            TextButton(
-              onPressed: () => context.go(AppRoutes.environmentSettings),
-              child: const Text(
-                'View all envs',
-                style: TextStyle(color: AppTheme.primary, fontSize: 12),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        environmentsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, __) => Text(
-            'Failed to load environments: $e',
-            style: const TextStyle(color: Colors.red),
+            trend: '+0.02%',
+            trendPositive: true,
+            icon: Icons.history_rounded,
+            color: AppTheme.success,
           ),
-          data: (environments) {
-            if (environments.isEmpty) {
-              return const Text(
-                'No environments configured',
-                style: TextStyle(color: Color(0xFF94A3B8)),
-              );
-            }
-
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final isSmall = constraints.maxWidth < 700;
-                final envWidgets = environments.map((env) {
-                  return _EnvCard(
-                    name: env.name,
-                    region: env.region ?? 'Unknown',
-                    icon: _getEnvIcon(env.name),
-                    iconColor: _getEnvIconColor(env.name),
-                    status: env.isActive ? 'Active' : 'Inactive',
-                    statusColor: env.isActive
-                        ? const Color(0xFF22C55E)
-                        : const Color(0xFF94A3B8),
-                    version: env.description ?? 'No description',
-                  );
-                }).toList();
-
-                if (isSmall) {
-                  return Column(
-                    children:
-                        envWidgets
-                            .expand(
-                              (widget) => [widget, const SizedBox(height: 16)],
-                            )
-                            .toList()
-                          ..removeLast(),
-                  );
-                } else {
-                  return Row(
-                    children:
-                        envWidgets
-                            .expand(
-                              (widget) => [
-                                Expanded(child: widget),
-                                const SizedBox(width: 16),
-                              ],
-                            )
-                            .toList()
-                          ..removeLast(),
-                  );
-                }
-              },
-            );
-          },
+        ),
+        const SizedBox(width: 24),
+        Expanded(
+          child: _MetricCard(
+            title: 'Active Incidents',
+            value: ref.watch(activeIncidentsProvider).when(
+              data: (i) => i.length.toString(),
+              loading: () => '...',
+              error: (_, __) => '!',
+            ),
+            trend: 'Last 24h',
+            trendPositive: false,
+            icon: Icons.warning_amber_rounded,
+            color: AppTheme.error,
+          ),
+        ),
+        const SizedBox(width: 24),
+        Expanded(
+          child: _MetricCard(
+            title: 'System Latency',
+            value: '42ms',
+            trend: '-5ms',
+            trendPositive: true,
+            icon: Icons.speed_rounded,
+            color: AppTheme.primary,
+          ),
         ),
       ],
     );
   }
-
-  IconData _getEnvIcon(String envName) {
-    final name = envName.toLowerCase();
-    if (name.contains('prod')) return Icons.rocket_launch;
-    if (name.contains('stag')) return Icons.science;
-    if (name.contains('dev')) return Icons.code;
-    return Icons.dns;
-  }
-
-  Color _getEnvIconColor(String envName) {
-    final name = envName.toLowerCase();
-    if (name.contains('prod')) return const Color(0xFF6366F1);
-    if (name.contains('stag')) return const Color(0xFF3B82F6);
-    if (name.contains('dev')) return const Color(0xFFF59E0B);
-    return const Color(0xFF94A3B8);
-  }
 }
 
-class _EnvCard extends StatelessWidget {
-  final String name;
-  final String region;
+class _MetricCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final String trend;
+  final bool trendPositive;
   final IconData icon;
-  final Color iconColor;
-  final String status;
-  final Color statusColor;
-  final String version;
+  final Color color;
 
-  const _EnvCard({
-    required this.name,
-    required this.region,
+  const _MetricCard({
+    required this.title,
+    required this.value,
+    required this.trend,
+    required this.trendPositive,
     required this.icon,
-    required this.iconColor,
-    required this.status,
-    required this.statusColor,
-    required this.version,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SentinelCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161E2D),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2D3748)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: iconColor, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      status == 'Healthy' ? Icons.public : Icons.speed,
-                      size: 14,
-                      color: const Color(0xFF94A3B8),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      region,
-                      style: const TextStyle(
-                        color: Color(0xFF94A3B8),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Row(
-                children: [
-                  if (status == 'Healthy') ...[
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: statusColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  Text(
-                    status,
-                    style: TextStyle(
-                      color: statusColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                version,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BottomSection extends StatelessWidget {
-  final bool isDesktop;
-  const _BottomSection({required this.isDesktop});
-
-  @override
-  Widget build(BuildContext context) {
-    if (isDesktop) {
-      return Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(flex: 2, child: _ServicesAtRiskSection()),
-          const SizedBox(width: 24),
-          const Expanded(flex: 1, child: _ActivityFeed()),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.bodySmall),
+              Icon(icon, color: color.withOpacity(0.5), size: 20),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 32,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                trendPositive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+                size: 14,
+                color: trendPositive ? AppTheme.success : AppTheme.error,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                trend,
+                style: TextStyle(
+                  color: trendPositive ? AppTheme.success : AppTheme.error,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
         ],
-      );
-    } else {
-      return Column(
-        children: [
-          _ServicesAtRiskSection(),
-          const SizedBox(height: 24),
-          const _ActivityFeed(),
-        ],
-      );
-    }
+      ),
+    );
   }
 }
 
-class _ServicesAtRiskSection extends ConsumerWidget {
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final String? actionLabel;
+
+  const _SectionHeader({required this.title, this.actionLabel});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Determine risk based on service status
-    final servicesAsync = ref.watch(servicesProvider);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'SERVICES AT RISK',
-          style: TextStyle(
-            color: Color(0xFF94A3B8),
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
+        Text(
+          title.toUpperCase(),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            letterSpacing: 1.5,
+            color: AppTheme.darkTextMuted,
           ),
         ),
-        const SizedBox(height: 16),
-        servicesAsync.when(
-          loading: () => const ShimmerList(itemCount: 2),
-          error: (_, __) => const Text(
-            'Could not load services',
-            style: TextStyle(color: Colors.red),
+        if (actionLabel != null)
+          TextButton(
+            onPressed: () {},
+            child: Text(actionLabel!, style: const TextStyle(color: AppTheme.primary)),
           ),
-          data: (services) {
-            // Filter services that are degraded or down
-            final atRisk = services
-                .where(
-                  (s) =>
-                      s.status == ServiceStatus.DEGRADED ||
-                      s.status == ServiceStatus.MAJOR_OUTAGE ||
-                      s.status == ServiceStatus.PARTIAL_OUTAGE,
-                )
-                .toList();
-
-            if (atRisk.isEmpty) {
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF161E2D),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF2D3748)),
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.check_circle, color: Colors.green),
-                      SizedBox(width: 8),
-                      Text(
-                        'No services currently at risk',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final isSmall = constraints.maxWidth < 500;
-                final cards = atRisk
-                    .map(
-                      (service) => _RiskCard(
-                        name: service.name,
-                        subtitle: service.description ?? 'Service',
-                        status: service.status == ServiceStatus.DEGRADED
-                            ? 'Degraded'
-                            : 'Outage',
-                        statusColor: service.status == ServiceStatus.DEGRADED
-                            ? const Color(0xFFF59E0B)
-                            : const Color(0xFFEF4444),
-                        // Mock realtime metrics until telemetry implemented
-                        value: '0ms',
-                        unit: 'Latency',
-                        secondary: 'v1.0.0',
-                        secondaryUnit: 'Version',
-                      ),
-                    )
-                    .toList();
-
-                if (isSmall) {
-                  return Column(
-                    children: cards
-                        .map(
-                          (c) => Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: c,
-                          ),
-                        )
-                        .toList(),
-                  );
-                } else {
-                  return Row(
-                    children: cards
-                        .map(
-                          (c) => Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ),
-                              child: c,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  );
-                }
-              },
-            );
-          },
-        ),
       ],
     );
   }
 }
 
-class _RiskCard extends StatelessWidget {
-  final String name;
-  final String subtitle;
-  final String status;
-  final Color statusColor;
-  final String value;
-  final String unit;
-  final String secondary;
-  final String secondaryUnit;
+class _OutageGrid extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final incidentsAsync = ref.watch(activeIncidentsProvider);
 
-  const _RiskCard({
-    required this.name,
-    required this.subtitle,
-    required this.status,
-    required this.statusColor,
-    required this.value,
-    required this.unit,
-    required this.secondary,
-    required this.secondaryUnit,
-  });
+    return incidentsAsync.when(
+      data: (incidents) {
+        if (incidents.isEmpty) {
+          return SentinelCard(
+            child: Center(
+              child: Column(
+                children: [
+                  const Icon(Icons.check_circle_outline_rounded, color: AppTheme.success, size: 48),
+                  const SizedBox(height: 16),
+                  Text('All Systems Operational', style: Theme.of(context).textTheme.titleLarge),
+                  Text('No active critical incidents detected.', style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 24,
+            mainAxisSpacing: 24,
+            childAspectRatio: 2.2,
+          ),
+          itemCount: incidents.length,
+          itemBuilder: (context, index) {
+            final incident = incidents[index];
+            return SentinelMotion.fadeIn(
+              _OutageCard(incident: incident),
+              delay: Duration(milliseconds: index * 100),
+            );
+          },
+        );
+      },
+      loading: () => GridView.count(
+        shrinkWrap: true,
+        crossAxisCount: 3,
+        crossAxisSpacing: 24,
+        children: List.generate(3, (_) => SentinelShimmer.box(height: 120)),
+      ),
+      error: (_, __) => const Text('Failed to load outages'),
+    );
+  }
+}
+
+class _OutageCard extends StatelessWidget {
+  final Incident incident;
+  const _OutageCard({required this.incident});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final color = incident.severity == IncidentSeverity.CRITICAL ? AppTheme.error : AppTheme.warning;
+    
+    return SentinelCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161E2D),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2D3748)),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  statusColor == const Color(0xFFF59E0B)
-                      ? Icons.storage
-                      : Icons.api,
-                  color: statusColor,
-                  size: 20,
-                ),
-              ),
+              StatusPulsar(color: color),
               const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        color: Color(0xFF64748B),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
                 child: Text(
-                  status,
-                  style: TextStyle(
-                    color: statusColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  incident.title,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
+          Text(
+            incident.summary ?? 'No details provided',
+            style: Theme.of(context).textTheme.bodySmall,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    unit.toUpperCase(),
-                    style: const TextStyle(
-                      color: Color(0xFF64748B),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              Text(
+                'Started 12m ago',
+                style: TextStyle(fontSize: 10, color: AppTheme.darkTextDim),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    secondary,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    secondaryUnit.toUpperCase(),
-                    style: const TextStyle(
-                      color: Color(0xFF64748B),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
+              const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppTheme.darkTextMuted),
             ],
           ),
-          const SizedBox(height: 16),
-          _MiniBarChart(color: statusColor),
         ],
       ),
     );
   }
 }
 
-class _MiniBarChart extends StatelessWidget {
-  final Color color;
-  const _MiniBarChart({required this.color});
-
+class _HealthHeatmap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final heights = [0.4, 0.6, 0.5, 0.8, 0.7, 0.9, 0.85, 0.75];
-    return SizedBox(
-      height: 48,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: heights
-            .map(
-              (h) => Expanded(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: h < 0.8 ? 0.3 : 1.0),
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(2),
-                    ),
-                  ),
-                  height: 48 * h,
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-}
-
-class _ActivityFeed extends StatelessWidget {
-  const _ActivityFeed();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Text(
-              'LIVE ACTIVITY FEED',
-              style: TextStyle(
-                color: Color(0xFF94A3B8),
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: AppTheme.primary,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF161E2D),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF2D3748)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1E293B),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                ),
-                child: const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Today, Oct 24',
-                    style: TextStyle(
-                      color: Color(0xFF64748B),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    _ActivityItem(
-                      avatar: true,
-                      text: 'Sarah Jenkins initiated rollback on',
-                      tag: 'Production',
-                      tagColor: const Color(0xFF6366F1),
-                      time: '10:42 AM',
-                      detail: 'v2.4.1 → v2.4.0',
-                    ),
-                    _ActivityItem(
-                      icon: Icons.bolt,
-                      iconBgColor: const Color(0xFFEF4444),
-                      text: 'CPU usage spike detected on',
-                      tag: 'Node-4',
-                      tagColor: const Color(0xFF64748B),
-                      time: '10:40 AM',
-                      detail: 'Alert Rule #829',
-                      detailColor: const Color(0xFFEF4444),
-                    ),
-                    _ActivityItem(
-                      icon: Icons.cloud_done,
-                      iconBgColor: const Color(0xFF22C55E),
-                      text: 'Auto-scaling group stabilized',
-                      time: '10:35 AM',
-                      detail: 'Capacity at 12 instances',
-                      detailColor: const Color(0xFF22C55E),
-                    ),
-                    _ActivityItem(
-                      icon: Icons.terminal,
-                      iconBgColor: const Color(0xFF64748B),
-                      text: 'Scheduled database backup completed',
-                      time: '09:15 AM',
-                      detail: '45GB snapshot created',
-                      isLast: true,
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1E293B),
-                  border: Border(top: BorderSide(color: Color(0xFF2D3748))),
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(12),
-                  ),
-                ),
-                child: const Center(
-                  child: Text(
-                    'View all activity history',
-                    style: TextStyle(
-                      color: AppTheme.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ActivityItem extends StatelessWidget {
-  final bool avatar;
-  final IconData? icon;
-  final Color? iconBgColor;
-  final String text;
-  final String? tag;
-  final Color? tagColor;
-  final String time;
-  final String? detail;
-  final Color? detailColor;
-  final bool isLast;
-
-  const _ActivityItem({
-    this.avatar = false,
-    this.icon,
-    this.iconBgColor,
-    required this.text,
-    this.tag,
-    this.tagColor,
-    required this.time,
-    this.detail,
-    this.detailColor,
-    this.isLast = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return SentinelCard(
+      padding: const EdgeInsets.all(24),
+      child: Column(
         children: [
-          Column(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color:
-                      iconBgColor?.withValues(alpha: 0.1) ?? const Color(0xFF1E293B),
-                  shape: BoxShape.circle,
-                ),
-                child: avatar
-                    ? const Icon(
-                        Icons.person,
-                        color: Color(0xFF94A3B8),
-                        size: 18,
-                      )
-                    : Icon(icon, color: iconBgColor, size: 16),
+          SizedBox(
+            height: 160,
+            child: GridView.builder(
+              scrollDirection: Axis.horizontal,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
               ),
-              if (!isLast)
-                Container(width: 2, height: 24, color: const Color(0xFF1E293B)),
-            ],
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    children: [
-                      TextSpan(text: text),
-                      if (tag != null)
-                        WidgetSpan(
-                          child: Container(
-                            margin: const EdgeInsets.only(left: 4),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  tagColor?.withValues(alpha: 0.1) ??
-                                  Colors.transparent,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              tag!,
-                              style: TextStyle(
-                                color: tagColor,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
+              itemCount: 180, // ~6 months of days
+              itemBuilder: (context, index) {
+                final isStable = index % 15 != 0;
+                return Container(
+                  decoration: BoxDecoration(
+                    color: isStable 
+                      ? AppTheme.success.withOpacity(0.1 + (index % 5) * 0.1)
+                      : AppTheme.error.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text(
-                      time,
-                      style: const TextStyle(
-                        color: Color(0xFF64748B),
-                        fontSize: 12,
-                      ),
-                    ),
-                    if (detail != null) ...[
-                      const Text(
-                        ' • ',
-                        style: TextStyle(color: Color(0xFF475569)),
-                      ),
-                      Text(
-                        detail!,
-                        style: TextStyle(
-                          color: detailColor ?? const Color(0xFF64748B),
-                          fontSize: 12,
-                          fontFamily: detail!.contains('→')
-                              ? 'monospace'
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
+                );
+              },
             ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text('UNSTABLE', style: TextStyle(fontSize: 10, color: AppTheme.darkTextDim)),
+              const SizedBox(width: 8),
+              ...List.generate(5, (i) => Container(
+                width: 12,
+                height: 12,
+                margin: const EdgeInsets.only(left: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.success.withOpacity(0.2 * (i + 1)),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              )),
+              const SizedBox(width: 8),
+              Text('STABLE', style: TextStyle(fontSize: 10, color: AppTheme.darkTextDim)),
+            ],
           ),
         ],
       ),

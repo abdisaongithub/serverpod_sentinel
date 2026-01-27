@@ -1,14 +1,24 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
+import 'package:serverpod_sentinel_server/src/business/security/security_checks.dart';
+import 'package:serverpod_sentinel_server/src/business/security/audit_logger.dart';
+import 'package:serverpod_sentinel_server/src/business/resilience/cache_service.dart';
+import 'package:serverpod_sentinel_server/src/business/extensibility/webhook_service.dart';
 import 'streaming_endpoint.dart';
 
 class ServiceEndpoint extends Endpoint {
+  /// Helper to verify permission
+  Future<void> _checkPermission(Session session, AppPermission permission) async {
+    await SecurityChecks.requirePermission(session, permission);
+  }
+
   /// Get all services with optional filtering
   Future<List<Service>> list(
     Session session, {
     ServiceStatus? status,
     ServiceTier? tier,
   }) async {
+    await _checkPermission(session, AppPermission.service_view);
     return await Service.db.find(
       session,
       where: (t) {
@@ -23,23 +33,39 @@ class ServiceEndpoint extends Endpoint {
 
   /// Get a single service by ID with full relations
   Future<Service?> get(Session session, int id) async {
-    return await Service.db.findById(
+    await _checkPermission(session, AppPermission.service_view);
+    return await CacheService.wrap<Service>(
       session,
-      id,
-      include: Service.include(
-        owner: OpsUser.include(),
-        signals: HealthSignal.includeList(),
-        rules: Rule.includeList(),
-        incidents: Incident.includeList(),
+      'service:$id',
+      const Duration(minutes: 5),
+      () async => await Service.db.findById(
+        session,
+        id,
+        include: Service.include(
+          owner: OpsUser.include(),
+          signals: HealthSignal.includeList(),
+          rules: Rule.includeList(),
+          incidents: Incident.includeList(),
+        ),
       ),
     );
   }
 
   /// Create a new service
   Future<Service> create(Session session, Service service) async {
+    await _checkPermission(session, AppPermission.service_create);
     service.createdAt = DateTime.now();
     service.updatedAt = DateTime.now();
     final created = await Service.db.insertRow(session, service);
+
+    // Log action
+    await AuditLogger.log(
+      session: session,
+      action: 'CREATE',
+      entityType: 'Service',
+      entityId: created.id!,
+      changes: created.toJson(),
+    );
 
     // Broadcast creation
     await StreamBroadcaster.broadcastServiceUpdate(
@@ -48,15 +74,39 @@ class ServiceEndpoint extends Endpoint {
       ServiceStatus.OPERATIONAL, // Default/Assumed previous for new service
     );
 
+    // Trigger Webhook
+    await WebhookService.trigger(
+      session: session,
+      event: 'service.created',
+      payload: created.toJson(),
+    );
+
     return created;
   }
 
   /// Update an existing service
   Future<Service> update(Session session, Service service) async {
+    await _checkPermission(session, AppPermission.service_edit);
     service.updatedAt = DateTime.now();
-    // Get previous state for comparison (optional, or just broadcast the new one)
+
+    // Invalidate cache
+    await CacheService.invalidate(session, 'service:${service.id}');
+
+    // Get previous state for comparison
     final previous = await Service.db.findById(session, service.id!);
     final updated = await Service.db.updateRow(session, service);
+
+    // Log action
+    await AuditLogger.log(
+      session: session,
+      action: 'UPDATE',
+      entityType: 'Service',
+      entityId: updated.id!,
+      changes: {
+        'from': previous?.toJson(),
+        'to': updated.toJson(),
+      },
+    );
 
     if (previous != null) {
       await StreamBroadcaster.broadcastServiceUpdate(
@@ -71,16 +121,36 @@ class ServiceEndpoint extends Endpoint {
 
   /// Delete a service
   Future<bool> delete(Session session, int id) async {
+    await _checkPermission(session, AppPermission.service_delete);
+    
+    // Invalidate cache
+    await CacheService.invalidate(session, 'service:$id');
+
+    final previous = await Service.db.findById(session, id);
     final deleted = await Service.db.deleteWhere(
       session,
       where: (t) => t.id.equals(id),
     );
+
+    if (deleted.isNotEmpty) {
+      // Log action
+      await AuditLogger.log(
+        session: session,
+        action: 'DELETE',
+        entityType: 'Service',
+        entityId: id,
+        changes: previous?.toJson(),
+      );
+    }
+    
     return deleted.isNotEmpty;
   }
 
   /// Get health status summary for dashboard
   Future<HealthSummary> getHealthSummary(Session session) async {
+    await _checkPermission(session, AppPermission.service_view);
     final services = await Service.db.find(session);
+
     final healthy = services
         .where((s) => s.status == ServiceStatus.OPERATIONAL)
         .length;
@@ -104,7 +174,9 @@ class ServiceEndpoint extends Endpoint {
 
   /// Get system metrics (uptime, latency, etc.)
   Future<SystemMetrics> getSystemMetrics(Session session) async {
+    await _checkPermission(session, AppPermission.telemetry_view);
     // Fetch all services to calculate metrics
+
     final services = await Service.db.find(
       session,
       orderBy: (t) => t.createdAt, // Oldest first
@@ -127,15 +199,8 @@ class ServiceEndpoint extends Endpoint {
     final uptimeDays = difference.inDays;
     final uptimeHours = difference.inHours % 24;
 
-    // Calculate Average Latency based on service status
-    // Operational: ~20-50ms
-    // Degraded: ~200-500ms
-    // Outage: N/A (or counts as high latency penalty e.g. 1000ms)
-    // Maintenance: ignored
     double totalLatency = 0;
     int count = 0;
-
-    // Simple deterministic random generator based on hour to vary slightly
     final randomShift = (now.hour + now.minute) % 20;
 
     for (final service in services) {
@@ -147,15 +212,12 @@ class ServiceEndpoint extends Endpoint {
         count++;
       } else if (service.status == ServiceStatus.MAJOR_OUTAGE ||
           service.status == ServiceStatus.PARTIAL_OUTAGE) {
-        // Penalty
         totalLatency += 1000;
         count++;
       }
     }
 
     final averageLatencyMs = count > 0 ? (totalLatency / count).round() : 0;
-
-    // Calculate Error Rate (Percentage of non-operational services)
     final nonOperational = services
         .where(
           (s) =>
@@ -163,10 +225,7 @@ class ServiceEndpoint extends Endpoint {
               s.status != ServiceStatus.MAINTENANCE,
         )
         .length;
-    final errorRate =
-        (nonOperational / services.length) * 100; // e.g. 5.0 for 5%
-
-    // Mock Total Requests based on uptime (to look realistic and growing)
+    final errorRate = (nonOperational / services.length) * 100;
     final totalRequests = 10000 + (difference.inMinutes * 123);
 
     return SystemMetrics(

@@ -35,67 +35,80 @@ import 'enums/service_status.dart' as _i20;
 import 'enums/service_tier.dart' as _i21;
 import 'enums/signal_type.dart' as _i22;
 import 'enums/timeline_item_type.dart' as _i23;
-import 'greetings/greeting.dart' as _i24;
-import 'incident/incident.dart' as _i25;
-import 'incident/incident_timeline_item.dart' as _i26;
-import 'reporting/report_snapshot.dart' as _i27;
-import 'security/audit_log.dart' as _i28;
-import 'security/ops_user.dart' as _i29;
-import 'security/role.dart' as _i30;
-import 'security/service_token.dart' as _i31;
-import 'security/user_role.dart' as _i32;
-import 'service/health_signal.dart' as _i33;
-import 'service/rule.dart' as _i34;
-import 'service/service.dart' as _i35;
-import 'settings/environment.dart' as _i36;
-import 'settings/integration.dart' as _i37;
-import 'settings/notification_preference.dart' as _i38;
-import 'settings/system_setting.dart' as _i39;
-import 'streaming/stream_alert.dart' as _i40;
-import 'streaming/stream_incident_update.dart' as _i41;
-import 'streaming/stream_log_entry.dart' as _i42;
-import 'streaming/stream_metric.dart' as _i43;
-import 'streaming/stream_service_status.dart' as _i44;
-import 'streaming/stream_signal_update.dart' as _i45;
-import 'streaming/stream_subscription.dart' as _i46;
-import 'streaming/stream_subscription_type.dart' as _i47;
-import 'streaming/stream_timeline_event.dart' as _i48;
-import 'streaming/stream_update_type.dart' as _i49;
-import 'telemetry/telemetry_event.dart' as _i50;
-import 'telemetry/telemetry_heartbeat.dart' as _i51;
-import 'telemetry/telemetry_resources.dart' as _i52;
-import 'telemetry/telemetry_signal_batch.dart' as _i53;
-import 'telemetry/telemetry_signal_payload.dart' as _i54;
+import 'governance/chaos_experiment.dart' as _i24;
+import 'governance/remediation_policy.dart' as _i25;
+import 'greetings/greeting.dart' as _i26;
+import 'incident/incident.dart' as _i27;
+import 'incident/incident_timeline_item.dart' as _i28;
+import 'reporting/report_snapshot.dart' as _i29;
+import 'security/app_permission.dart' as _i30;
+import 'security/audit_log.dart' as _i31;
+import 'security/ops_user.dart' as _i32;
+import 'security/rate_limit_count.dart' as _i33;
+import 'security/role.dart' as _i34;
+import 'security/sentinel_api_key.dart' as _i35;
+import 'security/service_token.dart' as _i36;
+import 'security/user_role.dart' as _i37;
+import 'service/health_signal.dart' as _i38;
+import 'service/rule.dart' as _i39;
+import 'service/service.dart' as _i40;
+import 'settings/environment.dart' as _i41;
+import 'settings/integration.dart' as _i42;
+import 'settings/notification_preference.dart' as _i43;
+import 'settings/outgoing_webhook.dart' as _i44;
+import 'settings/system_setting.dart' as _i45;
+import 'streaming/stream_alert.dart' as _i46;
+import 'streaming/stream_incident_update.dart' as _i47;
+import 'streaming/stream_log_entry.dart' as _i48;
+import 'streaming/stream_metric.dart' as _i49;
+import 'streaming/stream_service_status.dart' as _i50;
+import 'streaming/stream_signal_update.dart' as _i51;
+import 'streaming/stream_subscription.dart' as _i52;
+import 'streaming/stream_subscription_type.dart' as _i53;
+import 'streaming/stream_timeline_event.dart' as _i54;
+import 'streaming/stream_update_type.dart' as _i55;
+import 'telemetry/metric_point.dart' as _i56;
+import 'telemetry/telemetry_event.dart' as _i57;
+import 'telemetry/telemetry_heartbeat.dart' as _i58;
+import 'telemetry/telemetry_resources.dart' as _i59;
+import 'telemetry/telemetry_signal_batch.dart' as _i60;
+import 'telemetry/telemetry_signal_payload.dart' as _i61;
 import 'package:serverpod_sentinel_server/src/generated/ai/ai_insight.dart'
-    as _i55;
-import 'package:serverpod_sentinel_server/src/generated/streaming/stream_alert.dart'
-    as _i56;
-import 'package:serverpod_sentinel_server/src/generated/security/audit_log.dart'
-    as _i57;
-import 'package:serverpod_sentinel_server/src/generated/settings/environment.dart'
-    as _i58;
-import 'package:serverpod_sentinel_server/src/generated/incident/incident.dart'
-    as _i59;
-import 'package:serverpod_sentinel_server/src/generated/settings/integration.dart'
-    as _i60;
-import 'package:serverpod_sentinel_server/src/generated/settings/notification_preference.dart'
-    as _i61;
-import 'package:serverpod_sentinel_server/src/generated/automation/playbook.dart'
     as _i62;
-import 'package:serverpod_sentinel_server/src/generated/reporting/report_snapshot.dart'
+import 'package:serverpod_sentinel_server/src/generated/streaming/stream_alert.dart'
     as _i63;
-import 'package:serverpod_sentinel_server/src/generated/enums/incident_severity.dart'
+import 'package:serverpod_sentinel_server/src/generated/security/audit_log.dart'
     as _i64;
-import 'package:serverpod_sentinel_server/src/generated/service/rule.dart'
+import 'package:serverpod_sentinel_server/src/generated/settings/environment.dart'
     as _i65;
-import 'package:serverpod_sentinel_server/src/generated/service/service.dart'
+import 'package:serverpod_sentinel_server/src/generated/incident/incident.dart'
     as _i66;
-import 'package:serverpod_sentinel_server/src/generated/settings/system_setting.dart'
+import 'package:serverpod_sentinel_server/src/generated/settings/integration.dart'
     as _i67;
-import 'package:serverpod_sentinel_server/src/generated/service/health_signal.dart'
+import 'package:serverpod_sentinel_server/src/generated/settings/notification_preference.dart'
     as _i68;
-import 'package:serverpod_sentinel_server/src/generated/dtos/team_member.dart'
+import 'package:serverpod_sentinel_server/src/generated/settings/outgoing_webhook.dart'
     as _i69;
+import 'package:serverpod_sentinel_server/src/generated/automation/playbook.dart'
+    as _i70;
+import 'package:serverpod_sentinel_server/src/generated/reporting/report_snapshot.dart'
+    as _i71;
+import 'package:serverpod_sentinel_server/src/generated/enums/incident_severity.dart'
+    as _i72;
+import 'package:serverpod_sentinel_server/src/generated/service/rule.dart'
+    as _i73;
+import 'package:serverpod_sentinel_server/src/generated/security/sentinel_api_key.dart'
+    as _i74;
+import 'package:serverpod_sentinel_server/src/generated/service/service.dart'
+    as _i75;
+import 'package:serverpod_sentinel_server/src/generated/settings/system_setting.dart'
+    as _i76;
+import 'package:serverpod_sentinel_server/src/generated/service/health_signal.dart'
+    as _i77;
+import 'package:serverpod_sentinel_server/src/generated/telemetry/metric_point.dart'
+    as _i78;
+import 'package:serverpod_sentinel_server/src/generated/dtos/team_member.dart'
+    as _i79;
 export 'agent/agent_task.dart';
 export 'agent/agent_task_status.dart';
 export 'ai/ai_insight.dart';
@@ -114,13 +127,18 @@ export 'enums/service_status.dart';
 export 'enums/service_tier.dart';
 export 'enums/signal_type.dart';
 export 'enums/timeline_item_type.dart';
+export 'governance/chaos_experiment.dart';
+export 'governance/remediation_policy.dart';
 export 'greetings/greeting.dart';
 export 'incident/incident.dart';
 export 'incident/incident_timeline_item.dart';
 export 'reporting/report_snapshot.dart';
+export 'security/app_permission.dart';
 export 'security/audit_log.dart';
 export 'security/ops_user.dart';
+export 'security/rate_limit_count.dart';
 export 'security/role.dart';
+export 'security/sentinel_api_key.dart';
 export 'security/service_token.dart';
 export 'security/user_role.dart';
 export 'service/health_signal.dart';
@@ -129,6 +147,7 @@ export 'service/service.dart';
 export 'settings/environment.dart';
 export 'settings/integration.dart';
 export 'settings/notification_preference.dart';
+export 'settings/outgoing_webhook.dart';
 export 'settings/system_setting.dart';
 export 'streaming/stream_alert.dart';
 export 'streaming/stream_incident_update.dart';
@@ -140,6 +159,7 @@ export 'streaming/stream_subscription.dart';
 export 'streaming/stream_subscription_type.dart';
 export 'streaming/stream_timeline_event.dart';
 export 'streaming/stream_update_type.dart';
+export 'telemetry/metric_point.dart';
 export 'telemetry/telemetry_event.dart';
 export 'telemetry/telemetry_heartbeat.dart';
 export 'telemetry/telemetry_resources.dart';
@@ -500,6 +520,115 @@ class Protocol extends _i1.SerializationManagerServer {
           type: 'btree',
           isUnique: false,
           isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'chaos_experiment',
+      dartName: 'ChaosExperiment',
+      schema: 'public',
+      module: 'serverpod_sentinel',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'chaos_experiment_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'name',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'description',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'serviceId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'type',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'config',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'status',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'scheduledAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'startedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'finishedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'chaos_experiment_fk_0',
+          columns: ['serviceId'],
+          referenceTable: 'service',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'chaos_experiment_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
         ),
       ],
       managed: true,
@@ -1149,6 +1278,84 @@ class Protocol extends _i1.SerializationManagerServer {
       managed: true,
     ),
     _i2.TableDefinition(
+      name: 'metric_point',
+      dartName: 'MetricPoint',
+      schema: 'public',
+      module: 'serverpod_sentinel',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'metric_point_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'signalId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'timestamp',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'value',
+          columnType: _i2.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'metric_point_fk_0',
+          columns: ['signalId'],
+          referenceTable: 'health_signal',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'metric_point_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'metric_point_signal_ts_idx',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'signalId',
+            ),
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'timestamp',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
       name: 'notification_preference',
       dartName: 'NotificationPreference',
       schema: 'public',
@@ -1265,6 +1472,19 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'int',
         ),
         _i2.ColumnDefinition(
+          name: 'mfaSecret',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'mfaEnabled',
+          columnType: _i2.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _i2.ColumnDefinition(
           name: 'createdAt',
           columnType: _i2.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -1304,6 +1524,92 @@ class Protocol extends _i1.SerializationManagerServer {
           type: 'btree',
           isUnique: true,
           isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'outgoing_webhook',
+      dartName: 'OutgoingWebhook',
+      schema: 'public',
+      module: 'serverpod_sentinel',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'outgoing_webhook_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'name',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'url',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'events',
+          columnType: _i2.ColumnType.json,
+          isNullable: false,
+          dartType: 'List<String>',
+        ),
+        _i2.ColumnDefinition(
+          name: 'secret',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'isEnabled',
+          columnType: _i2.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+        _i2.ColumnDefinition(
+          name: 'lastTriggeredAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'lastResponseCode',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'outgoing_webhook_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
         ),
       ],
       managed: true,
@@ -1659,6 +1965,129 @@ class Protocol extends _i1.SerializationManagerServer {
       managed: true,
     ),
     _i2.TableDefinition(
+      name: 'remediation_policy',
+      dartName: 'RemediationPolicy',
+      schema: 'public',
+      module: 'serverpod_sentinel',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'remediation_policy_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'name',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'event',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'serviceId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'playbookId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'autoExecute',
+          columnType: _i2.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _i2.ColumnDefinition(
+          name: 'requireApproval',
+          columnType: _i2.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _i2.ColumnDefinition(
+          name: 'isEnabled',
+          columnType: _i2.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _i2.ColumnDefinition(
+          name: 'maxRetries',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '3',
+        ),
+        _i2.ColumnDefinition(
+          name: 'cooldownPeriod',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'remediation_policy_fk_0',
+          columns: ['serviceId'],
+          referenceTable: 'service',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+        _i2.ForeignKeyDefinition(
+          constraintName: 'remediation_policy_fk_1',
+          columns: ['playbookId'],
+          referenceTable: 'playbook',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'remediation_policy_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
       name: 'report_snapshot',
       dartName: 'ReportSnapshot',
       schema: 'public',
@@ -1935,6 +2364,116 @@ class Protocol extends _i1.SerializationManagerServer {
       managed: true,
     ),
     _i2.TableDefinition(
+      name: 'sentinel_api_key',
+      dartName: 'SentinelApiKey',
+      schema: 'public',
+      module: 'serverpod_sentinel',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'sentinel_api_key_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'name',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'key',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'keyHash',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'scopes',
+          columnType: _i2.ColumnType.json,
+          isNullable: false,
+          dartType: 'List<String>',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'lastUsedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'expiresAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'sentinel_api_key_fk_0',
+          columns: ['userId'],
+          referenceTable: 'ops_user',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'sentinel_api_key_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'sentinel_api_key_hash_idx',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'keyHash',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
       name: 'service',
       dartName: 'Service',
       schema: 'public',
@@ -1976,6 +2515,13 @@ class Protocol extends _i1.SerializationManagerServer {
           columnType: _i2.ColumnType.text,
           isNullable: false,
           dartType: 'protocol:ServiceTier',
+        ),
+        _i2.ColumnDefinition(
+          name: 'region',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'us-east-1\'::text',
         ),
         _i2.ColumnDefinition(
           name: 'tags',
@@ -2260,6 +2806,12 @@ class Protocol extends _i1.SerializationManagerServer {
           columnDefault: 'nextval(\'telemetry_heartbeat_id_seq\'::regclass)',
         ),
         _i2.ColumnDefinition(
+          name: 'serviceId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
           name: 'timestamp',
           columnType: _i2.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -2290,7 +2842,18 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'protocol:TelemetryResources?',
         ),
       ],
-      foreignKeys: [],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'telemetry_heartbeat_fk_0',
+          columns: ['serviceId'],
+          referenceTable: 'service',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
       indexes: [
         _i2.IndexDefinition(
           indexName: 'telemetry_heartbeat_pkey',
@@ -2509,98 +3072,119 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i23.TimelineItemType) {
       return _i23.TimelineItemType.fromJson(data) as T;
     }
-    if (t == _i24.Greeting) {
-      return _i24.Greeting.fromJson(data) as T;
+    if (t == _i24.ChaosExperiment) {
+      return _i24.ChaosExperiment.fromJson(data) as T;
     }
-    if (t == _i25.Incident) {
-      return _i25.Incident.fromJson(data) as T;
+    if (t == _i25.RemediationPolicy) {
+      return _i25.RemediationPolicy.fromJson(data) as T;
     }
-    if (t == _i26.IncidentTimelineItem) {
-      return _i26.IncidentTimelineItem.fromJson(data) as T;
+    if (t == _i26.Greeting) {
+      return _i26.Greeting.fromJson(data) as T;
     }
-    if (t == _i27.ReportSnapshot) {
-      return _i27.ReportSnapshot.fromJson(data) as T;
+    if (t == _i27.Incident) {
+      return _i27.Incident.fromJson(data) as T;
     }
-    if (t == _i28.AuditLog) {
-      return _i28.AuditLog.fromJson(data) as T;
+    if (t == _i28.IncidentTimelineItem) {
+      return _i28.IncidentTimelineItem.fromJson(data) as T;
     }
-    if (t == _i29.OpsUser) {
-      return _i29.OpsUser.fromJson(data) as T;
+    if (t == _i29.ReportSnapshot) {
+      return _i29.ReportSnapshot.fromJson(data) as T;
     }
-    if (t == _i30.Role) {
-      return _i30.Role.fromJson(data) as T;
+    if (t == _i30.AppPermission) {
+      return _i30.AppPermission.fromJson(data) as T;
     }
-    if (t == _i31.ServiceToken) {
-      return _i31.ServiceToken.fromJson(data) as T;
+    if (t == _i31.AuditLog) {
+      return _i31.AuditLog.fromJson(data) as T;
     }
-    if (t == _i32.UserRole) {
-      return _i32.UserRole.fromJson(data) as T;
+    if (t == _i32.OpsUser) {
+      return _i32.OpsUser.fromJson(data) as T;
     }
-    if (t == _i33.HealthSignal) {
-      return _i33.HealthSignal.fromJson(data) as T;
+    if (t == _i33.RateLimitCount) {
+      return _i33.RateLimitCount.fromJson(data) as T;
     }
-    if (t == _i34.Rule) {
-      return _i34.Rule.fromJson(data) as T;
+    if (t == _i34.Role) {
+      return _i34.Role.fromJson(data) as T;
     }
-    if (t == _i35.Service) {
-      return _i35.Service.fromJson(data) as T;
+    if (t == _i35.SentinelApiKey) {
+      return _i35.SentinelApiKey.fromJson(data) as T;
     }
-    if (t == _i36.Environment) {
-      return _i36.Environment.fromJson(data) as T;
+    if (t == _i36.ServiceToken) {
+      return _i36.ServiceToken.fromJson(data) as T;
     }
-    if (t == _i37.Integration) {
-      return _i37.Integration.fromJson(data) as T;
+    if (t == _i37.UserRole) {
+      return _i37.UserRole.fromJson(data) as T;
     }
-    if (t == _i38.NotificationPreference) {
-      return _i38.NotificationPreference.fromJson(data) as T;
+    if (t == _i38.HealthSignal) {
+      return _i38.HealthSignal.fromJson(data) as T;
     }
-    if (t == _i39.SystemSetting) {
-      return _i39.SystemSetting.fromJson(data) as T;
+    if (t == _i39.Rule) {
+      return _i39.Rule.fromJson(data) as T;
     }
-    if (t == _i40.StreamAlert) {
-      return _i40.StreamAlert.fromJson(data) as T;
+    if (t == _i40.Service) {
+      return _i40.Service.fromJson(data) as T;
     }
-    if (t == _i41.StreamIncidentUpdate) {
-      return _i41.StreamIncidentUpdate.fromJson(data) as T;
+    if (t == _i41.Environment) {
+      return _i41.Environment.fromJson(data) as T;
     }
-    if (t == _i42.StreamLogEntry) {
-      return _i42.StreamLogEntry.fromJson(data) as T;
+    if (t == _i42.Integration) {
+      return _i42.Integration.fromJson(data) as T;
     }
-    if (t == _i43.StreamMetric) {
-      return _i43.StreamMetric.fromJson(data) as T;
+    if (t == _i43.NotificationPreference) {
+      return _i43.NotificationPreference.fromJson(data) as T;
     }
-    if (t == _i44.StreamServiceStatus) {
-      return _i44.StreamServiceStatus.fromJson(data) as T;
+    if (t == _i44.OutgoingWebhook) {
+      return _i44.OutgoingWebhook.fromJson(data) as T;
     }
-    if (t == _i45.StreamSignalUpdate) {
-      return _i45.StreamSignalUpdate.fromJson(data) as T;
+    if (t == _i45.SystemSetting) {
+      return _i45.SystemSetting.fromJson(data) as T;
     }
-    if (t == _i46.StreamSubscription) {
-      return _i46.StreamSubscription.fromJson(data) as T;
+    if (t == _i46.StreamAlert) {
+      return _i46.StreamAlert.fromJson(data) as T;
     }
-    if (t == _i47.StreamSubscriptionType) {
-      return _i47.StreamSubscriptionType.fromJson(data) as T;
+    if (t == _i47.StreamIncidentUpdate) {
+      return _i47.StreamIncidentUpdate.fromJson(data) as T;
     }
-    if (t == _i48.StreamTimelineEvent) {
-      return _i48.StreamTimelineEvent.fromJson(data) as T;
+    if (t == _i48.StreamLogEntry) {
+      return _i48.StreamLogEntry.fromJson(data) as T;
     }
-    if (t == _i49.StreamUpdateType) {
-      return _i49.StreamUpdateType.fromJson(data) as T;
+    if (t == _i49.StreamMetric) {
+      return _i49.StreamMetric.fromJson(data) as T;
     }
-    if (t == _i50.TelemetryEvent) {
-      return _i50.TelemetryEvent.fromJson(data) as T;
+    if (t == _i50.StreamServiceStatus) {
+      return _i50.StreamServiceStatus.fromJson(data) as T;
     }
-    if (t == _i51.TelemetryHeartbeat) {
-      return _i51.TelemetryHeartbeat.fromJson(data) as T;
+    if (t == _i51.StreamSignalUpdate) {
+      return _i51.StreamSignalUpdate.fromJson(data) as T;
     }
-    if (t == _i52.TelemetryResources) {
-      return _i52.TelemetryResources.fromJson(data) as T;
+    if (t == _i52.StreamSubscription) {
+      return _i52.StreamSubscription.fromJson(data) as T;
     }
-    if (t == _i53.TelemetrySignalBatch) {
-      return _i53.TelemetrySignalBatch.fromJson(data) as T;
+    if (t == _i53.StreamSubscriptionType) {
+      return _i53.StreamSubscriptionType.fromJson(data) as T;
     }
-    if (t == _i54.TelemetrySignalPayload) {
-      return _i54.TelemetrySignalPayload.fromJson(data) as T;
+    if (t == _i54.StreamTimelineEvent) {
+      return _i54.StreamTimelineEvent.fromJson(data) as T;
+    }
+    if (t == _i55.StreamUpdateType) {
+      return _i55.StreamUpdateType.fromJson(data) as T;
+    }
+    if (t == _i56.MetricPoint) {
+      return _i56.MetricPoint.fromJson(data) as T;
+    }
+    if (t == _i57.TelemetryEvent) {
+      return _i57.TelemetryEvent.fromJson(data) as T;
+    }
+    if (t == _i58.TelemetryHeartbeat) {
+      return _i58.TelemetryHeartbeat.fromJson(data) as T;
+    }
+    if (t == _i59.TelemetryResources) {
+      return _i59.TelemetryResources.fromJson(data) as T;
+    }
+    if (t == _i60.TelemetrySignalBatch) {
+      return _i60.TelemetrySignalBatch.fromJson(data) as T;
+    }
+    if (t == _i61.TelemetrySignalPayload) {
+      return _i61.TelemetrySignalPayload.fromJson(data) as T;
     }
     if (t == _i1.getType<_i6.AgentTask?>()) {
       return (data != null ? _i6.AgentTask.fromJson(data) : null) as T;
@@ -2658,109 +3242,130 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i23.TimelineItemType?>()) {
       return (data != null ? _i23.TimelineItemType.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i24.Greeting?>()) {
-      return (data != null ? _i24.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i24.ChaosExperiment?>()) {
+      return (data != null ? _i24.ChaosExperiment.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i25.Incident?>()) {
-      return (data != null ? _i25.Incident.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i25.RemediationPolicy?>()) {
+      return (data != null ? _i25.RemediationPolicy.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i26.IncidentTimelineItem?>()) {
-      return (data != null ? _i26.IncidentTimelineItem.fromJson(data) : null)
+    if (t == _i1.getType<_i26.Greeting?>()) {
+      return (data != null ? _i26.Greeting.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i27.Incident?>()) {
+      return (data != null ? _i27.Incident.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i28.IncidentTimelineItem?>()) {
+      return (data != null ? _i28.IncidentTimelineItem.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i27.ReportSnapshot?>()) {
-      return (data != null ? _i27.ReportSnapshot.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i29.ReportSnapshot?>()) {
+      return (data != null ? _i29.ReportSnapshot.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i28.AuditLog?>()) {
-      return (data != null ? _i28.AuditLog.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i30.AppPermission?>()) {
+      return (data != null ? _i30.AppPermission.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i29.OpsUser?>()) {
-      return (data != null ? _i29.OpsUser.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i31.AuditLog?>()) {
+      return (data != null ? _i31.AuditLog.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i30.Role?>()) {
-      return (data != null ? _i30.Role.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i32.OpsUser?>()) {
+      return (data != null ? _i32.OpsUser.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i31.ServiceToken?>()) {
-      return (data != null ? _i31.ServiceToken.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i33.RateLimitCount?>()) {
+      return (data != null ? _i33.RateLimitCount.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i32.UserRole?>()) {
-      return (data != null ? _i32.UserRole.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i34.Role?>()) {
+      return (data != null ? _i34.Role.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i33.HealthSignal?>()) {
-      return (data != null ? _i33.HealthSignal.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i35.SentinelApiKey?>()) {
+      return (data != null ? _i35.SentinelApiKey.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i34.Rule?>()) {
-      return (data != null ? _i34.Rule.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i36.ServiceToken?>()) {
+      return (data != null ? _i36.ServiceToken.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i35.Service?>()) {
-      return (data != null ? _i35.Service.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i37.UserRole?>()) {
+      return (data != null ? _i37.UserRole.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i36.Environment?>()) {
-      return (data != null ? _i36.Environment.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i38.HealthSignal?>()) {
+      return (data != null ? _i38.HealthSignal.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i37.Integration?>()) {
-      return (data != null ? _i37.Integration.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i39.Rule?>()) {
+      return (data != null ? _i39.Rule.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i38.NotificationPreference?>()) {
-      return (data != null ? _i38.NotificationPreference.fromJson(data) : null)
+    if (t == _i1.getType<_i40.Service?>()) {
+      return (data != null ? _i40.Service.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i41.Environment?>()) {
+      return (data != null ? _i41.Environment.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i42.Integration?>()) {
+      return (data != null ? _i42.Integration.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i43.NotificationPreference?>()) {
+      return (data != null ? _i43.NotificationPreference.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i39.SystemSetting?>()) {
-      return (data != null ? _i39.SystemSetting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i44.OutgoingWebhook?>()) {
+      return (data != null ? _i44.OutgoingWebhook.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i40.StreamAlert?>()) {
-      return (data != null ? _i40.StreamAlert.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i45.SystemSetting?>()) {
+      return (data != null ? _i45.SystemSetting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i41.StreamIncidentUpdate?>()) {
-      return (data != null ? _i41.StreamIncidentUpdate.fromJson(data) : null)
+    if (t == _i1.getType<_i46.StreamAlert?>()) {
+      return (data != null ? _i46.StreamAlert.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i47.StreamIncidentUpdate?>()) {
+      return (data != null ? _i47.StreamIncidentUpdate.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i42.StreamLogEntry?>()) {
-      return (data != null ? _i42.StreamLogEntry.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i48.StreamLogEntry?>()) {
+      return (data != null ? _i48.StreamLogEntry.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i43.StreamMetric?>()) {
-      return (data != null ? _i43.StreamMetric.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i49.StreamMetric?>()) {
+      return (data != null ? _i49.StreamMetric.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i44.StreamServiceStatus?>()) {
-      return (data != null ? _i44.StreamServiceStatus.fromJson(data) : null)
+    if (t == _i1.getType<_i50.StreamServiceStatus?>()) {
+      return (data != null ? _i50.StreamServiceStatus.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i45.StreamSignalUpdate?>()) {
-      return (data != null ? _i45.StreamSignalUpdate.fromJson(data) : null)
+    if (t == _i1.getType<_i51.StreamSignalUpdate?>()) {
+      return (data != null ? _i51.StreamSignalUpdate.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i46.StreamSubscription?>()) {
-      return (data != null ? _i46.StreamSubscription.fromJson(data) : null)
+    if (t == _i1.getType<_i52.StreamSubscription?>()) {
+      return (data != null ? _i52.StreamSubscription.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i47.StreamSubscriptionType?>()) {
-      return (data != null ? _i47.StreamSubscriptionType.fromJson(data) : null)
+    if (t == _i1.getType<_i53.StreamSubscriptionType?>()) {
+      return (data != null ? _i53.StreamSubscriptionType.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i48.StreamTimelineEvent?>()) {
-      return (data != null ? _i48.StreamTimelineEvent.fromJson(data) : null)
+    if (t == _i1.getType<_i54.StreamTimelineEvent?>()) {
+      return (data != null ? _i54.StreamTimelineEvent.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i49.StreamUpdateType?>()) {
-      return (data != null ? _i49.StreamUpdateType.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i55.StreamUpdateType?>()) {
+      return (data != null ? _i55.StreamUpdateType.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i50.TelemetryEvent?>()) {
-      return (data != null ? _i50.TelemetryEvent.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i56.MetricPoint?>()) {
+      return (data != null ? _i56.MetricPoint.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i51.TelemetryHeartbeat?>()) {
-      return (data != null ? _i51.TelemetryHeartbeat.fromJson(data) : null)
+    if (t == _i1.getType<_i57.TelemetryEvent?>()) {
+      return (data != null ? _i57.TelemetryEvent.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i58.TelemetryHeartbeat?>()) {
+      return (data != null ? _i58.TelemetryHeartbeat.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i52.TelemetryResources?>()) {
-      return (data != null ? _i52.TelemetryResources.fromJson(data) : null)
+    if (t == _i1.getType<_i59.TelemetryResources?>()) {
+      return (data != null ? _i59.TelemetryResources.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i53.TelemetrySignalBatch?>()) {
-      return (data != null ? _i53.TelemetrySignalBatch.fromJson(data) : null)
+    if (t == _i1.getType<_i60.TelemetrySignalBatch?>()) {
+      return (data != null ? _i60.TelemetrySignalBatch.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i54.TelemetrySignalPayload?>()) {
-      return (data != null ? _i54.TelemetrySignalPayload.fromJson(data) : null)
+    if (t == _i1.getType<_i61.TelemetrySignalPayload?>()) {
+      return (data != null ? _i61.TelemetrySignalPayload.fromJson(data) : null)
           as T;
     }
     if (t == List<String>) {
@@ -2786,92 +3391,92 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == List<_i26.IncidentTimelineItem>) {
+    if (t == List<_i28.IncidentTimelineItem>) {
       return (data as List)
-              .map((e) => deserialize<_i26.IncidentTimelineItem>(e))
+              .map((e) => deserialize<_i28.IncidentTimelineItem>(e))
               .toList()
           as T;
     }
-    if (t == _i1.getType<List<_i26.IncidentTimelineItem>?>()) {
+    if (t == _i1.getType<List<_i28.IncidentTimelineItem>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i26.IncidentTimelineItem>(e))
+                    .map((e) => deserialize<_i28.IncidentTimelineItem>(e))
                     .toList()
               : null)
           as T;
     }
-    if (t == List<_i32.UserRole>) {
-      return (data as List).map((e) => deserialize<_i32.UserRole>(e)).toList()
+    if (t == List<_i37.UserRole>) {
+      return (data as List).map((e) => deserialize<_i37.UserRole>(e)).toList()
           as T;
     }
-    if (t == _i1.getType<List<_i32.UserRole>?>()) {
+    if (t == _i1.getType<List<_i37.UserRole>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i32.UserRole>(e))
+                    .map((e) => deserialize<_i37.UserRole>(e))
                     .toList()
               : null)
           as T;
     }
-    if (t == List<_i35.Service>) {
-      return (data as List).map((e) => deserialize<_i35.Service>(e)).toList()
+    if (t == List<_i40.Service>) {
+      return (data as List).map((e) => deserialize<_i40.Service>(e)).toList()
           as T;
     }
-    if (t == _i1.getType<List<_i35.Service>?>()) {
+    if (t == _i1.getType<List<_i40.Service>?>()) {
       return (data != null
-              ? (data as List).map((e) => deserialize<_i35.Service>(e)).toList()
+              ? (data as List).map((e) => deserialize<_i40.Service>(e)).toList()
               : null)
           as T;
     }
-    if (t == List<_i25.Incident>) {
-      return (data as List).map((e) => deserialize<_i25.Incident>(e)).toList()
+    if (t == List<_i27.Incident>) {
+      return (data as List).map((e) => deserialize<_i27.Incident>(e)).toList()
           as T;
     }
-    if (t == _i1.getType<List<_i25.Incident>?>()) {
+    if (t == _i1.getType<List<_i27.Incident>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i25.Incident>(e))
+                    .map((e) => deserialize<_i27.Incident>(e))
                     .toList()
               : null)
           as T;
     }
-    if (t == List<_i28.AuditLog>) {
-      return (data as List).map((e) => deserialize<_i28.AuditLog>(e)).toList()
+    if (t == List<_i31.AuditLog>) {
+      return (data as List).map((e) => deserialize<_i31.AuditLog>(e)).toList()
           as T;
     }
-    if (t == _i1.getType<List<_i28.AuditLog>?>()) {
+    if (t == _i1.getType<List<_i31.AuditLog>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i28.AuditLog>(e))
+                    .map((e) => deserialize<_i31.AuditLog>(e))
                     .toList()
               : null)
           as T;
     }
-    if (t == List<_i33.HealthSignal>) {
+    if (t == List<_i38.HealthSignal>) {
       return (data as List)
-              .map((e) => deserialize<_i33.HealthSignal>(e))
+              .map((e) => deserialize<_i38.HealthSignal>(e))
               .toList()
           as T;
     }
-    if (t == _i1.getType<List<_i33.HealthSignal>?>()) {
+    if (t == _i1.getType<List<_i38.HealthSignal>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i33.HealthSignal>(e))
+                    .map((e) => deserialize<_i38.HealthSignal>(e))
                     .toList()
               : null)
           as T;
     }
-    if (t == List<_i34.Rule>) {
-      return (data as List).map((e) => deserialize<_i34.Rule>(e)).toList() as T;
+    if (t == List<_i39.Rule>) {
+      return (data as List).map((e) => deserialize<_i39.Rule>(e)).toList() as T;
     }
-    if (t == _i1.getType<List<_i34.Rule>?>()) {
+    if (t == _i1.getType<List<_i39.Rule>?>()) {
       return (data != null
-              ? (data as List).map((e) => deserialize<_i34.Rule>(e)).toList()
+              ? (data as List).map((e) => deserialize<_i39.Rule>(e)).toList()
               : null)
           as T;
     }
-    if (t == List<_i54.TelemetrySignalPayload>) {
+    if (t == List<_i61.TelemetrySignalPayload>) {
       return (data as List)
-              .map((e) => deserialize<_i54.TelemetrySignalPayload>(e))
+              .map((e) => deserialize<_i61.TelemetrySignalPayload>(e))
               .toList()
           as T;
     }
@@ -2884,8 +3489,8 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == List<_i55.AiInsight>) {
-      return (data as List).map((e) => deserialize<_i55.AiInsight>(e)).toList()
+    if (t == List<_i62.AiInsight>) {
+      return (data as List).map((e) => deserialize<_i62.AiInsight>(e)).toList()
           as T;
     }
     if (t == Map<String, dynamic>) {
@@ -2894,51 +3499,57 @@ class Protocol extends _i1.SerializationManagerServer {
           )
           as T;
     }
+    if (t == List<_i63.StreamAlert>) {
+      return (data as List)
+              .map((e) => deserialize<_i63.StreamAlert>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i64.AuditLog>) {
+      return (data as List).map((e) => deserialize<_i64.AuditLog>(e)).toList()
+          as T;
+    }
+    if (t == List<_i65.Environment>) {
+      return (data as List)
+              .map((e) => deserialize<_i65.Environment>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i66.Incident>) {
+      return (data as List).map((e) => deserialize<_i66.Incident>(e)).toList()
+          as T;
+    }
+    if (t == List<_i67.Integration>) {
+      return (data as List)
+              .map((e) => deserialize<_i67.Integration>(e))
+              .toList()
+          as T;
+    }
     if (t == List<Map<String, dynamic>>) {
       return (data as List)
               .map((e) => deserialize<Map<String, dynamic>>(e))
               .toList()
           as T;
     }
-    if (t == List<_i56.StreamAlert>) {
+    if (t == List<_i68.NotificationPreference>) {
       return (data as List)
-              .map((e) => deserialize<_i56.StreamAlert>(e))
+              .map((e) => deserialize<_i68.NotificationPreference>(e))
               .toList()
           as T;
     }
-    if (t == List<_i57.AuditLog>) {
-      return (data as List).map((e) => deserialize<_i57.AuditLog>(e)).toList()
-          as T;
-    }
-    if (t == List<_i58.Environment>) {
+    if (t == List<_i69.OutgoingWebhook>) {
       return (data as List)
-              .map((e) => deserialize<_i58.Environment>(e))
+              .map((e) => deserialize<_i69.OutgoingWebhook>(e))
               .toList()
           as T;
     }
-    if (t == List<_i59.Incident>) {
-      return (data as List).map((e) => deserialize<_i59.Incident>(e)).toList()
+    if (t == List<_i70.Playbook>) {
+      return (data as List).map((e) => deserialize<_i70.Playbook>(e)).toList()
           as T;
     }
-    if (t == List<_i60.Integration>) {
+    if (t == List<_i71.ReportSnapshot>) {
       return (data as List)
-              .map((e) => deserialize<_i60.Integration>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_i61.NotificationPreference>) {
-      return (data as List)
-              .map((e) => deserialize<_i61.NotificationPreference>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_i62.Playbook>) {
-      return (data as List).map((e) => deserialize<_i62.Playbook>(e)).toList()
-          as T;
-    }
-    if (t == List<_i63.ReportSnapshot>) {
-      return (data as List)
-              .map((e) => deserialize<_i63.ReportSnapshot>(e))
+              .map((e) => deserialize<_i71.ReportSnapshot>(e))
               .toList()
           as T;
     }
@@ -2951,41 +3562,53 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == List<_i64.IncidentSeverity>) {
+    if (t == List<_i72.IncidentSeverity>) {
       return (data as List)
-              .map((e) => deserialize<_i64.IncidentSeverity>(e))
+              .map((e) => deserialize<_i72.IncidentSeverity>(e))
               .toList()
           as T;
     }
-    if (t == _i1.getType<List<_i64.IncidentSeverity>?>()) {
+    if (t == _i1.getType<List<_i72.IncidentSeverity>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i64.IncidentSeverity>(e))
+                    .map((e) => deserialize<_i72.IncidentSeverity>(e))
                     .toList()
               : null)
           as T;
     }
-    if (t == List<_i65.Rule>) {
-      return (data as List).map((e) => deserialize<_i65.Rule>(e)).toList() as T;
+    if (t == List<_i73.Rule>) {
+      return (data as List).map((e) => deserialize<_i73.Rule>(e)).toList() as T;
     }
-    if (t == List<_i66.Service>) {
-      return (data as List).map((e) => deserialize<_i66.Service>(e)).toList()
-          as T;
-    }
-    if (t == List<_i67.SystemSetting>) {
+    if (t == List<_i74.SentinelApiKey>) {
       return (data as List)
-              .map((e) => deserialize<_i67.SystemSetting>(e))
+              .map((e) => deserialize<_i74.SentinelApiKey>(e))
               .toList()
           as T;
     }
-    if (t == List<_i68.HealthSignal>) {
+    if (t == List<_i75.Service>) {
+      return (data as List).map((e) => deserialize<_i75.Service>(e)).toList()
+          as T;
+    }
+    if (t == List<_i76.SystemSetting>) {
       return (data as List)
-              .map((e) => deserialize<_i68.HealthSignal>(e))
+              .map((e) => deserialize<_i76.SystemSetting>(e))
               .toList()
           as T;
     }
-    if (t == List<_i69.TeamMember>) {
-      return (data as List).map((e) => deserialize<_i69.TeamMember>(e)).toList()
+    if (t == List<_i77.HealthSignal>) {
+      return (data as List)
+              .map((e) => deserialize<_i77.HealthSignal>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i78.MetricPoint>) {
+      return (data as List)
+              .map((e) => deserialize<_i78.MetricPoint>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i79.TeamMember>) {
+      return (data as List).map((e) => deserialize<_i79.TeamMember>(e)).toList()
           as T;
     }
     try {
@@ -3023,37 +3646,44 @@ class Protocol extends _i1.SerializationManagerServer {
       _i21.ServiceTier => 'ServiceTier',
       _i22.SignalType => 'SignalType',
       _i23.TimelineItemType => 'TimelineItemType',
-      _i24.Greeting => 'Greeting',
-      _i25.Incident => 'Incident',
-      _i26.IncidentTimelineItem => 'IncidentTimelineItem',
-      _i27.ReportSnapshot => 'ReportSnapshot',
-      _i28.AuditLog => 'AuditLog',
-      _i29.OpsUser => 'OpsUser',
-      _i30.Role => 'Role',
-      _i31.ServiceToken => 'ServiceToken',
-      _i32.UserRole => 'UserRole',
-      _i33.HealthSignal => 'HealthSignal',
-      _i34.Rule => 'Rule',
-      _i35.Service => 'Service',
-      _i36.Environment => 'Environment',
-      _i37.Integration => 'Integration',
-      _i38.NotificationPreference => 'NotificationPreference',
-      _i39.SystemSetting => 'SystemSetting',
-      _i40.StreamAlert => 'StreamAlert',
-      _i41.StreamIncidentUpdate => 'StreamIncidentUpdate',
-      _i42.StreamLogEntry => 'StreamLogEntry',
-      _i43.StreamMetric => 'StreamMetric',
-      _i44.StreamServiceStatus => 'StreamServiceStatus',
-      _i45.StreamSignalUpdate => 'StreamSignalUpdate',
-      _i46.StreamSubscription => 'StreamSubscription',
-      _i47.StreamSubscriptionType => 'StreamSubscriptionType',
-      _i48.StreamTimelineEvent => 'StreamTimelineEvent',
-      _i49.StreamUpdateType => 'StreamUpdateType',
-      _i50.TelemetryEvent => 'TelemetryEvent',
-      _i51.TelemetryHeartbeat => 'TelemetryHeartbeat',
-      _i52.TelemetryResources => 'TelemetryResources',
-      _i53.TelemetrySignalBatch => 'TelemetrySignalBatch',
-      _i54.TelemetrySignalPayload => 'TelemetrySignalPayload',
+      _i24.ChaosExperiment => 'ChaosExperiment',
+      _i25.RemediationPolicy => 'RemediationPolicy',
+      _i26.Greeting => 'Greeting',
+      _i27.Incident => 'Incident',
+      _i28.IncidentTimelineItem => 'IncidentTimelineItem',
+      _i29.ReportSnapshot => 'ReportSnapshot',
+      _i30.AppPermission => 'AppPermission',
+      _i31.AuditLog => 'AuditLog',
+      _i32.OpsUser => 'OpsUser',
+      _i33.RateLimitCount => 'RateLimitCount',
+      _i34.Role => 'Role',
+      _i35.SentinelApiKey => 'SentinelApiKey',
+      _i36.ServiceToken => 'ServiceToken',
+      _i37.UserRole => 'UserRole',
+      _i38.HealthSignal => 'HealthSignal',
+      _i39.Rule => 'Rule',
+      _i40.Service => 'Service',
+      _i41.Environment => 'Environment',
+      _i42.Integration => 'Integration',
+      _i43.NotificationPreference => 'NotificationPreference',
+      _i44.OutgoingWebhook => 'OutgoingWebhook',
+      _i45.SystemSetting => 'SystemSetting',
+      _i46.StreamAlert => 'StreamAlert',
+      _i47.StreamIncidentUpdate => 'StreamIncidentUpdate',
+      _i48.StreamLogEntry => 'StreamLogEntry',
+      _i49.StreamMetric => 'StreamMetric',
+      _i50.StreamServiceStatus => 'StreamServiceStatus',
+      _i51.StreamSignalUpdate => 'StreamSignalUpdate',
+      _i52.StreamSubscription => 'StreamSubscription',
+      _i53.StreamSubscriptionType => 'StreamSubscriptionType',
+      _i54.StreamTimelineEvent => 'StreamTimelineEvent',
+      _i55.StreamUpdateType => 'StreamUpdateType',
+      _i56.MetricPoint => 'MetricPoint',
+      _i57.TelemetryEvent => 'TelemetryEvent',
+      _i58.TelemetryHeartbeat => 'TelemetryHeartbeat',
+      _i59.TelemetryResources => 'TelemetryResources',
+      _i60.TelemetrySignalBatch => 'TelemetrySignalBatch',
+      _i61.TelemetrySignalPayload => 'TelemetrySignalPayload',
       _ => null,
     };
   }
@@ -3107,67 +3737,81 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'SignalType';
       case _i23.TimelineItemType():
         return 'TimelineItemType';
-      case _i24.Greeting():
+      case _i24.ChaosExperiment():
+        return 'ChaosExperiment';
+      case _i25.RemediationPolicy():
+        return 'RemediationPolicy';
+      case _i26.Greeting():
         return 'Greeting';
-      case _i25.Incident():
+      case _i27.Incident():
         return 'Incident';
-      case _i26.IncidentTimelineItem():
+      case _i28.IncidentTimelineItem():
         return 'IncidentTimelineItem';
-      case _i27.ReportSnapshot():
+      case _i29.ReportSnapshot():
         return 'ReportSnapshot';
-      case _i28.AuditLog():
+      case _i30.AppPermission():
+        return 'AppPermission';
+      case _i31.AuditLog():
         return 'AuditLog';
-      case _i29.OpsUser():
+      case _i32.OpsUser():
         return 'OpsUser';
-      case _i30.Role():
+      case _i33.RateLimitCount():
+        return 'RateLimitCount';
+      case _i34.Role():
         return 'Role';
-      case _i31.ServiceToken():
+      case _i35.SentinelApiKey():
+        return 'SentinelApiKey';
+      case _i36.ServiceToken():
         return 'ServiceToken';
-      case _i32.UserRole():
+      case _i37.UserRole():
         return 'UserRole';
-      case _i33.HealthSignal():
+      case _i38.HealthSignal():
         return 'HealthSignal';
-      case _i34.Rule():
+      case _i39.Rule():
         return 'Rule';
-      case _i35.Service():
+      case _i40.Service():
         return 'Service';
-      case _i36.Environment():
+      case _i41.Environment():
         return 'Environment';
-      case _i37.Integration():
+      case _i42.Integration():
         return 'Integration';
-      case _i38.NotificationPreference():
+      case _i43.NotificationPreference():
         return 'NotificationPreference';
-      case _i39.SystemSetting():
+      case _i44.OutgoingWebhook():
+        return 'OutgoingWebhook';
+      case _i45.SystemSetting():
         return 'SystemSetting';
-      case _i40.StreamAlert():
+      case _i46.StreamAlert():
         return 'StreamAlert';
-      case _i41.StreamIncidentUpdate():
+      case _i47.StreamIncidentUpdate():
         return 'StreamIncidentUpdate';
-      case _i42.StreamLogEntry():
+      case _i48.StreamLogEntry():
         return 'StreamLogEntry';
-      case _i43.StreamMetric():
+      case _i49.StreamMetric():
         return 'StreamMetric';
-      case _i44.StreamServiceStatus():
+      case _i50.StreamServiceStatus():
         return 'StreamServiceStatus';
-      case _i45.StreamSignalUpdate():
+      case _i51.StreamSignalUpdate():
         return 'StreamSignalUpdate';
-      case _i46.StreamSubscription():
+      case _i52.StreamSubscription():
         return 'StreamSubscription';
-      case _i47.StreamSubscriptionType():
+      case _i53.StreamSubscriptionType():
         return 'StreamSubscriptionType';
-      case _i48.StreamTimelineEvent():
+      case _i54.StreamTimelineEvent():
         return 'StreamTimelineEvent';
-      case _i49.StreamUpdateType():
+      case _i55.StreamUpdateType():
         return 'StreamUpdateType';
-      case _i50.TelemetryEvent():
+      case _i56.MetricPoint():
+        return 'MetricPoint';
+      case _i57.TelemetryEvent():
         return 'TelemetryEvent';
-      case _i51.TelemetryHeartbeat():
+      case _i58.TelemetryHeartbeat():
         return 'TelemetryHeartbeat';
-      case _i52.TelemetryResources():
+      case _i59.TelemetryResources():
         return 'TelemetryResources';
-      case _i53.TelemetrySignalBatch():
+      case _i60.TelemetrySignalBatch():
         return 'TelemetrySignalBatch';
-      case _i54.TelemetrySignalPayload():
+      case _i61.TelemetrySignalPayload():
         return 'TelemetrySignalPayload';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -3249,98 +3893,119 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'TimelineItemType') {
       return deserialize<_i23.TimelineItemType>(data['data']);
     }
+    if (dataClassName == 'ChaosExperiment') {
+      return deserialize<_i24.ChaosExperiment>(data['data']);
+    }
+    if (dataClassName == 'RemediationPolicy') {
+      return deserialize<_i25.RemediationPolicy>(data['data']);
+    }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i24.Greeting>(data['data']);
+      return deserialize<_i26.Greeting>(data['data']);
     }
     if (dataClassName == 'Incident') {
-      return deserialize<_i25.Incident>(data['data']);
+      return deserialize<_i27.Incident>(data['data']);
     }
     if (dataClassName == 'IncidentTimelineItem') {
-      return deserialize<_i26.IncidentTimelineItem>(data['data']);
+      return deserialize<_i28.IncidentTimelineItem>(data['data']);
     }
     if (dataClassName == 'ReportSnapshot') {
-      return deserialize<_i27.ReportSnapshot>(data['data']);
+      return deserialize<_i29.ReportSnapshot>(data['data']);
+    }
+    if (dataClassName == 'AppPermission') {
+      return deserialize<_i30.AppPermission>(data['data']);
     }
     if (dataClassName == 'AuditLog') {
-      return deserialize<_i28.AuditLog>(data['data']);
+      return deserialize<_i31.AuditLog>(data['data']);
     }
     if (dataClassName == 'OpsUser') {
-      return deserialize<_i29.OpsUser>(data['data']);
+      return deserialize<_i32.OpsUser>(data['data']);
+    }
+    if (dataClassName == 'RateLimitCount') {
+      return deserialize<_i33.RateLimitCount>(data['data']);
     }
     if (dataClassName == 'Role') {
-      return deserialize<_i30.Role>(data['data']);
+      return deserialize<_i34.Role>(data['data']);
+    }
+    if (dataClassName == 'SentinelApiKey') {
+      return deserialize<_i35.SentinelApiKey>(data['data']);
     }
     if (dataClassName == 'ServiceToken') {
-      return deserialize<_i31.ServiceToken>(data['data']);
+      return deserialize<_i36.ServiceToken>(data['data']);
     }
     if (dataClassName == 'UserRole') {
-      return deserialize<_i32.UserRole>(data['data']);
+      return deserialize<_i37.UserRole>(data['data']);
     }
     if (dataClassName == 'HealthSignal') {
-      return deserialize<_i33.HealthSignal>(data['data']);
+      return deserialize<_i38.HealthSignal>(data['data']);
     }
     if (dataClassName == 'Rule') {
-      return deserialize<_i34.Rule>(data['data']);
+      return deserialize<_i39.Rule>(data['data']);
     }
     if (dataClassName == 'Service') {
-      return deserialize<_i35.Service>(data['data']);
+      return deserialize<_i40.Service>(data['data']);
     }
     if (dataClassName == 'Environment') {
-      return deserialize<_i36.Environment>(data['data']);
+      return deserialize<_i41.Environment>(data['data']);
     }
     if (dataClassName == 'Integration') {
-      return deserialize<_i37.Integration>(data['data']);
+      return deserialize<_i42.Integration>(data['data']);
     }
     if (dataClassName == 'NotificationPreference') {
-      return deserialize<_i38.NotificationPreference>(data['data']);
+      return deserialize<_i43.NotificationPreference>(data['data']);
+    }
+    if (dataClassName == 'OutgoingWebhook') {
+      return deserialize<_i44.OutgoingWebhook>(data['data']);
     }
     if (dataClassName == 'SystemSetting') {
-      return deserialize<_i39.SystemSetting>(data['data']);
+      return deserialize<_i45.SystemSetting>(data['data']);
     }
     if (dataClassName == 'StreamAlert') {
-      return deserialize<_i40.StreamAlert>(data['data']);
+      return deserialize<_i46.StreamAlert>(data['data']);
     }
     if (dataClassName == 'StreamIncidentUpdate') {
-      return deserialize<_i41.StreamIncidentUpdate>(data['data']);
+      return deserialize<_i47.StreamIncidentUpdate>(data['data']);
     }
     if (dataClassName == 'StreamLogEntry') {
-      return deserialize<_i42.StreamLogEntry>(data['data']);
+      return deserialize<_i48.StreamLogEntry>(data['data']);
     }
     if (dataClassName == 'StreamMetric') {
-      return deserialize<_i43.StreamMetric>(data['data']);
+      return deserialize<_i49.StreamMetric>(data['data']);
     }
     if (dataClassName == 'StreamServiceStatus') {
-      return deserialize<_i44.StreamServiceStatus>(data['data']);
+      return deserialize<_i50.StreamServiceStatus>(data['data']);
     }
     if (dataClassName == 'StreamSignalUpdate') {
-      return deserialize<_i45.StreamSignalUpdate>(data['data']);
+      return deserialize<_i51.StreamSignalUpdate>(data['data']);
     }
     if (dataClassName == 'StreamSubscription') {
-      return deserialize<_i46.StreamSubscription>(data['data']);
+      return deserialize<_i52.StreamSubscription>(data['data']);
     }
     if (dataClassName == 'StreamSubscriptionType') {
-      return deserialize<_i47.StreamSubscriptionType>(data['data']);
+      return deserialize<_i53.StreamSubscriptionType>(data['data']);
     }
     if (dataClassName == 'StreamTimelineEvent') {
-      return deserialize<_i48.StreamTimelineEvent>(data['data']);
+      return deserialize<_i54.StreamTimelineEvent>(data['data']);
     }
     if (dataClassName == 'StreamUpdateType') {
-      return deserialize<_i49.StreamUpdateType>(data['data']);
+      return deserialize<_i55.StreamUpdateType>(data['data']);
+    }
+    if (dataClassName == 'MetricPoint') {
+      return deserialize<_i56.MetricPoint>(data['data']);
     }
     if (dataClassName == 'TelemetryEvent') {
-      return deserialize<_i50.TelemetryEvent>(data['data']);
+      return deserialize<_i57.TelemetryEvent>(data['data']);
     }
     if (dataClassName == 'TelemetryHeartbeat') {
-      return deserialize<_i51.TelemetryHeartbeat>(data['data']);
+      return deserialize<_i58.TelemetryHeartbeat>(data['data']);
     }
     if (dataClassName == 'TelemetryResources') {
-      return deserialize<_i52.TelemetryResources>(data['data']);
+      return deserialize<_i59.TelemetryResources>(data['data']);
     }
     if (dataClassName == 'TelemetrySignalBatch') {
-      return deserialize<_i53.TelemetrySignalBatch>(data['data']);
+      return deserialize<_i60.TelemetrySignalBatch>(data['data']);
     }
     if (dataClassName == 'TelemetrySignalPayload') {
-      return deserialize<_i54.TelemetrySignalPayload>(data['data']);
+      return deserialize<_i61.TelemetrySignalPayload>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -3398,38 +4063,48 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i10.PlaybookExecution.t;
       case _i11.PlaybookStepExecution:
         return _i11.PlaybookStepExecution.t;
-      case _i25.Incident:
-        return _i25.Incident.t;
-      case _i26.IncidentTimelineItem:
-        return _i26.IncidentTimelineItem.t;
-      case _i27.ReportSnapshot:
-        return _i27.ReportSnapshot.t;
-      case _i28.AuditLog:
-        return _i28.AuditLog.t;
-      case _i29.OpsUser:
-        return _i29.OpsUser.t;
-      case _i30.Role:
-        return _i30.Role.t;
-      case _i31.ServiceToken:
-        return _i31.ServiceToken.t;
-      case _i32.UserRole:
-        return _i32.UserRole.t;
-      case _i33.HealthSignal:
-        return _i33.HealthSignal.t;
-      case _i34.Rule:
-        return _i34.Rule.t;
-      case _i35.Service:
-        return _i35.Service.t;
-      case _i36.Environment:
-        return _i36.Environment.t;
-      case _i37.Integration:
-        return _i37.Integration.t;
-      case _i38.NotificationPreference:
-        return _i38.NotificationPreference.t;
-      case _i39.SystemSetting:
-        return _i39.SystemSetting.t;
-      case _i51.TelemetryHeartbeat:
-        return _i51.TelemetryHeartbeat.t;
+      case _i24.ChaosExperiment:
+        return _i24.ChaosExperiment.t;
+      case _i25.RemediationPolicy:
+        return _i25.RemediationPolicy.t;
+      case _i27.Incident:
+        return _i27.Incident.t;
+      case _i28.IncidentTimelineItem:
+        return _i28.IncidentTimelineItem.t;
+      case _i29.ReportSnapshot:
+        return _i29.ReportSnapshot.t;
+      case _i31.AuditLog:
+        return _i31.AuditLog.t;
+      case _i32.OpsUser:
+        return _i32.OpsUser.t;
+      case _i34.Role:
+        return _i34.Role.t;
+      case _i35.SentinelApiKey:
+        return _i35.SentinelApiKey.t;
+      case _i36.ServiceToken:
+        return _i36.ServiceToken.t;
+      case _i37.UserRole:
+        return _i37.UserRole.t;
+      case _i38.HealthSignal:
+        return _i38.HealthSignal.t;
+      case _i39.Rule:
+        return _i39.Rule.t;
+      case _i40.Service:
+        return _i40.Service.t;
+      case _i41.Environment:
+        return _i41.Environment.t;
+      case _i42.Integration:
+        return _i42.Integration.t;
+      case _i43.NotificationPreference:
+        return _i43.NotificationPreference.t;
+      case _i44.OutgoingWebhook:
+        return _i44.OutgoingWebhook.t;
+      case _i45.SystemSetting:
+        return _i45.SystemSetting.t;
+      case _i56.MetricPoint:
+        return _i56.MetricPoint.t;
+      case _i58.TelemetryHeartbeat:
+        return _i58.TelemetryHeartbeat.t;
     }
     return null;
   }

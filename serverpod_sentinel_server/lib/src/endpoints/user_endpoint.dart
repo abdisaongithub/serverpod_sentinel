@@ -1,21 +1,25 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
+import 'package:serverpod_sentinel_server/src/business/security/mfa_service.dart';
+import 'package:serverpod_sentinel_server/src/business/security/encryption_service.dart';
+import 'package:serverpod_sentinel_server/src/business/security/security_checks.dart';
 
 class UserEndpoint extends Endpoint {
+  /// Helper to verify permission
+  Future<void> _checkPermission(Session session, AppPermission permission) async {
+    await SecurityChecks.requirePermission(session, permission);
+  }
+
   /// Get current authenticated user profile
   Future<TeamMember?> getCurrentUser(Session session) async {
-    // Dynamic cast workaround for authentication info
-    final authInfo = (await session.authenticated) as dynamic;
-    final int? userId = authInfo?.userId;
-
-    if (userId == null) return null;
+    final userId = await SecurityChecks.requireAuthentication(session);
 
     final opsUser = await OpsUser.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userId),
       include: OpsUser.include(
-        roles: UserRole.includeList(),
+        roles: UserRole.includeList(include: UserRole.include(role: Role.include())),
       ),
     );
 
@@ -32,6 +36,26 @@ class UserEndpoint extends Endpoint {
       imageUrl: userInfo.imageUrl,
     );
   }
+
+  /// Setup MFA for the current user
+  Future<String> setupMfa(Session session) async {
+    final userId = await SecurityChecks.requireAuthentication(session);
+    // In a real app, you'd generate a secret and return it along with a QR code URL
+    return MfaService.generateSecret();
+  }
+
+  /// Verify and enable MFA
+  Future<bool> verifyAndEnableMfa(Session session, String secret, String code) async {
+    final userId = await SecurityChecks.requireAuthentication(session);
+    final opsUser = await OpsUser.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userId),
+    );
+    if (opsUser == null) return false;
+
+    return await MfaService.enableForUser(session, opsUser.id!, secret, code);
+  }
+
 
   /// List team members
   Future<List<TeamMember>> listTeamMembers(Session session) async {

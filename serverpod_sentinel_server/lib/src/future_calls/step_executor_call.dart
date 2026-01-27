@@ -97,8 +97,12 @@ class StepExecutorCall extends FutureCall<StepExecutorPayload> {
     try {
       final result = await runner.run(
         stepConfig['config'] ?? {},
-        {'session': session}, // Pass session in context
+        {
+          'session': session,
+          'stepExecutionId': stepExecutionId,
+        },
       );
+
 
       stepExecution.logs = result.logs;
       stepExecution.output = result.output;

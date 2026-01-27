@@ -16,7 +16,6 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
@@ -42,6 +41,10 @@ class _BrandingPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
+
     return Stack(
       children: [
         Positioned.fill(
@@ -57,9 +60,9 @@ class _BrandingPanel extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppTheme.background.withOpacity(0.9),
+                  bgColor.withOpacity(0.9),
                   AppTheme.primary.withOpacity(0.3),
-                  AppTheme.background,
+                  bgColor,
                 ],
               ),
             ),
@@ -70,22 +73,18 @@ class _BrandingPanel extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Logo and Text similar to login screen
               const Spacer(),
               Text(
                 'Join the Future of DevOps.',
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  color: Colors.white,
+                style: theme.textTheme.displayMedium?.copyWith(
+                  color: theme.colorScheme.onSurface,
                   height: 1.1,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
                 'Create your account to start managing infrastructure securely.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: const Color(0xFFCBD5E1),
-                  height: 1.6,
-                ),
+                style: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
               ),
               const SizedBox(height: 32),
             ],
@@ -162,6 +161,8 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final authState = ref.watch(authProvider);
     final isDesktop =
         MediaQuery.of(context).size.width >= AppTheme.tabletBreakpoint;
@@ -179,22 +180,19 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (!isDesktop) ...[
-                  // Mobile Header
-                  const SizedBox(height: 20),
-                ],
+                if (!isDesktop) ...[const SizedBox(height: 20)],
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.person_add,
-                      color: AppTheme.primary,
+                      color: colorScheme.primary,
                       size: 16,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       'CREATE ACCOUNT - STEP ${(_currentStep.index + 1)}/3',
-                      style: const TextStyle(
-                        color: AppTheme.primary,
+                      style: TextStyle(
+                        color: colorScheme.primary,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.1,
@@ -209,7 +207,7 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                       : _currentStep == _SignupStep.code
                       ? 'Verify Email'
                       : 'Set Password',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: theme.textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -218,9 +216,7 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                       : _currentStep == _SignupStep.code
                       ? 'We sent a code to ${_emailController.text}'
                       : 'Create a strong password for your account.',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(color: AppTheme.textMuted),
+                  style: theme.textTheme.bodyMedium,
                 ),
 
                 if (authState.error != null)
@@ -228,7 +224,7 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                     padding: const EdgeInsets.only(top: 16),
                     child: Text(
                       authState.error!,
-                      style: const TextStyle(color: Colors.red),
+                      style: TextStyle(color: colorScheme.error),
                     ),
                   ),
 
@@ -285,7 +281,6 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                     icon: Icons.arrow_forward,
                     isLoading: authState.isLoading,
                     onPressed: _handleStep,
-                    backgroundColor: AppTheme.primary,
                   ),
                 ),
 
@@ -296,7 +291,7 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                     children: [
                       Text(
                         'Already have an account?',
-                        style: TextStyle(color: AppTheme.textMuted),
+                        style: theme.textTheme.bodyMedium,
                       ),
                       TextButton(
                         onPressed: () => context.go(AppRoutes.login),
@@ -314,9 +309,9 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                           _registrationToken = null;
                         });
                       },
-                      child: const Text(
+                      child: Text(
                         'Back to start',
-                        style: TextStyle(color: Colors.grey),
+                        style: theme.textTheme.bodySmall,
                       ),
                     ),
                   ),

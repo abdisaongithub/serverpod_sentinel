@@ -1,6 +1,8 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
+import 'package:serverpod_sentinel_server/src/business/governance/self_healing_service.dart';
 import 'rule_evaluator.dart';
+
 
 class DetectionEngine {
   final RuleEvaluator _evaluator = RuleEvaluator();
@@ -76,17 +78,21 @@ class DetectionEngine {
         startedAt: DateTime.now(),
       );
 
-      await Incident.db.insertRow(session, newIncident);
+      final createdIncident = await Incident.db.insertRow(session, newIncident);
 
       // Add initial timeline item
       final timelineItem = IncidentTimelineItem(
-        incidentId: newIncident.id!,
+        incidentId: createdIncident.id!,
         type: TimelineItemType.SYSTEM_ALERT,
         content: 'Incident automatically created by Detection Engine.',
         createdAt: DateTime.now(),
         authorId: 0,
       );
       await IncidentTimelineItem.db.insertRow(session, timelineItem);
+
+      // TRIGGER SELF-HEALING (PHASE 5)
+      await SelfHealingService.evaluateIncident(session, createdIncident);
     }
+
   }
 }

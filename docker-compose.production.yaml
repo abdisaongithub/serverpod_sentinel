@@ -1,0 +1,62 @@
+services:
+  # Database
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: serverpod_sentinel
+      POSTGRES_PASSWORD: "T2iL8hIJwV33SOLneL8Po8HKCAwchje2"
+    volumes:
+      - serverpod_sentinel_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:6.2.6
+    restart: always
+    command: redis-server --requirepass "drj9_Fqc0mZvhNK9KTs-907ss-r7OfmH"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "drj9_Fqc0mZvhNK9KTs-907ss-r7OfmH", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Serverpod Server
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "8082:8082"
+    environment:
+      runmode: production
+      serverid: default
+      logging: normal
+      role: monolith
+
+  # Flutter Web Client (using a generic nginx or similar)
+  # For now we'll just put a placeholder as it requires a separate build process
+  # web:
+  #   build:
+  #     context: ../serverpod_sentinel_flutter
+  #     dockerfile: Dockerfile.web
+  #   ports:
+  #     - "80:80"
+
+volumes:
+  serverpod_sentinel_data:

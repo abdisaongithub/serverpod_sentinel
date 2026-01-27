@@ -212,14 +212,17 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.playbookExecution,
             builder: (context, state) {
               final id =
-                  int.tryParse(state.uri.queryParameters['id'] ?? '') ?? 0;
-              return PlaybookExecutionScreen(playbookId: id);
+                  int.tryParse(state.uri.queryParameters['execId'] ?? 
+                               state.uri.queryParameters['id'] ?? '') ?? 0;
+              return PlaybookExecutionScreen(executionId: id);
             },
           ),
+
           GoRoute(
             path: AppRoutes.aiInsights,
-            builder: (context, state) => const AIInsightsScreen(),
+            builder: (context, state) => const AiInsightsScreen(),
           ),
+
           GoRoute(
             path: AppRoutes.reports,
             builder: (context, state) => const ReportsScreen(),

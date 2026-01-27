@@ -79,38 +79,8 @@ final notificationChannelsProvider = FutureProvider<List<String>>((ref) async {
   }
 });
 
-// ============ Audit Logs ============
-
-/// Fetch audit logs.
-final auditLogsProvider = FutureProvider<List<AuditLog>>((ref) async {
-  try {
-    final client = ref.watch(clientProvider);
-    return await client.auditLog.list();
-  } catch (e) {
-    print('Error fetching audit logs: $e');
-    rethrow;
-  }
-});
-
-/// Fetch audit logs for a specific entity.
-final auditLogsForEntityProvider =
-    FutureProvider.family<List<AuditLog>, ({String entityType, int entityId})>((
-      ref,
-      params,
-    ) async {
-      try {
-        final client = ref.watch(clientProvider);
-        return await client.auditLog.getForEntity(
-          params.entityType,
-          params.entityId,
-        );
-      } catch (e) {
-        print('Error fetching audit logs for entity: $e');
-        rethrow;
-      }
-    });
-
 // ============ System Settings ============
+
 
 /// Fetch all system settings.
 final systemSettingsProvider = FutureProvider<List<SystemSetting>>((ref) async {

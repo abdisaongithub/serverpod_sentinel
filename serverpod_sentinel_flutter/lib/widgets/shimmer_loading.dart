@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../theme/app_theme.dart';
 
 /// A shimmer placeholder box for loading states.
 class ShimmerBox extends StatelessWidget {
@@ -16,16 +17,24 @@ class ShimmerBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark
+        ? AppTheme.darkSurfaceVariant
+        : AppTheme.lightSurfaceHighlight;
+    final shimmerColor = isDark
+        ? AppTheme.darkSurfaceHighlight
+        : AppTheme.lightBorder;
+
     return Container(
           width: width,
           height: height,
           decoration: BoxDecoration(
-            color: Colors.grey[800],
+            color: baseColor,
             borderRadius: BorderRadius.circular(borderRadius),
           ),
         )
         .animate(onPlay: (c) => c.repeat())
-        .shimmer(duration: 1200.ms, color: Colors.grey[700]!);
+        .shimmer(duration: 1200.ms, color: shimmerColor);
   }
 }
 
@@ -35,10 +44,15 @@ class ShimmerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark
+        ? AppTheme.darkSurface
+        : AppTheme.lightSurfaceVariant;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: cardColor,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

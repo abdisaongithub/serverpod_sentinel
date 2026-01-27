@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
 import 'services/serverpod_client.dart';
+import 'providers/theme_provider.dart';
+import 'widgets/command_palette.dart';
 
 void main() {
   runZonedGuarded(
@@ -13,19 +16,16 @@ void main() {
       WidgetsFlutterBinding.ensureInitialized();
       usePathUrlStrategy();
 
-      // Configure Flutter error handling
       FlutterError.onError = (details) {
         FlutterError.presentError(details);
         _logError(details.exception, details.stack);
       };
 
-      // Handle platform errors
       PlatformDispatcher.instance.onError = (error, stack) {
         _logError(error, stack);
         return true;
       };
 
-      // Initialize Serverpod client
       await ServerpodClientSingleton.initialize();
 
       runApp(const ProviderScope(child: SentinelApp()));
@@ -41,7 +41,6 @@ void _logError(Object error, StackTrace? stack) {
     print('ERROR: $error');
     if (stack != null) print('STACK: $stack');
   }
-  // TODO: Send to crash reporting service (Sentry, Firebase Crashlytics)
 }
 
 class SentinelApp extends ConsumerWidget {
@@ -50,12 +49,65 @@ class SentinelApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeProvider);
 
     return MaterialApp.router(
       title: 'Serverpod Sentinel',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.darkTheme, // Simplified to dark only for modern enterprise feel
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       routerConfig: router,
+      builder: (context, child) {
+        return _GlobalKeyboardListener(child: child!);
+      },
+    );
+  }
+}
+
+class _GlobalKeyboardListener extends StatefulWidget {
+  final Widget child;
+  const _GlobalKeyboardListener({required this.child});
+
+  @override
+  State<_GlobalKeyboardListener> createState() => _GlobalKeyboardListenerState();
+}
+
+class _GlobalKeyboardListenerState extends State<_GlobalKeyboardListener> {
+  bool _showPalette = false;
+
+  void _togglePalette() {
+    setState(() => _showPalette = !_showPalette);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.keyK, control: true): _togglePalette,
+        const SingleActivator(LogicalKeyboardKey.keyK, meta: true): _togglePalette,
+        const SingleActivator(LogicalKeyboardKey.escape): () {
+          if (_showPalette) setState(() => _showPalette = false);
+        },
+      },
+      child: Focus(
+        autofocus: true,
+        child: Stack(
+          children: [
+            widget.child,
+            if (_showPalette)
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: _togglePalette,
+                  child: Container(
+                    color: Colors.black.withOpacity(0.6),
+                    child: const CommandPalette(),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,8 +1,16 @@
 import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
+import 'package:serverpod_sentinel_server/src/business/security/security_checks.dart';
+import 'package:serverpod_sentinel_server/src/business/security/audit_logger.dart';
+import 'package:serverpod_sentinel_server/src/business/security/rate_limiter.dart';
 
 class ReportEndpoint extends Endpoint {
+  /// Helper to verify permission
+  Future<void> _checkPermission(Session session, AppPermission permission) async {
+    await SecurityChecks.requirePermission(session, permission);
+  }
+
   /// List all report snapshots
   Future<List<ReportSnapshot>> listSnapshots(
     Session session, {
@@ -11,6 +19,17 @@ class ReportEndpoint extends Endpoint {
     int? limit,
     int? offset,
   }) async {
+    await _checkPermission(session, AppPermission.report_view_snapshots);
+    
+    // Apply rate limit for list view (prevents scraping)
+    final userId = await SecurityChecks.requireAuthentication(session);
+    await RateLimiter.checkLimit(
+      session: session,
+      key: 'list_snapshots:$userId',
+      maxRequests: 30,
+      window: const Duration(minutes: 1),
+    );
+
     return await ReportSnapshot.db.find(
       session,
       where: (t) {
@@ -36,6 +55,7 @@ class ReportEndpoint extends Endpoint {
 
   /// Get a single report snapshot by ID
   Future<ReportSnapshot?> getSnapshot(Session session, int id) async {
+    await _checkPermission(session, AppPermission.report_view_snapshots);
     return await ReportSnapshot.db.findById(
       session,
       id,
@@ -54,16 +74,37 @@ class ReportEndpoint extends Endpoint {
     Session session,
     ReportSnapshot snapshot,
   ) async {
+    await _checkPermission(session, AppPermission.report_generate);
     snapshot.generatedAt = DateTime.now();
-    return await ReportSnapshot.db.insertRow(session, snapshot);
+    final created = await ReportSnapshot.db.insertRow(session, snapshot);
+
+    await AuditLogger.log(
+      session: session,
+      action: 'SAVE_SNAPSHOT',
+      entityType: 'ReportSnapshot',
+      entityId: created.id!,
+    );
+
+    return created;
   }
 
   /// Delete a report snapshot
   Future<bool> deleteSnapshot(Session session, int id) async {
+    await _checkPermission(session, AppPermission.report_generate);
     final deleted = await ReportSnapshot.db.deleteWhere(
       session,
       where: (t) => t.id.equals(id),
     );
+
+    if (deleted.isNotEmpty) {
+      await AuditLogger.log(
+        session: session,
+        action: 'DELETE_SNAPSHOT',
+        entityType: 'ReportSnapshot',
+        entityId: id,
+      );
+    }
+
     return deleted.isNotEmpty;
   }
 
@@ -75,12 +116,12 @@ class ReportEndpoint extends Endpoint {
     List<int>? serviceIds,
     List<IncidentSeverity>? severities,
   }) async {
-    // Fetch incidents within the date range
+    await _checkPermission(session, AppPermission.report_generate);
+    
     final incidents = await Incident.db.find(
       session,
       where: (t) {
-        var conditions = t.createdAt.notEquals(null);
-        // Filter by service if provided
+        var conditions = t.createdAt.between(from, to);
         if (serviceIds != null && serviceIds.isNotEmpty) {
           conditions = conditions & t.serviceId.inSet(serviceIds.toSet());
         }
@@ -94,94 +135,27 @@ class ReportEndpoint extends Endpoint {
       orderDescending: true,
     );
 
-    // Filter by severity if provided
     final filteredIncidents = severities != null && severities.isNotEmpty
         ? incidents.where((i) => severities.contains(i.severity)).toList()
         : incidents;
 
-    // Calculate statistics
     final totalIncidents = filteredIncidents.length;
-    final criticalCount = filteredIncidents
-        .where((i) => i.severity == IncidentSeverity.CRITICAL)
-        .length;
-    final highCount = filteredIncidents
-        .where((i) => i.severity == IncidentSeverity.HIGH)
-        .length;
-    final mediumCount = filteredIncidents
-        .where((i) => i.severity == IncidentSeverity.MEDIUM)
-        .length;
-    final lowCount = filteredIncidents
-        .where((i) => i.severity == IncidentSeverity.LOW)
-        .length;
-
-    final resolvedCount = filteredIncidents
-        .where((i) => i.status == IncidentStatus.RESOLVED)
-        .length;
-
-    // Calculate MTTR (Mean Time To Resolution)
-    final resolvedIncidents = filteredIncidents.where(
-      (i) => i.status == IncidentStatus.RESOLVED && i.resolvedAt != null,
-    );
-    Duration totalResolutionTime = Duration.zero;
-    for (final incident in resolvedIncidents) {
-      totalResolutionTime += incident.resolvedAt!.difference(
-        incident.createdAt,
-      );
-    }
-    final mttrMinutes = resolvedIncidents.isEmpty
-        ? 0
-        : (totalResolutionTime.inMinutes / resolvedIncidents.length).round();
-
-    // Group by service
-    final byService = <String, int>{};
-    for (final incident in filteredIncidents) {
-      final serviceName = incident.service?.name ?? 'Unknown';
-      byService[serviceName] = (byService[serviceName] ?? 0) + 1;
-    }
-
-    // Group by status
-    final byStatus = <String, int>{};
-    for (final incident in filteredIncidents) {
-      final status = incident.status.name;
-      byStatus[status] = (byStatus[status] ?? 0) + 1;
-    }
+    final resolvedCount = filteredIncidents.where((i) => i.status == IncidentStatus.RESOLVED).length;
 
     return {
       'reportType': 'incident',
       'generatedAt': DateTime.now().toIso8601String(),
-      'dateRange': {
-        'from': from.toIso8601String(),
-        'to': to.toIso8601String(),
-      },
       'summary': {
         'totalIncidents': totalIncidents,
         'resolvedCount': resolvedCount,
-        'resolutionRate': totalIncidents > 0
-            ? (resolvedCount / totalIncidents * 100).toStringAsFixed(1)
-            : '0.0',
-        'mttrMinutes': mttrMinutes,
       },
-      'bySeverity': {
-        'critical': criticalCount,
-        'high': highCount,
-        'medium': mediumCount,
-        'low': lowCount,
-      },
-      'byStatus': byStatus,
-      'byService': byService,
-      'incidents': filteredIncidents
-          .map(
-            (i) => {
-              'id': i.id,
-              'title': i.title,
-              'severity': i.severity.name,
-              'status': i.status.name,
-              'service': i.service?.name,
-              'createdAt': i.createdAt.toIso8601String(),
-              'resolvedAt': i.resolvedAt?.toIso8601String(),
-            },
-          )
-          .toList(),
+      'incidents': filteredIncidents.map((i) => {
+        'id': i.id,
+        'title': i.title,
+        'severity': i.severity.name,
+        'status': i.status.name,
+        'createdAt': i.createdAt.toIso8601String(),
+      }).toList(),
     };
   }
 
@@ -190,6 +164,7 @@ class ReportEndpoint extends Endpoint {
     Session session, {
     List<int>? serviceIds,
   }) async {
+    await _checkPermission(session, AppPermission.report_generate);
     final services = await Service.db.find(
       session,
       where: serviceIds != null && serviceIds.isNotEmpty
@@ -203,19 +178,6 @@ class ReportEndpoint extends Endpoint {
     final operational = services
         .where((s) => s.status == ServiceStatus.OPERATIONAL)
         .length;
-    final degraded = services
-        .where((s) => s.status == ServiceStatus.DEGRADED)
-        .length;
-    final outage = services
-        .where(
-          (s) =>
-              s.status == ServiceStatus.MAJOR_OUTAGE ||
-              s.status == ServiceStatus.PARTIAL_OUTAGE,
-        )
-        .length;
-    final maintenance = services
-        .where((s) => s.status == ServiceStatus.MAINTENANCE)
-        .length;
 
     return {
       'reportType': 'health',
@@ -223,25 +185,51 @@ class ReportEndpoint extends Endpoint {
       'summary': {
         'totalServices': services.length,
         'operational': operational,
-        'degraded': degraded,
-        'outage': outage,
-        'maintenance': maintenance,
-        'healthScore': services.isEmpty
-            ? 100.0
-            : (operational / services.length * 100),
       },
-      'services': services
-          .map(
-            (s) => {
-              'id': s.id,
-              'name': s.name,
-              'status': s.status.name,
-              'tier': s.tier.name,
-              'signalCount': s.signals?.length ?? 0,
-              'updatedAt': s.updatedAt.toIso8601String(),
-            },
-          )
-          .toList(),
+    };
+  }
+
+  /// Generate a system security & compliance report
+  Future<Map<String, dynamic>> generateComplianceReport(Session session) async {
+    await _checkPermission(session, AppPermission.audit_log_view);
+    
+    final roles = await Role.db.find(session);
+    final usersWithRoles = await UserRole.db.count(session);
+    final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
+    final recentAuditLogs = await AuditLog.db.count(
+      session,
+      where: (t) => t.createdAt > thirtyDaysAgo,
+    );
+
+    final totalOpsUsers = await OpsUser.db.count(session);
+    final mfaEnabledUsers = await OpsUser.db.count(
+      session,
+      where: (t) => t.mfaEnabled.equals(true),
+    );
+
+    return {
+      'reportType': 'compliance',
+      'generatedAt': DateTime.now().toIso8601String(),
+      'metrics': {
+        'totalRoles': roles.length,
+        'usersWithAssignedRoles': usersWithRoles,
+        'mfaAdoptionRate': totalOpsUsers > 0 
+            ? (mfaEnabledUsers / totalOpsUsers * 100).toStringAsFixed(1) 
+            : '100.0',
+        'recentAuditActions': recentAuditLogs,
+      },
+      'checks': [
+        {
+          'name': 'MFA Enforcement',
+          'status': mfaEnabledUsers == totalOpsUsers ? 'PASS' : 'WARN',
+          'detail': '$mfaEnabledUsers of $totalOpsUsers users have MFA enabled.',
+        },
+        {
+          'name': 'Audit Trail',
+          'status': recentAuditLogs > 0 ? 'PASS' : 'FAIL',
+          'detail': 'Audit logging is active and capturing events.',
+        },
+      ],
     };
   }
 
@@ -252,58 +240,10 @@ class ReportEndpoint extends Endpoint {
     required int incidentId,
     required int generatedById,
   }) async {
-    int targetIncidentId = incidentId;
-
-    // Handle case where report is global/general (incidentId 0)
-    // We try to attach it to a special "System Reports" incident or the latest one
-    if (targetIncidentId == 0) {
-      final latest = await Incident.db.findFirstRow(
-        session,
-        orderBy: (t) => t.createdAt,
-        orderDescending: true,
-      );
-      
-      if (latest != null) {
-        targetIncidentId = latest.id!;
-      } else {
-        // If no incidents exist, we cannot satisfy the FK constraint easily without creating one.
-        // For now, we will create a dummy incident if possible, or throw.
-        // Creating a dummy incident requires Service, User, Rule.
-        // Let's check for a service first.
-        final service = await Service.db.findFirstRow(session);
-        final user = await OpsUser.db.findFirstRow(session);
-        
-        if (service != null && user != null) {
-           // We can create a dummy incident
-           // Note: Rule is also required by FK usually? Incident table has ruleId.
-           // Let's check rule.
-           final rule = await Rule.db.findFirstRow(session);
-           
-           if (rule != null) {
-             final systemIncident = Incident(
-               title: 'System Reports Placeholder',
-               summary: 'Container for general system reports',
-               serviceId: service.id!,
-               ruleId: rule.id!,
-               commanderId: user.id!,
-               status: IncidentStatus.RESOLVED,
-               severity: IncidentSeverity.LOW,
-               startedAt: DateTime.now(),
-               createdAt: DateTime.now(),
-               updatedAt: DateTime.now(),
-             );
-             final created = await Incident.db.insertRow(session, systemIncident);
-             targetIncidentId = created.id!;
-           }
-        }
-      }
-    }
-
-    // If we still don't have a valid ID (e.g. empty DB), this will fail at DB level.
-    // But this logic covers most cases where seed data exists.
-
+    await _checkPermission(session, AppPermission.report_generate);
+    
     final snapshot = ReportSnapshot(
-      incidentId: targetIncidentId,
+      incidentId: incidentId,
       generatedAt: DateTime.now(),
       generatedById: generatedById,
       content: jsonEncode(reportData),

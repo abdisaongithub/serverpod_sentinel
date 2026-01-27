@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart';
-
+import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
 import 'package:serverpod_sentinel_server/src/business/notifications/notification_service.dart';
 
 abstract class StepRunner {
@@ -27,18 +27,77 @@ class SshStepRunner extends StepRunner {
     Map<String, dynamic> config,
     Map<String, dynamic> context,
   ) async {
-    // Simulate SSH execution
-    final command = config['command'];
-    final hostname = config['hostname']; // Ideally resolved via context
+    final session = context['session'] as Session?;
+    final stepExecutionId = context['stepExecutionId'] as int?;
 
-    // In real implementation, use 'dart_ssh2' or similar.
+    if (session == null || stepExecutionId == null) {
+      return StepResult(success: false, logs: 'Internal Error: Missing session or stepExecutionId');
+    }
+
+    // 1. Get Service ID from PlaybookExecution -> Incident -> Service
+    final stepExec = await PlaybookStepExecution.db.findById(
+      session,
+      stepExecutionId,
+      include: PlaybookStepExecution.include(
+        execution: PlaybookExecution.include(
+          incident: Incident.include(),
+        ),
+      ),
+    );
+
+    final serviceId = stepExec?.execution?.incident?.serviceId;
+    if (serviceId == null) {
+      return StepResult(success: false, logs: 'Error: Could not resolve service for this playbook.');
+    }
+
+    final command = config['command'] as String? ?? '';
+    if (command.isEmpty) {
+      return StepResult(success: false, logs: 'Error: No command provided.');
+    }
+
+    // 2. Create Agent Task
+    var task = AgentTask(
+      serviceId: serviceId,
+      command: command,
+      arguments: [], // Support parsing arguments from config if needed
+      timestamp: DateTime.now(),
+      timeoutSeconds: 60,
+      status: AgentTaskStatus.pending,
+    );
+    task = await AgentTask.db.insertRow(session, task);
+
+    // 3. Poll for result (Wait up to 60s)
+    final startTime = DateTime.now();
+    String lastOutput = '';
+    
+    while (DateTime.now().difference(startTime).inSeconds < 60) {
+      await Future.delayed(const Duration(seconds: 2));
+      final updatedTask = await AgentTask.db.findById(session, task.id!);
+      if (updatedTask == null) break;
+
+      if (updatedTask.status == AgentTaskStatus.completed) {
+        return StepResult(
+          success: updatedTask.exitCode == 0,
+          output: updatedTask.output ?? '',
+          logs: 'Agent Execution Successful.\nExit Code: ${updatedTask.exitCode}',
+        );
+      } else if (updatedTask.status == AgentTaskStatus.failed) {
+        return StepResult(
+          success: false,
+          output: updatedTask.output ?? '',
+          logs: 'Agent Execution Failed.',
+        );
+      }
+      lastOutput = updatedTask.output ?? 'Waiting for agent...';
+    }
+
     return StepResult(
-      success: true,
-      logs: 'Connected to $hostname\nExecuting: $command\nSuccess.',
-      output: '{"exitCode": 0}',
+      success: false,
+      logs: 'Timeout: Agent did not respond within 60s.\nLast State: $lastOutput',
     );
   }
 }
+
 
 class HttpStepRunner extends StepRunner {
   @override

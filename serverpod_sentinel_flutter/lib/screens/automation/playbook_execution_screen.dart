@@ -7,14 +7,13 @@ import '../../widgets/app_sidebar.dart';
 import '../../providers/playbooks_provider.dart';
 
 class PlaybookExecutionScreen extends ConsumerWidget {
-  final int playbookId;
-  const PlaybookExecutionScreen({super.key, required this.playbookId});
+  final int executionId;
+  const PlaybookExecutionScreen({super.key, required this.executionId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Note: Since we're using playbookId as the execution ID for now
-    // In a real scenario, you'd get an execution ID from the route or somewhere else
-    final executionAsync = ref.watch(playbookExecutionProvider(playbookId));
+    final executionAsync = ref.watch(playbookExecutionProvider(executionId));
+
 
     return LayoutBuilder(
       builder: (context, constraints) {

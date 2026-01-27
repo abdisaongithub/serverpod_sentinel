@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
 
 /// A branded text field with validation support.
 class AppTextField extends StatelessWidget {
@@ -30,51 +29,30 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-        ),
-        const SizedBox(height: 8),
+        if (label.isNotEmpty) Text(label, style: theme.textTheme.labelLarge),
+        if (label.isNotEmpty) const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           obscureText: obscureText,
           validator: validator,
           keyboardType: keyboardType,
           enabled: enabled,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: AppTheme.textMuted),
-            filled: true,
-            fillColor: AppTheme.surface,
-            prefixIcon: prefixIcon != null
-                ? Icon(prefixIcon, size: 20, color: AppTheme.textMuted)
-                : null,
+            prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20) : null,
             suffixIcon: suffixIcon != null
                 ? IconButton(
-                    icon: Icon(suffixIcon, size: 20, color: AppTheme.textMuted),
+                    icon: Icon(suffixIcon, size: 20),
                     onPressed: onSuffixPressed,
                   )
                 : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppTheme.surfaceHighlight),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppTheme.surfaceHighlight),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppTheme.primary),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red.shade400),
-            ),
           ),
         ),
       ],

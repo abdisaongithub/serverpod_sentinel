@@ -32,9 +32,11 @@ abstract class OpsUser
     this.timelineItems,
     this.playbookExecutions,
     this.auditLogs,
+    this.mfaSecret,
+    bool? mfaEnabled,
     required this.createdAt,
     required this.updatedAt,
-  });
+  }) : mfaEnabled = mfaEnabled ?? false;
 
   factory OpsUser({
     int? id,
@@ -45,6 +47,8 @@ abstract class OpsUser
     List<_i5.IncidentTimelineItem>? timelineItems,
     List<_i6.PlaybookExecution>? playbookExecutions,
     List<_i7.AuditLog>? auditLogs,
+    String? mfaSecret,
+    bool? mfaEnabled,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _OpsUserImpl;
@@ -83,6 +87,8 @@ abstract class OpsUser
           : _i8.Protocol().deserialize<List<_i7.AuditLog>>(
               jsonSerialization['auditLogs'],
             ),
+      mfaSecret: jsonSerialization['mfaSecret'] as String?,
+      mfaEnabled: jsonSerialization['mfaEnabled'] as bool?,
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -113,6 +119,10 @@ abstract class OpsUser
 
   List<_i7.AuditLog>? auditLogs;
 
+  String? mfaSecret;
+
+  bool mfaEnabled;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -132,6 +142,8 @@ abstract class OpsUser
     List<_i5.IncidentTimelineItem>? timelineItems,
     List<_i6.PlaybookExecution>? playbookExecutions,
     List<_i7.AuditLog>? auditLogs,
+    String? mfaSecret,
+    bool? mfaEnabled,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -154,6 +166,8 @@ abstract class OpsUser
         ),
       if (auditLogs != null)
         'auditLogs': auditLogs?.toJson(valueToJson: (v) => v.toJson()),
+      if (mfaSecret != null) 'mfaSecret': mfaSecret,
+      'mfaEnabled': mfaEnabled,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -185,6 +199,8 @@ abstract class OpsUser
         'auditLogs': auditLogs?.toJson(
           valueToJson: (v) => v.toJsonForProtocol(),
         ),
+      if (mfaSecret != null) 'mfaSecret': mfaSecret,
+      'mfaEnabled': mfaEnabled,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -246,6 +262,8 @@ class _OpsUserImpl extends OpsUser {
     List<_i5.IncidentTimelineItem>? timelineItems,
     List<_i6.PlaybookExecution>? playbookExecutions,
     List<_i7.AuditLog>? auditLogs,
+    String? mfaSecret,
+    bool? mfaEnabled,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) : super._(
@@ -257,6 +275,8 @@ class _OpsUserImpl extends OpsUser {
          timelineItems: timelineItems,
          playbookExecutions: playbookExecutions,
          auditLogs: auditLogs,
+         mfaSecret: mfaSecret,
+         mfaEnabled: mfaEnabled,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -274,6 +294,8 @@ class _OpsUserImpl extends OpsUser {
     Object? timelineItems = _Undefined,
     Object? playbookExecutions = _Undefined,
     Object? auditLogs = _Undefined,
+    Object? mfaSecret = _Undefined,
+    bool? mfaEnabled,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -298,6 +320,8 @@ class _OpsUserImpl extends OpsUser {
       auditLogs: auditLogs is List<_i7.AuditLog>?
           ? auditLogs
           : this.auditLogs?.map((e0) => e0.copyWith()).toList(),
+      mfaSecret: mfaSecret is String? ? mfaSecret : this.mfaSecret,
+      mfaEnabled: mfaEnabled ?? this.mfaEnabled,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -309,6 +333,16 @@ class OpsUserUpdateTable extends _i1.UpdateTable<OpsUserTable> {
 
   _i1.ColumnValue<int, int> userInfoId(int value) => _i1.ColumnValue(
     table.userInfoId,
+    value,
+  );
+
+  _i1.ColumnValue<String, String> mfaSecret(String? value) => _i1.ColumnValue(
+    table.mfaSecret,
+    value,
+  );
+
+  _i1.ColumnValue<bool, bool> mfaEnabled(bool value) => _i1.ColumnValue(
+    table.mfaEnabled,
     value,
   );
 
@@ -331,6 +365,15 @@ class OpsUserTable extends _i1.Table<int?> {
     userInfoId = _i1.ColumnInt(
       'userInfoId',
       this,
+    );
+    mfaSecret = _i1.ColumnString(
+      'mfaSecret',
+      this,
+    );
+    mfaEnabled = _i1.ColumnBool(
+      'mfaEnabled',
+      this,
+      hasDefault: true,
     );
     createdAt = _i1.ColumnDateTime(
       'createdAt',
@@ -369,6 +412,10 @@ class OpsUserTable extends _i1.Table<int?> {
   _i7.AuditLogTable? ___auditLogs;
 
   _i1.ManyRelation<_i7.AuditLogTable>? _auditLogs;
+
+  late final _i1.ColumnString mfaSecret;
+
+  late final _i1.ColumnBool mfaEnabled;
 
   late final _i1.ColumnDateTime createdAt;
 
@@ -572,6 +619,8 @@ class OpsUserTable extends _i1.Table<int?> {
   List<_i1.Column> get columns => [
     id,
     userInfoId,
+    mfaSecret,
+    mfaEnabled,
     createdAt,
     updatedAt,
   ];

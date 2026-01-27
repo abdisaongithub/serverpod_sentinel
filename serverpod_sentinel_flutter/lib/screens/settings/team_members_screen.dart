@@ -596,30 +596,43 @@ class _UsersSection extends ConsumerWidget {
             ],
           ),
         ),
-        // Table Rows
         ...members.map((member) {
-          // final user = member.user;
-          // final role = user.roles?.isNotEmpty == true
-          //     ? user.roles!.first.description
-          //     : 'Unassigned';
+          final roles = member.user?.roles ?? [];
+          final roleName = roles.isNotEmpty 
+              ? (roles.first.role?.name ?? 'User') 
+              : 'User';
+          final roleColor = _getRoleColor(roleName);
 
           return _UserTableRow(
             name: member.userName,
             email: member.email ?? 'No Email',
-            role: 'User',
-            roleColor: const Color(0xFF6366F1),
-            permissions: ['View'], // Mock permissions
+            role: roleName,
+            roleColor: roleColor,
+            permissions: roles.isNotEmpty 
+                ? (roles.first.role?.permissions ?? ['View']) 
+                : ['View'],
             status: 'Active',
             isOnline: false,
             initials: member.userName.substring(0, 1).toUpperCase(),
             onTap: () => onUserTap(member.userName),
           );
         }).toList(),
+
       ],
     );
   }
 
+  Color _getRoleColor(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin': return const Color(0xFF6366F1);
+      case 'analyst': return const Color(0xFF3B82F6);
+      case 'operator': return const Color(0xFF10B981);
+      default: return const Color(0xFF64748B);
+    }
+  }
+
   Widget _buildPagination() {
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(

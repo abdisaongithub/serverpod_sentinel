@@ -2,8 +2,10 @@
 class: TelemetryHeartbeat
 table: telemetry_heartbeat
 fields:
+  service: Service?, relation
   timestamp: DateTime
   uptimeSeconds: int
   version: String
   status: ServiceStatus
   resources: TelemetryResources?
+

@@ -1,115 +1,136 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+/// Design tokens and themes for Serverpod Sentinel.
+/// Modernized for Enterprise Grade "Fluid-Utility" aesthetic.
 class AppTheme {
-  // New Colors from HTML
-  static const Color background = Color(0xFF101622); // background-dark
-  static const Color surface = Color(0xFF192233); // dark form background
-  static const Color surfaceHighlight = Color(0xFF324467); // borders
-
-  // Breakpoints
   static const double mobileBreakpoint = 400;
-  static const double tabletBreakpoint =
-      1024; // Updated to match tailwind lg (1024px)
+  static const double tabletBreakpoint = 1024;
 
-  static const Color primary = Color(0xFF135BEC); // #135bec
-
-  static const Color text = Color(0xFFFFFFFF);
-  static const Color textMuted = Color(0xFF92A4C9);
-  static const Color textDim = Color(0xFF64748B);
-
-  // Semantic
-  static const Color success = Color(0xFF34D399); // emerald-400
+  static const Color primary = Color(0xFF135BEC);
+  static const Color primaryLight = Color(0xFF60A5FA);
+  
+  static const Color success = Color(0xFF22C55E);
+  static const Color warning = Color(0xFFF59E0B);
   static const Color error = Color(0xFFEF4444);
+  static const Color info = Color(0xFF3B82F6);
+
+  static const Color darkBackground = Color(0xFF060910);
+  static const Color darkSurface = Color(0xFF0F172A);
+  static const Color darkSurfaceVariant = Color(0xFF1E293B);
+  static const Color darkSurfaceHighlight = Color(0xFF334155);
+  static const Color darkBorder = Color(0xFF1E293B);
+  
+  static const Color darkText = Color(0xFFF8FAFC);
+  static const Color darkTextSecondary = Color(0xFFCBD5E1);
+  static const Color darkTextMuted = Color(0xFF94A3B8);
+  static const Color darkTextDim = Color(0xFF64748B);
+
+  // Shadows
+  static List<BoxShadow> get shadowLow => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.2),
+      blurRadius: 8,
+      offset: const Offset(0, 2),
+    ),
+  ];
+
+  static List<BoxShadow> get shadowHigh => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.4),
+      blurRadius: 32,
+      offset: const Offset(0, 8),
+    ),
+  ];
+
+  // LEGACY ALIASES
+  static const Color background = darkBackground;
+  static const Color surface = darkSurface;
+  static const Color surfaceHighlight = darkSurfaceHighlight;
+  static const Color text = darkText;
+  static const Color textMuted = darkTextMuted;
+  static const Color textDim = darkTextDim;
+  
+  // Static Getters for Compatibility
+  static Color get lightBackground => darkBackground;
+  static Color get lightSurfaceHighlight => darkSurfaceHighlight;
+  static Color get lightSurfaceVariant => darkSurfaceVariant;
+  static Color get lightBorder => darkBorder;
+  static Color get lightTextMuted => darkTextMuted;
 
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: background,
+      scaffoldBackgroundColor: darkBackground,
       primaryColor: primary,
-
-      // Color Scheme
       colorScheme: const ColorScheme.dark(
-        surface: surface,
         primary: primary,
-        secondary: primary,
+        secondary: primaryLight,
+        surface: darkSurface,
+        onSurface: darkText,
         error: error,
+        outline: darkBorder,
       ),
-
-      // Typography
-      textTheme: GoogleFonts.notoSansTextTheme(ThemeData.dark().textTheme)
-          .copyWith(
-            displayLarge: GoogleFonts.manrope(
-              color: text,
-              fontWeight: FontWeight.w800,
-            ),
-            displayMedium: GoogleFonts.manrope(
-              color: text,
-              fontWeight: FontWeight.w800,
-            ),
-            displaySmall: GoogleFonts.manrope(
-              color: text,
-              fontWeight: FontWeight.w700,
-            ),
-            headlineLarge: GoogleFonts.manrope(
-              color: text,
-              fontWeight: FontWeight.w700,
-            ),
-            headlineMedium: GoogleFonts.manrope(
-              color: text,
-              fontWeight: FontWeight.w700,
-            ),
-            titleLarge: GoogleFonts.manrope(
-              color: text,
-              fontWeight: FontWeight.w600,
-            ),
-            bodyLarge: GoogleFonts.notoSans(color: text),
-            bodyMedium: GoogleFonts.notoSans(color: textMuted),
-            bodySmall: GoogleFonts.notoSans(color: textDim),
-          ),
-
-      // Input Decoration
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: surface,
-        hintStyle: const TextStyle(color: textDim),
-        prefixIconColor: textDim,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 18,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: surfaceHighlight),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: surfaceHighlight),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: primary, width: 2),
+      textTheme: _buildTextTheme(),
+      inputDecorationTheme: _buildInputDecoration(),
+      elevatedButtonTheme: _buildElevatedButtonTheme(),
+      cardTheme: CardThemeData(
+        color: darkSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: darkBorder),
         ),
       ),
-
-      // Button Theme
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
-          foregroundColor: Colors.white,
-          elevation: 4,
-          shadowColor: primary.withOpacity(0.3),
-          textStyle: GoogleFonts.manrope(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-        ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        foregroundColor: darkText,
+        elevation: 0,
       ),
     );
   }
+
+  static ThemeData get lightTheme => darkTheme;
+
+  static TextTheme _buildTextTheme() {
+    return GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
+      displayLarge: GoogleFonts.manrope(color: darkText, fontWeight: FontWeight.w800),
+      headlineLarge: GoogleFonts.manrope(color: darkText, fontWeight: FontWeight.w700),
+      titleLarge: GoogleFonts.manrope(color: darkText, fontWeight: FontWeight.w600),
+      bodyLarge: GoogleFonts.inter(color: darkText, fontSize: 16),
+      bodyMedium: GoogleFonts.inter(color: darkTextSecondary, fontSize: 14),
+      bodySmall: GoogleFonts.inter(color: darkTextMuted, fontSize: 12),
+    );
+  }
+
+  static InputDecorationTheme _buildInputDecoration() {
+    return InputDecorationTheme(
+      filled: true,
+      fillColor: darkSurfaceVariant.withOpacity(0.5),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: darkBorder),
+      ),
+    );
+  }
+
+  static ElevatedButtonThemeData _buildElevatedButtonTheme() {
+    return ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+}
+
+extension AppThemeExtension on BuildContext {
+  bool get isDark => true;
+  Color get textSecondary => AppTheme.darkTextSecondary;
+  Color get textMuted => AppTheme.darkTextMuted;
+  Color get border => AppTheme.darkBorder;
+  Color get surfaceVariant => AppTheme.darkSurfaceVariant;
+  Color get surfaceHighlight => AppTheme.darkSurfaceHighlight;
 }

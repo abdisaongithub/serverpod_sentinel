@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
 
@@ -8,29 +9,35 @@ class AuditLogger {
     required String action,
     required String entityType,
     required int entityId,
-    String? details,
+    Map<String, dynamic>? changes,
   }) async {
-    // Get user ID (0 for system actions)
-    int actorId = 0;
-    try {
-      final authInfo = (await session.authenticated) as dynamic;
-      actorId = authInfo?.userId ?? 0;
-    } catch (_) {
-      // System action or anonymous
+    final authInfo = await session.authenticated;
+    final actorUserId = (authInfo as dynamic)?.userId;
+
+    // Map Auth User ID to OpsUser ID
+    int? opsUserId;
+    if (actorUserId != null) {
+      final opsUser = await OpsUser.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(actorUserId),
+      );
+      opsUserId = opsUser?.id;
     }
 
-    // Get IP address from session if available
-    String? ipAddress;
-    // session.httpRequest?.headers['x-forwarded-for'] or similar
-    // For now, we'll leave it null as endpoint context varies.
+    // Fallback to first available user if no authenticated user (System action)
+    // In a real production system, you'd have a dedicated System user.
+    if (opsUserId == null) {
+      final firstUser = await OpsUser.db.findFirstRow(session);
+      opsUserId = firstUser?.id ?? 0; // Should ideally never be 0 due to FK
+    }
 
     final logEntry = AuditLog(
-      actorId: actorId,
-      action: action,
+      actorId: opsUserId,
+      action: action.toUpperCase(),
       entityType: entityType,
       entityId: entityId,
-      changes: details,
-      ipAddress: ipAddress,
+      changes: changes != null ? jsonEncode(changes) : null,
+      ipAddress: null, // Session doesn't easily expose IP in all contexts
       createdAt: DateTime.now(),
     );
 

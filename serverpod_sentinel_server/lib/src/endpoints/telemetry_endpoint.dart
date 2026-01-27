@@ -1,13 +1,37 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
+import 'package:serverpod_sentinel_server/src/business/security/security_checks.dart';
+import 'package:serverpod_sentinel_server/src/exceptions/app_exceptions.dart';
 
 class TelemetryEndpoint extends Endpoint {
+  
+  Future<void> _verifyAgent(Session session) async {
+    // Agents must have a valid ServiceToken
+    final key = session.authenticationKey;
+    if (key == null) throw UnauthorizedException('Missing API Key');
+
+    final validToken = await ServiceToken.db.findFirstRow(
+      session,
+      where: (t) => t.token.equals(key),
+    );
+    
+    if (validToken == null || (validToken.expiresAt != null && validToken.expiresAt!.isBefore(DateTime.now()))) {
+      throw UnauthorizedException('Invalid or expired API Key');
+    }
+  }
+
+  Future<void> _checkPermission(Session session, AppPermission permission) async {
+    await SecurityChecks.requirePermission(session, permission);
+  }
+
   /// Ingest health signal from agent
   Future<void> ingestSignal(
     Session session,
     int serviceId,
     TelemetrySignalPayload payload,
   ) async {
+    await _verifyAgent(session);
+
     // Find or create the health signal
     var signal = await HealthSignal.db.findFirstRow(
       session,
@@ -29,13 +53,25 @@ class TelemetryEndpoint extends Endpoint {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
-      await HealthSignal.db.insertRow(session, signal);
+      signal = await HealthSignal.db.insertRow(session, signal);
     } else {
       signal.currentValue = payload.value;
       signal.isHealthy = payload.isHealthy;
       signal.lastCheckedAt = DateTime.now();
       signal.updatedAt = DateTime.now();
-      await HealthSignal.db.updateRow(session, signal);
+      signal = await HealthSignal.db.updateRow(session, signal);
+    }
+
+    // Store history in MetricPoint
+    if (signal.id != null) {
+        await MetricPoint.db.insertRow(
+          session,
+          MetricPoint(
+            signalId: signal.id!,
+            timestamp: DateTime.now(),
+            value: payload.value,
+          ),
+        );
     }
 
     // Broadcast service status update
@@ -49,6 +85,18 @@ class TelemetryEndpoint extends Endpoint {
         timestamp: DateTime.now(),
       ),
     );
+
+    // Also broadcast as a StreamMetric for real-time charts
+    await session.messages.postMessage(
+      'service-metrics-$serviceId',
+      StreamMetric(
+        serviceId: serviceId,
+        timestamp: DateTime.now(),
+        name: payload.identifier,
+        value: payload.value,
+        unit: payload.unit ?? '',
+      ),
+    );
   }
 
   /// Ingest batch of signals
@@ -57,6 +105,7 @@ class TelemetryEndpoint extends Endpoint {
     int serviceId,
     TelemetrySignalBatch batch,
   ) async {
+    await _verifyAgent(session);
     for (final payload in batch.signals) {
       await ingestSignal(session, serviceId, payload);
     }
@@ -68,6 +117,8 @@ class TelemetryEndpoint extends Endpoint {
     int serviceId,
     TelemetryHeartbeat heartbeat,
   ) async {
+    await _verifyAgent(session);
+
     // Update service status based on heartbeat
     final service = await Service.db.findById(session, serviceId);
     if (service != null) {
@@ -77,19 +128,42 @@ class TelemetryEndpoint extends Endpoint {
     }
 
     // Store heartbeat record
-    // Note: TelemetryHeartbeat protocol doesn't have serviceId field,
-    // assuming it might be added or we just track it via service update above.
-    // However, we can't insert it effectively without serviceId linkage if needed.
-    // For now, we just insert as is since protocol matches.
     await TelemetryHeartbeat.db.insertRow(session, heartbeat);
   }
 
   /// Get signals for a service
   Future<List<HealthSignal>> getSignals(Session session, int serviceId) async {
+    await _checkPermission(session, AppPermission.telemetry_view);
+    
     return await HealthSignal.db.find(
       session,
       where: (t) => t.serviceId.equals(serviceId),
       orderBy: (t) => t.identifier,
     );
   }
+
+  /// Get historical metric points for a signal
+  Future<List<MetricPoint>> getHistory(
+    Session session,
+    int signalId, {
+    int? limit,
+    DateTime? after,
+  }) async {
+    await _checkPermission(session, AppPermission.telemetry_view);
+
+    return await MetricPoint.db.find(
+      session,
+      where: (t) {
+        var conditions = t.signalId.equals(signalId);
+        if (after != null) {
+          conditions = conditions & (t.timestamp > after);
+        }
+        return conditions;
+      },
+      orderBy: (t) => t.timestamp,
+      orderDescending: true,
+      limit: limit ?? 100,
+    );
+  }
 }
+

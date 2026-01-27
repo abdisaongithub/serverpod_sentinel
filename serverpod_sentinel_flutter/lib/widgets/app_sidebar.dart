@@ -11,16 +11,20 @@ class AppSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       width: 260,
       decoration: BoxDecoration(
-        color: AppTheme.background,
-        border: const Border(
-          right: BorderSide(color: AppTheme.surfaceHighlight, width: 1),
+        color: theme.scaffoldBackgroundColor,
+        border: Border(
+          right: BorderSide(color: colorScheme.outlineVariant, width: 1),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
+            color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.15),
             blurRadius: 25,
             offset: const Offset(5, 0),
           ),
@@ -29,7 +33,7 @@ class AppSidebar extends StatelessWidget {
       child: Column(
         children: [
           // Logo Section
-          _buildHeader(),
+          _buildHeader(context),
 
           // Navigation Items
           Expanded(
@@ -38,7 +42,7 @@ class AppSidebar extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSection('OBSERVABILITY', [
+                  _buildSection(context, 'OBSERVABILITY', [
                     _SidebarItem(
                       icon: LucideIcons.layoutGrid,
                       label: 'Overview',
@@ -59,7 +63,7 @@ class AppSidebar extends StatelessWidget {
                       isActive: activeRoute == AppRoutes.liveStream,
                     ),
                   ]),
-                  _buildSection('INFRASTRUCTURE', [
+                  _buildSection(context, 'INFRASTRUCTURE', [
                     _SidebarItem(
                       icon: LucideIcons.network,
                       label: 'Service Registry',
@@ -69,7 +73,7 @@ class AppSidebar extends StatelessWidget {
                           activeRoute == AppRoutes.serviceDetail,
                     ),
                   ]),
-                  _buildSection('AUTOMATION', [
+                  _buildSection(context, 'AUTOMATION', [
                     _SidebarItem(
                       icon: LucideIcons.playCircle,
                       label: 'Playbooks',
@@ -77,7 +81,7 @@ class AppSidebar extends StatelessWidget {
                       isActive: activeRoute == AppRoutes.playbooks,
                     ),
                   ]),
-                  _buildSection('INTELLIGENCE', [
+                  _buildSection(context, 'INTELLIGENCE', [
                     _SidebarItem(
                       icon: LucideIcons.sparkles,
                       label: 'AI Insights',
@@ -91,7 +95,7 @@ class AppSidebar extends StatelessWidget {
                       isActive: activeRoute == AppRoutes.incidentReport,
                     ),
                   ]),
-                  _buildSection('SYSTEM', [
+                  _buildSection(context, 'SYSTEM', [
                     _SidebarItem(
                       icon: LucideIcons.users,
                       label: 'Team Members',
@@ -111,19 +115,22 @@ class AppSidebar extends StatelessWidget {
           ),
 
           // User Profile Section
-          _buildUserProfile(),
+          _buildUserProfile(context),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       height: 80,
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: AppTheme.surfaceHighlight, width: 1),
+          bottom: BorderSide(color: colorScheme.outlineVariant, width: 1),
         ),
       ),
       child: Row(
@@ -131,24 +138,24 @@ class AppSidebar extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               LucideIcons.shield,
-              color: AppTheme.primary,
+              color: colorScheme.primary,
               size: 24,
             ),
           ),
           const SizedBox(width: 12),
-          const Column(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'SENTINEL',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.w900,
                   fontSize: 18,
                   letterSpacing: 1,
@@ -156,8 +163,7 @@ class AppSidebar extends StatelessWidget {
               ),
               Text(
                 'OPS BUTLER',
-                style: TextStyle(
-                  color: AppTheme.textDim,
+                style: theme.textTheme.bodySmall?.copyWith(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
@@ -170,8 +176,10 @@ class AppSidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String title, List<Widget> items) {
+  Widget _buildSection(BuildContext context, String title, List<Widget> items) {
     if (items.isEmpty) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -179,8 +187,7 @@ class AppSidebar extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
           child: Text(
             title,
-            style: const TextStyle(
-              color: AppTheme.textDim,
+            style: theme.textTheme.bodySmall?.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.5,
@@ -192,30 +199,33 @@ class AppSidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildUserProfile() {
+  Widget _buildUserProfile(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: AppTheme.surfaceHighlight, width: 1),
+          top: BorderSide(color: colorScheme.outlineVariant, width: 1),
         ),
       ),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 18,
-            backgroundColor: AppTheme.surfaceHighlight,
+            backgroundColor: colorScheme.outlineVariant,
             child: Text(
               'AM',
               style: TextStyle(
-                color: Colors.white,
+                color: colorScheme.onSurface,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -223,19 +233,23 @@ class AppSidebar extends StatelessWidget {
                 Text(
                   'Alex Morgan',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
                 ),
                 Text(
                   'Admin Role',
-                  style: TextStyle(color: AppTheme.textDim, fontSize: 11),
+                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 11),
                 ),
               ],
             ),
           ),
-          Icon(LucideIcons.logOut, color: AppTheme.textDim, size: 18),
+          Icon(
+            LucideIcons.logOut,
+            color: theme.textTheme.bodySmall?.color,
+            size: 18,
+          ),
         ],
       ),
     );
@@ -266,6 +280,15 @@ class _SidebarItemState extends State<_SidebarItem> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final activeColor = colorScheme.primary;
+    final inactiveColor = isDark
+        ? AppTheme.darkTextMuted
+        : AppTheme.lightTextMuted;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       child: MouseRegion(
@@ -280,25 +303,27 @@ class _SidebarItemState extends State<_SidebarItem> {
                 }
               : null,
           borderRadius: BorderRadius.circular(8),
-          hoverColor: AppTheme.surfaceHighlight.withValues(alpha: 0.3),
-          splashColor: AppTheme.primary.withValues(alpha: 0.1),
-          highlightColor: AppTheme.primary.withValues(alpha: 0.05),
+          hoverColor: colorScheme.outlineVariant.withValues(alpha: 0.3),
+          splashColor: activeColor.withValues(alpha: 0.1),
+          highlightColor: activeColor.withValues(alpha: 0.05),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: widget.isActive
-                  ? AppTheme.primary.withValues(alpha: 0.1)
+                  ? activeColor.withValues(alpha: 0.1)
                   : (_isHovered
-                        ? AppTheme.surfaceHighlight.withValues(alpha: 0.2)
+                        ? colorScheme.outlineVariant.withValues(alpha: 0.2)
                         : Colors.transparent),
               borderRadius: BorderRadius.circular(8),
               boxShadow: (widget.isActive || _isHovered)
                   ? [
                       BoxShadow(
                         color: widget.isActive
-                            ? AppTheme.primary.withValues(alpha: 0.4)
-                            : Colors.black.withValues(alpha: 0.4),
+                            ? activeColor.withValues(alpha: 0.4)
+                            : Colors.black.withValues(
+                                alpha: isDark ? 0.4 : 0.15,
+                              ),
                         blurRadius: widget.isActive ? 12 : 6,
                         offset: const Offset(0, 4),
                       ),
@@ -310,9 +335,7 @@ class _SidebarItemState extends State<_SidebarItem> {
                 Icon(
                   widget.icon,
                   size: 20,
-                  color: widget.isActive
-                      ? AppTheme.primary
-                      : AppTheme.textMuted,
+                  color: widget.isActive ? activeColor : inactiveColor,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -320,8 +343,8 @@ class _SidebarItemState extends State<_SidebarItem> {
                     widget.label,
                     style: TextStyle(
                       color: widget.isActive
-                          ? Colors.white
-                          : AppTheme.textMuted,
+                          ? colorScheme.onSurface
+                          : inactiveColor,
                       fontSize: 14,
                       fontWeight: widget.isActive
                           ? FontWeight.bold

@@ -1,0 +1,18 @@
+### Scheduled Chaos Engineering experiments.
+class: ChaosExperiment
+table: chaos_experiment
+fields:
+  name: String
+  description: String?
+  serviceId: int, relation(parent=service)
+  type: String # latency_injection, process_kill, resource_hog
+  
+  config: String # JSON configuration
+  status: String # pending, running, completed, failed
+  
+  scheduledAt: DateTime?
+  startedAt: DateTime?
+  finishedAt: DateTime?
+  
+  createdAt: DateTime
+  updatedAt: DateTime
