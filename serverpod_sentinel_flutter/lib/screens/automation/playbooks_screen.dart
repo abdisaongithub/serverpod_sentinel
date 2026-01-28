@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/sentinel_motion.dart';
 import '../../routes.dart';
 import '../../widgets/app_sidebar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,7 +31,7 @@ class _PlaybooksScreenState extends ConsumerState<PlaybooksScreen> {
         final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
 
         return Scaffold(
-          backgroundColor: const Color(0xFF0F172A),
+          backgroundColor: AppTheme.darkBackground,
           drawer: !isDesktop
               ? const Drawer(
                   child: AppSidebar(activeRoute: AppRoutes.playbooks),
@@ -56,17 +57,7 @@ class _PlaybooksScreenState extends ConsumerState<PlaybooksScreen> {
                       const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Center(child: Text('Error: $err')),
                   data: (allPlaybooks) {
-                    // 1. Filter by Tab
                     var filtered = allPlaybooks;
-                    if (_activeTab == 'Active') {
-                      // Assuming 'Active' logic, but Playbook model doesn't have an 'isActive' field explicitly shown in UI
-                      // Using a mock filter if field is missing, or just pass through for now
-                      // Based on UI, we have a status, but no simple bool. Let's assume all are active for demo or filter by some logic
-                    } else if (_activeTab == 'Drafts') {
-                      // filtered = filtered.where((p) => p.isDraft).toList();
-                    }
-
-                    // 2. Filter by Search
                     if (_searchQuery.isNotEmpty) {
                       final query = _searchQuery.toLowerCase();
                       filtered = filtered.where((p) {
@@ -76,7 +67,6 @@ class _PlaybooksScreenState extends ConsumerState<PlaybooksScreen> {
                       }).toList();
                     }
 
-                    // 3. Pagination
                     final totalItems = filtered.length;
                     final totalPages = (totalItems / _itemsPerPage).ceil();
                     final start = (_currentPage - 1) * _itemsPerPage;
@@ -144,8 +134,8 @@ class _Header extends StatelessWidget {
       height: 64,
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16),
       decoration: const BoxDecoration(
-        color: Color(0xFF161E2D),
-        border: Border(bottom: BorderSide(color: Color(0xFF2D3748))),
+        color: AppTheme.darkSurface,
+        border: Border(bottom: BorderSide(color: AppTheme.darkBorder)),
       ),
       child: Row(
         children: [
@@ -164,10 +154,10 @@ class _Header extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text(
+                          const Text(
                             'Automation',
                             style: TextStyle(
-                              color: AppTheme.textMuted,
+                              color: AppTheme.darkTextMuted,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -176,13 +166,13 @@ class _Header extends StatelessWidget {
                           const Icon(
                             LucideIcons.chevronRight,
                             size: 12,
-                            color: Color(0xFF94A3B8),
+                            color: AppTheme.darkTextMuted,
                           ),
                           const SizedBox(width: 4),
                           const Text(
                             'Playbooks',
                             style: TextStyle(
-                              color: Color(0xFF94A3B8),
+                              color: AppTheme.darkTextMuted,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -214,20 +204,20 @@ class _Header extends StatelessWidget {
               width: 320,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF0F172A).withOpacity(0.5),
+                color: AppTheme.darkSurfaceVariant.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF334155)),
+                border: Border.all(color: AppTheme.darkBorder),
               ),
               child: TextField(
                 onChanged: onSearch,
                 style: const TextStyle(color: Colors.white, fontSize: 13),
                 decoration: const InputDecoration(
                   hintText: 'Search playbooks...',
-                  hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 13),
+                  hintStyle: TextStyle(color: AppTheme.darkTextDim, fontSize: 13),
                   prefixIcon: Icon(
                     LucideIcons.search,
                     size: 16,
-                    color: Color(0xFF64748B),
+                    color: AppTheme.darkTextDim,
                   ),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(vertical: 10),
@@ -240,14 +230,6 @@ class _Header extends StatelessWidget {
             onPressed: () {},
             icon: const Icon(LucideIcons.plus, size: 18),
             label: const Text('New Playbook'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
           ),
         ],
       ),
@@ -272,8 +254,8 @@ class _FilterBar extends StatelessWidget {
       height: 64,
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16),
       decoration: const BoxDecoration(
-        color: Color(0xFF0F172A),
-        border: Border(bottom: BorderSide(color: Color(0xFF2D3748))),
+        color: AppTheme.darkBackground,
+        border: Border(bottom: BorderSide(color: AppTheme.darkBorder)),
       ),
       child: Row(
         children: [
@@ -283,18 +265,18 @@ class _FilterBar extends StatelessWidget {
           _navTab('Archived', activeTab == 'Archived', onTabChanged),
           const Spacer(),
           if (isDesktop) ...[
-            Text(
+            const Text(
               'Sort by:',
-              style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+              style: TextStyle(color: AppTheme.darkTextMuted, fontSize: 12),
             ),
             const SizedBox(width: 8),
             const _SortDropdown(),
             const SizedBox(width: 16),
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF161E2D),
+                color: AppTheme.darkSurface,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF2D3748)),
+                border: Border.all(color: AppTheme.darkBorder),
               ),
               padding: const EdgeInsets.all(4),
               child: Row(
@@ -320,13 +302,13 @@ class _FilterBar extends StatelessWidget {
           color: isActive ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isActive ? Colors.white : const Color(0xFF334155),
+            color: isActive ? Colors.white : AppTheme.darkBorderHighlight,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isActive ? const Color(0xFF0F172A) : AppTheme.textMuted,
+            color: isActive ? const Color(0xFF0F172A) : AppTheme.darkTextMuted,
             fontSize: 13,
             fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
           ),
@@ -339,13 +321,13 @@ class _FilterBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF334155) : Colors.transparent,
+        color: isActive ? AppTheme.darkSurfaceHighlight : Colors.transparent,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Icon(
         icon,
         size: 18,
-        color: isActive ? AppTheme.primary : const Color(0xFF94A3B8),
+        color: isActive ? AppTheme.primary : AppTheme.darkTextMuted,
       ),
     );
   }
@@ -367,7 +349,7 @@ class _SortDropdown extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 4),
-        Icon(LucideIcons.chevronDown, size: 14, color: AppTheme.textMuted),
+        const Icon(LucideIcons.chevronDown, size: 14, color: AppTheme.darkTextMuted),
       ],
     );
   }
@@ -379,23 +361,20 @@ class _PlaybookTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // We already have the filtered list passed in
-
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF161E2D),
+        color: AppTheme.darkSurface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2D3748)),
+        border: Border.all(color: AppTheme.darkBorder),
       ),
       child: Column(
         children: [
-          // Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             decoration: const BoxDecoration(
-              color: Color(0xFF1E293B),
+              color: AppTheme.darkSurfaceVariant,
               borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-              border: Border(bottom: BorderSide(color: Color(0xFF2D3748))),
+              border: Border(bottom: BorderSide(color: AppTheme.darkBorder)),
             ),
             child: Row(
               children: [
@@ -404,12 +383,10 @@ class _PlaybookTable extends StatelessWidget {
                 Expanded(flex: 2, child: _columnHeader('ACTION')),
                 Expanded(child: _columnHeader('MODE')),
                 Expanded(child: _columnHeader('LAST RUN')),
-                const SizedBox(width: 48), // Actions column
+                const SizedBox(width: 48),
               ],
             ),
           ),
-          // Rows
-          // Rows
           if (playbooks.isEmpty)
             const Padding(
               padding: EdgeInsets.all(24),
@@ -435,7 +412,7 @@ class _PlaybookTable extends StatelessWidget {
     return Text(
       label,
       style: const TextStyle(
-        color: Color(0xFF64748B),
+        color: AppTheme.darkTextDim,
         fontSize: 11,
         fontWeight: FontWeight.bold,
         letterSpacing: 0.5,
@@ -468,213 +445,204 @@ class _PlaybookRowState extends State<_PlaybookRow> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           decoration: BoxDecoration(
-            color: isHovered ? const Color(0xFF1E293B).withOpacity(0.5) : null,
-            border: const Border(bottom: BorderSide(color: Color(0xFF2D3748))),
+            color: isHovered ? AppTheme.darkSurfaceVariant.withOpacity(0.5) : null,
+            border: const Border(bottom: BorderSide(color: AppTheme.darkBorder)),
           ),
-          child: Opacity(
-            opacity: 1.0,
-            child: Row(
-              children: [
-                // Playbook Name
-                Expanded(
-                  flex: 3,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          widget.playbook.type == PlaybookType.AUTOMATED
-                              ? LucideIcons.zap
-                              : LucideIcons.play,
-                          color: widget.playbook.type == PlaybookType.AUTOMATED
-                              ? Colors.amber
-                              : Colors.blue,
-                          size: 20,
-                        ),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  widget.playbook.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                _statusBadge('Active'),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Text(
-                                  '#PB-${widget.playbook.id}',
-                                  style: const TextStyle(
-                                    fontFamily: 'monospace',
-                                    color: Color(0xFF64748B),
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Text(
-                                  '•',
-                                  style: TextStyle(color: Color(0xFF475569)),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'v1.0.0', // mock version
-                                  style: const TextStyle(
-                                    color: Color(0xFF64748B),
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Trigger
-                Expanded(
-                  flex: 2,
-                  child: Row(
-                    children: [
-                      const Icon(
-                        LucideIcons.zap,
-                        size: 16,
-                        color: Colors.orange,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.playbook.type == PlaybookType.AUTOMATED
-                              ? 'Event Based'
-                              : 'Manual',
-                          style: const TextStyle(
-                            color: Color(0xFFCBD5E1),
-                            fontSize: 13,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Action
-                Expanded(
-                  flex: 2,
-                  child: Row(
-                    children: [
-                      const Icon(
-                        LucideIcons.terminal,
-                        size: 16,
-                        color: Colors.blue,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.playbook.description ?? 'Execute Playbook',
-                          style: const TextStyle(
-                            color: Color(0xFFCBD5E1),
-                            fontSize: 13,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Mode
-                Expanded(
-                  child: Row(
-                    children: [
-                      Icon(
+                      child: Icon(
                         widget.playbook.type == PlaybookType.AUTOMATED
-                            ? LucideIcons.bot
-                            : LucideIcons.hand,
-                        size: 16,
+                            ? LucideIcons.zap
+                            : LucideIcons.play,
                         color: widget.playbook.type == PlaybookType.AUTOMATED
-                            ? AppTheme.primary
-                            : const Color(0xFF94A3B8),
+                            ? Colors.amber
+                            : AppTheme.primary,
+                        size: 20,
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: widget.playbook.type == PlaybookType.AUTOMATED
-                              ? AppTheme.primary.withOpacity(0.1)
-                              : const Color(0xFF1E293B),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          widget.playbook.type.name,
-                          style: TextStyle(
-                            color:
-                                widget.playbook.type == PlaybookType.AUTOMATED
-                                ? AppTheme.primary
-                                : const Color(0xFFCBD5E1),
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                widget.playbook.name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              _statusBadge('Active'),
+                            ],
                           ),
-                        ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Text(
+                                '#PB-${widget.playbook.id}',
+                                style: const TextStyle(
+                                  fontFamily: 'monospace',
+                                  color: AppTheme.darkTextMuted,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                '•',
+                                style: TextStyle(color: Color(0xFF475569)),
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'v1.0.0',
+                                style: TextStyle(
+                                  color: AppTheme.darkTextMuted,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                // Last Run
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Never', // mock last run
+              ),
+              Expanded(
+                flex: 2,
+                child: Row(
+                  children: [
+                    const Icon(
+                      LucideIcons.zap,
+                      size: 16,
+                      color: Colors.orange,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        widget.playbook.type == PlaybookType.AUTOMATED
+                            ? 'Event Based'
+                            : 'Manual',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppTheme.darkTextSecondary,
                           fontSize: 13,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      Text(
-                        'No runs yet',
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Row(
+                  children: [
+                    const Icon(
+                      LucideIcons.terminal,
+                      size: 16,
+                      color: AppTheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        widget.playbook.description ?? 'Execute Playbook',
                         style: const TextStyle(
-                          color: Color(0xFF64748B),
+                          color: AppTheme.darkTextSecondary,
+                          fontSize: 13,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(
+                      widget.playbook.type == PlaybookType.AUTOMATED
+                          ? LucideIcons.bot
+                          : LucideIcons.hand,
+                      size: 16,
+                      color: widget.playbook.type == PlaybookType.AUTOMATED
+                          ? AppTheme.primary
+                          : AppTheme.darkTextMuted,
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: widget.playbook.type == PlaybookType.AUTOMATED
+                            ? AppTheme.primary.withOpacity(0.1)
+                            : AppTheme.darkSurfaceVariant,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        widget.playbook.type.name,
+                        style: TextStyle(
+                          color:
+                              widget.playbook.type == PlaybookType.AUTOMATED
+                              ? AppTheme.primary
+                              : AppTheme.darkTextSecondary,
                           fontSize: 11,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                // Actions
-                SizedBox(
-                  width: 48,
-                  child: AnimatedOpacity(
-                    opacity: isHovered ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 100),
-                    child: const Icon(
-                      LucideIcons.moreVertical,
-                      color: Color(0xFF64748B),
-                      size: 20,
                     ),
+                  ],
+                ),
+              ),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Never',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                      ),
+                    ),
+                    Text(
+                      'No runs yet',
+                      style: TextStyle(
+                        color: AppTheme.darkTextMuted,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 48,
+                child: AnimatedOpacity(
+                  opacity: isHovered ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 100),
+                  child: const Icon(
+                    LucideIcons.moreVertical,
+                    color: AppTheme.darkTextMuted,
+                    size: 20,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -691,10 +659,10 @@ class _PlaybookRowState extends State<_PlaybookRow> {
         color = Colors.amber;
         break;
       case 'Deprecated':
-        color = const Color(0xFF64748B);
+        color = AppTheme.darkTextMuted;
         break;
       default:
-        color = Colors.blue;
+        color = AppTheme.primary;
     }
 
     return Container(
@@ -743,7 +711,7 @@ class _Pagination extends StatelessWidget {
         children: [
           RichText(
             text: TextSpan(
-              style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
+              style: const TextStyle(color: AppTheme.darkTextMuted, fontSize: 13),
               children: [
                 const TextSpan(text: 'Showing '),
                 TextSpan(
@@ -799,18 +767,18 @@ class _Pagination extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF161E2D),
+          color: AppTheme.darkSurface,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isEnabled
-                ? const Color(0xFF2D3748)
-                : const Color(0xFF2D3748).withOpacity(0.5),
+                ? AppTheme.darkBorderHighlight
+                : AppTheme.darkBorder.withOpacity(0.5),
           ),
         ),
         child: Icon(
           icon,
           size: 18,
-          color: isEnabled ? Colors.white : const Color(0xFF475569),
+          color: isEnabled ? Colors.white : AppTheme.darkSurfaceHighlight,
         ),
       ),
     );

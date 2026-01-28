@@ -75,39 +75,43 @@ import 'package:serverpod_sentinel_client/src/protocol/security/audit_log.dart'
     as _i60;
 import 'package:serverpod_sentinel_client/src/protocol/settings/environment.dart'
     as _i61;
-import 'package:serverpod_sentinel_client/src/protocol/incident/incident.dart'
+import 'package:serverpod_sentinel_client/src/protocol/governance/remediation_policy.dart'
     as _i62;
-import 'package:serverpod_sentinel_client/src/protocol/settings/integration.dart'
+import 'package:serverpod_sentinel_client/src/protocol/governance/chaos_experiment.dart'
     as _i63;
-import 'package:serverpod_sentinel_client/src/protocol/settings/notification_preference.dart'
+import 'package:serverpod_sentinel_client/src/protocol/incident/incident.dart'
     as _i64;
-import 'package:serverpod_sentinel_client/src/protocol/settings/outgoing_webhook.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/integration.dart'
     as _i65;
-import 'package:serverpod_sentinel_client/src/protocol/automation/playbook.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/notification_preference.dart'
     as _i66;
-import 'package:serverpod_sentinel_client/src/protocol/reporting/report_snapshot.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/outgoing_webhook.dart'
     as _i67;
-import 'package:serverpod_sentinel_client/src/protocol/enums/incident_severity.dart'
+import 'package:serverpod_sentinel_client/src/protocol/automation/playbook.dart'
     as _i68;
-import 'package:serverpod_sentinel_client/src/protocol/service/rule.dart'
+import 'package:serverpod_sentinel_client/src/protocol/reporting/report_snapshot.dart'
     as _i69;
-import 'package:serverpod_sentinel_client/src/protocol/security/sentinel_api_key.dart'
+import 'package:serverpod_sentinel_client/src/protocol/enums/incident_severity.dart'
     as _i70;
-import 'package:serverpod_sentinel_client/src/protocol/service/service.dart'
+import 'package:serverpod_sentinel_client/src/protocol/service/rule.dart'
     as _i71;
-import 'package:serverpod_sentinel_client/src/protocol/settings/system_setting.dart'
+import 'package:serverpod_sentinel_client/src/protocol/security/sentinel_api_key.dart'
     as _i72;
-import 'package:serverpod_sentinel_client/src/protocol/service/health_signal.dart'
+import 'package:serverpod_sentinel_client/src/protocol/service/service.dart'
     as _i73;
-import 'package:serverpod_sentinel_client/src/protocol/telemetry/metric_point.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/system_setting.dart'
     as _i74;
-import 'package:serverpod_sentinel_client/src/protocol/dtos/team_member.dart'
+import 'package:serverpod_sentinel_client/src/protocol/service/health_signal.dart'
     as _i75;
-import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
+import 'package:serverpod_sentinel_client/src/protocol/telemetry/metric_point.dart'
     as _i76;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i77;
-import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+import 'package:serverpod_sentinel_client/src/protocol/dtos/team_member.dart'
+    as _i77;
+import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _i78;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i79;
+import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+    as _i80;
 export 'agent/agent_task.dart';
 export 'agent/agent_task_status.dart';
 export 'ai/ai_insight.dart';
@@ -697,41 +701,53 @@ class Protocol extends _i1.SerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_i62.Incident>) {
-      return (data as List).map((e) => deserialize<_i62.Incident>(e)).toList()
-          as T;
-    }
-    if (t == List<_i63.Integration>) {
-      return (data as List)
-              .map((e) => deserialize<_i63.Integration>(e))
-              .toList()
-          as T;
-    }
     if (t == List<Map<String, dynamic>>) {
       return (data as List)
               .map((e) => deserialize<Map<String, dynamic>>(e))
               .toList()
           as T;
     }
-    if (t == List<_i64.NotificationPreference>) {
+    if (t == List<_i62.RemediationPolicy>) {
       return (data as List)
-              .map((e) => deserialize<_i64.NotificationPreference>(e))
+              .map((e) => deserialize<_i62.RemediationPolicy>(e))
               .toList()
           as T;
     }
-    if (t == List<_i65.OutgoingWebhook>) {
+    if (t == List<_i63.ChaosExperiment>) {
       return (data as List)
-              .map((e) => deserialize<_i65.OutgoingWebhook>(e))
+              .map((e) => deserialize<_i63.ChaosExperiment>(e))
               .toList()
           as T;
     }
-    if (t == List<_i66.Playbook>) {
-      return (data as List).map((e) => deserialize<_i66.Playbook>(e)).toList()
+    if (t == List<_i64.Incident>) {
+      return (data as List).map((e) => deserialize<_i64.Incident>(e)).toList()
           as T;
     }
-    if (t == List<_i67.ReportSnapshot>) {
+    if (t == List<_i65.Integration>) {
       return (data as List)
-              .map((e) => deserialize<_i67.ReportSnapshot>(e))
+              .map((e) => deserialize<_i65.Integration>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i66.NotificationPreference>) {
+      return (data as List)
+              .map((e) => deserialize<_i66.NotificationPreference>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i67.OutgoingWebhook>) {
+      return (data as List)
+              .map((e) => deserialize<_i67.OutgoingWebhook>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i68.Playbook>) {
+      return (data as List).map((e) => deserialize<_i68.Playbook>(e)).toList()
+          as T;
+    }
+    if (t == List<_i69.ReportSnapshot>) {
+      return (data as List)
+              .map((e) => deserialize<_i69.ReportSnapshot>(e))
               .toList()
           as T;
     }
@@ -744,63 +760,63 @@ class Protocol extends _i1.SerializationManager {
               : null)
           as T;
     }
-    if (t == List<_i68.IncidentSeverity>) {
+    if (t == List<_i70.IncidentSeverity>) {
       return (data as List)
-              .map((e) => deserialize<_i68.IncidentSeverity>(e))
+              .map((e) => deserialize<_i70.IncidentSeverity>(e))
               .toList()
           as T;
     }
-    if (t == _i1.getType<List<_i68.IncidentSeverity>?>()) {
+    if (t == _i1.getType<List<_i70.IncidentSeverity>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i68.IncidentSeverity>(e))
+                    .map((e) => deserialize<_i70.IncidentSeverity>(e))
                     .toList()
               : null)
           as T;
     }
-    if (t == List<_i69.Rule>) {
-      return (data as List).map((e) => deserialize<_i69.Rule>(e)).toList() as T;
+    if (t == List<_i71.Rule>) {
+      return (data as List).map((e) => deserialize<_i71.Rule>(e)).toList() as T;
     }
-    if (t == List<_i70.SentinelApiKey>) {
+    if (t == List<_i72.SentinelApiKey>) {
       return (data as List)
-              .map((e) => deserialize<_i70.SentinelApiKey>(e))
+              .map((e) => deserialize<_i72.SentinelApiKey>(e))
               .toList()
           as T;
     }
-    if (t == List<_i71.Service>) {
-      return (data as List).map((e) => deserialize<_i71.Service>(e)).toList()
+    if (t == List<_i73.Service>) {
+      return (data as List).map((e) => deserialize<_i73.Service>(e)).toList()
           as T;
     }
-    if (t == List<_i72.SystemSetting>) {
+    if (t == List<_i74.SystemSetting>) {
       return (data as List)
-              .map((e) => deserialize<_i72.SystemSetting>(e))
+              .map((e) => deserialize<_i74.SystemSetting>(e))
               .toList()
           as T;
     }
-    if (t == List<_i73.HealthSignal>) {
+    if (t == List<_i75.HealthSignal>) {
       return (data as List)
-              .map((e) => deserialize<_i73.HealthSignal>(e))
+              .map((e) => deserialize<_i75.HealthSignal>(e))
               .toList()
           as T;
     }
-    if (t == List<_i74.MetricPoint>) {
+    if (t == List<_i76.MetricPoint>) {
       return (data as List)
-              .map((e) => deserialize<_i74.MetricPoint>(e))
+              .map((e) => deserialize<_i76.MetricPoint>(e))
               .toList()
           as T;
     }
-    if (t == List<_i75.TeamMember>) {
-      return (data as List).map((e) => deserialize<_i75.TeamMember>(e)).toList()
+    if (t == List<_i77.TeamMember>) {
+      return (data as List).map((e) => deserialize<_i77.TeamMember>(e)).toList()
           as T;
     }
-    try {
-      return _i76.Protocol().deserialize<T>(data, t);
-    } on _i1.DeserializationTypeNotFoundException catch (_) {}
-    try {
-      return _i77.Protocol().deserialize<T>(data, t);
-    } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
       return _i78.Protocol().deserialize<T>(data, t);
+    } on _i1.DeserializationTypeNotFoundException catch (_) {}
+    try {
+      return _i79.Protocol().deserialize<T>(data, t);
+    } on _i1.DeserializationTypeNotFoundException catch (_) {}
+    try {
+      return _i80.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -993,15 +1009,15 @@ class Protocol extends _i1.SerializationManager {
       case _i57.TelemetrySignalPayload():
         return 'TelemetrySignalPayload';
     }
-    className = _i76.Protocol().getClassNameForObject(data);
+    className = _i78.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i77.Protocol().getClassNameForObject(data);
+    className = _i79.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth.$className';
     }
-    className = _i78.Protocol().getClassNameForObject(data);
+    className = _i80.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
@@ -1184,15 +1200,15 @@ class Protocol extends _i1.SerializationManager {
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i76.Protocol().deserializeByClassName(data);
+      return _i78.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth.')) {
       data['className'] = dataClassName.substring(15);
-      return _i77.Protocol().deserializeByClassName(data);
+      return _i79.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i78.Protocol().deserializeByClassName(data);
+      return _i80.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -1207,13 +1223,13 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
-      return _i76.Protocol().mapRecordToJson(record);
-    } catch (_) {}
-    try {
-      return _i77.Protocol().mapRecordToJson(record);
-    } catch (_) {}
-    try {
       return _i78.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    try {
+      return _i79.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    try {
+      return _i80.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

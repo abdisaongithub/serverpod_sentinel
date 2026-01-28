@@ -2,24 +2,18 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
-// This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
-
 const config: Config = {
   title: 'Serverpod Sentinel',
-  tagline: 'AI-Powered Incident Management & Monitoring',
+  tagline: 'Enterprise-Grade AI-Powered Incident Management & Monitoring',
   favicon: 'img/favicon.ico',
 
-  // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true,
   },
 
-  // Set the production url of your site here
-  url: 'https://sentinel.docs.example.com',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  baseUrl: '/docs/',
+  url: 'https://sentinel.engineering',
+  baseUrl: '/',
 
-  // GitHub pages deployment config.
   organizationName: 'abdisaongithub', 
   projectName: 'serverpod_sentinel', 
 
@@ -53,7 +47,6 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     colorMode: {
       defaultMode: 'dark',
@@ -72,7 +65,7 @@ const config: Config = {
           position: 'left',
           label: 'Documentation',
         },
-        {to: '/blog', label: 'Security Blog', position: 'left'},
+        {to: '/blog', label: 'Engineering Blog', position: 'left'},
         {
           href: 'https://github.com/abdisaongithub/serverpod_sentinel',
           label: 'GitHub',
@@ -84,15 +77,19 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Documentation',
           items: [
             {
-              label: 'Getting Started',
+              label: 'Introduction',
               to: '/docs/intro',
             },
             {
+              label: 'Security Model',
+              to: '/docs/security',
+            },
+            {
               label: 'Architecture',
-              to: '/docs/intro', // Update later
+              to: '/docs/architecture',
             },
           ],
         },
@@ -104,7 +101,7 @@ const config: Config = {
               href: 'https://github.com/abdisaongithub/serverpod_sentinel/issues',
             },
             {
-              label: 'Serverpod Forum',
+              label: 'Serverpod Ecosystem',
               href: 'https://serverpod.dev',
             },
           ],
@@ -113,7 +110,7 @@ const config: Config = {
           title: 'More',
           items: [
             {
-              label: 'Security Blog',
+              label: 'Engineering Blog',
               to: '/blog',
             },
             {
@@ -123,7 +120,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Serverpod Sentinel. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Serverpod Sentinel Team. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

@@ -55,5 +55,10 @@ If you prefer a manual setup, follow these steps:
     cd serverpod_sentinel/serverpod_sentinel_server
     docker compose up -d
     ```
-3.  **Build and Run**:
+3.  **Seed Data**:
+    ```bash
+    # Essential for RBAC roles and the primary admin user
+    dart bin/seed_data.dart --config development
+    ```
+4.  **Build and Run**:
     Use the `dart compile exe` command to build the server and agent binaries.

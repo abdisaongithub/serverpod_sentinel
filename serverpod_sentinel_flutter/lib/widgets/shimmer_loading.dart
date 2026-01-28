@@ -17,13 +17,8 @@ class ShimmerBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = isDark
-        ? AppTheme.darkSurfaceVariant
-        : AppTheme.lightSurfaceHighlight;
-    final shimmerColor = isDark
-        ? AppTheme.darkSurfaceHighlight
-        : AppTheme.lightBorder;
+    const baseColor = AppTheme.darkSurfaceVariant;
+    const shimmerColor = AppTheme.darkSurfaceHighlight;
 
     return Container(
           width: width,
@@ -44,10 +39,7 @@ class ShimmerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark
-        ? AppTheme.darkSurface
-        : AppTheme.lightSurfaceVariant;
+    const cardColor = AppTheme.darkSurface;
 
     return Container(
       padding: const EdgeInsets.all(16),

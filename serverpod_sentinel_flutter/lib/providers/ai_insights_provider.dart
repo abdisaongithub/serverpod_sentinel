@@ -25,17 +25,6 @@ final aiInsightsForServiceProvider =
       }
     });
 
-/// Available insight types.
-final insightTypesProvider = FutureProvider<List<String>>((ref) async {
-  try {
-    final client = ref.watch(clientProvider);
-    return await client.aiInsights.getInsightTypes();
-  } catch (e) {
-    print('Error fetching insight types: $e');
-    rethrow;
-  }
-});
-
 /// AI Analysis mutations.
 class AiAnalysisMutation
     extends StateNotifier<AsyncValue<Map<String, dynamic>?>> {
@@ -56,31 +45,16 @@ class AiAnalysisMutation
     }
   }
 
-  /// Get suggested actions for an incident
-  Future<List<Map<String, dynamic>>> suggestActions(int incidentId) async {
+  /// Trigger anomaly scan for a service
+  Future<List<AiInsight>> scanForAnomalies(int serviceId) async {
     state = const AsyncValue.loading();
     try {
-      final suggestions = await _client.aiInsights.suggestActions(incidentId);
+      final insights = await _client.aiInsights.scanForAnomalies(serviceId);
       state = const AsyncValue.data(null);
-      return suggestions;
+      return insights;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
       return [];
-    }
-  }
-
-  /// Get health prediction for a service
-  Future<Map<String, dynamic>?> predictServiceHealth(int serviceId) async {
-    state = const AsyncValue.loading();
-    try {
-      final prediction = await _client.aiInsights.predictServiceHealth(
-        serviceId,
-      );
-      state = AsyncValue.data(prediction);
-      return prediction;
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-      return null;
     }
   }
 }

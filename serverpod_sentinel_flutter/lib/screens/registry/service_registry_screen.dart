@@ -5,6 +5,7 @@ import '../../theme/sentinel_motion.dart';
 import '../../widgets/sentinel_card.dart';
 import '../../widgets/status_pulsar.dart';
 import '../../widgets/sentinel_shimmer.dart';
+import '../../widgets/sentinel_state_view.dart';
 import '../../providers/services_provider.dart';
 import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 
@@ -17,18 +18,19 @@ class ServiceRegistryScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
-      body: CustomScrollView(
-        slivers: [
-          _RegistryHeader(),
-          SliverPadding(
-            padding: const EdgeInsets.all(32),
-            sliver: servicesAsync.when(
-              data: (services) => _ServiceGrid(services: services),
-              loading: () => _LoadingGrid(),
-              error: (e, __) => SliverToBoxAdapter(child: Center(child: Text('Error: $e'))),
+      body: SentinelStateView(
+        state: servicesAsync,
+        onRetry: () => ref.refresh(servicesProvider),
+        loadingView: _LoadingGrid(),
+        builder: (services) => CustomScrollView(
+          slivers: [
+            _RegistryHeader(),
+            SliverPadding(
+              padding: const EdgeInsets.all(32),
+              sliver: _ServiceGrid(services: services),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -152,11 +154,11 @@ class _MetricPreview extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          Expanded(
+          const Expanded(
             child: _MiniMetric(label: 'Uptime', value: '99.9%'),
           ),
           Container(width: 1, height: 24, color: AppTheme.darkBorder),
-          Expanded(
+          const Expanded(
             child: _MiniMetric(label: 'P99', value: '124ms'),
           ),
         ],
@@ -176,7 +178,7 @@ class _MiniMetric extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        Text(label, style: TextStyle(fontSize: 10, color: AppTheme.darkTextDim)),
+        Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.darkTextDim)),
       ],
     );
   }
@@ -213,16 +215,24 @@ class _CardFooter extends StatelessWidget {
 class _LoadingGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SliverGrid(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 24,
-        mainAxisSpacing: 24,
-      ),
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => SentinelShimmer.box(height: 200),
-        childCount: 6,
-      ),
+    return CustomScrollView(
+      slivers: [
+        _RegistryHeader(),
+        SliverPadding(
+          padding: const EdgeInsets.all(32),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 24,
+              mainAxisSpacing: 24,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => SentinelShimmer.box(height: 200),
+              childCount: 6,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

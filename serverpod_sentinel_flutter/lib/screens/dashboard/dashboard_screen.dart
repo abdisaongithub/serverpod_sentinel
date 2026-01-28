@@ -6,6 +6,7 @@ import '../../widgets/sentinel_card.dart';
 import '../../widgets/status_pulsar.dart';
 import '../../widgets/sentinel_shimmer.dart';
 import '../../widgets/sparkline_card.dart';
+import '../../widgets/sentinel_state_view.dart';
 import '../../providers/services_provider.dart';
 import '../../providers/incidents_provider.dart';
 import '../../providers/telemetry_provider.dart';
@@ -16,65 +17,106 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final healthAsync = ref.watch(healthSummaryProvider);
+
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
-      body: CustomScrollView(
-        slivers: [
-          _DashboardHeader(),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _MetricOverviewRow(),
-                  const SizedBox(height: 32),
-                  _SectionHeader(title: 'Critical Infrastructure', actionLabel: 'View Registry'),
-                  const SizedBox(height: 16),
-                  _OutageGrid(),
-                  const SizedBox(height: 32),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _SectionHeader(title: 'Service Health Heatmap'),
-                            const SizedBox(height: 16),
-                            _HealthHeatmap(),
-                          ],
+      body: SentinelStateView(
+        state: healthAsync,
+        loadingView: _DashboardLoadingView(),
+        onRetry: () => ref.refresh(healthSummaryProvider),
+        builder: (health) => CustomScrollView(
+          slivers: [
+            _DashboardHeader(),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _MetricOverviewRow(health: health),
+                    const SizedBox(height: 32),
+                    const _SectionHeader(title: 'Critical Infrastructure', actionLabel: 'View Registry'),
+                    const SizedBox(height: 16),
+                    const _OutageGrid(),
+                    const SizedBox(height: 32),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const _SectionHeader(title: 'Service Health Heatmap'),
+                              const SizedBox(height: 16),
+                              _HealthHeatmap(),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _SectionHeader(title: 'Throughput Trends'),
-                            const SizedBox(height: 16),
-                            const SparklineCard(
-                              title: 'Requests / Sec',
-                              value: '1.2k',
-                              data: [10, 15, 8, 20, 25, 22, 30, 28, 35, 40],
-                              color: AppTheme.primary,
-                            ),
-                            const SizedBox(height: 16),
-                            const SparklineCard(
-                              title: 'Success Rate',
-                              value: '99.98%',
-                              data: [99, 99.5, 99.8, 98.5, 99.9, 100, 99.9, 99.8, 99.9, 99.98],
-                              color: AppTheme.success,
-                            ),
-                          ],
+                        const SizedBox(width: 24),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _SectionHeader(title: 'Throughput Trends'),
+                              SizedBox(height: 16),
+                              SparklineCard(
+                                title: 'Requests / Sec',
+                                value: '1.2k',
+                                data: [10, 15, 8, 20, 25, 22, 30, 28, 35, 40],
+                                color: AppTheme.primary,
+                              ),
+                              SizedBox(height: 16),
+                              SparklineCard(
+                                title: 'Success Rate',
+                                value: '99.98%',
+                                data: [99, 99.5, 99.8, 98.5, 99.9, 100, 99.9, 99.8, 99.9, 99.98],
+                                color: AppTheme.success,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DashboardLoadingView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: SentinelShimmer.box(height: 140)),
+              const SizedBox(width: 24),
+              Expanded(child: SentinelShimmer.box(height: 140)),
+              const SizedBox(width: 24),
+              Expanded(child: SentinelShimmer.box(height: 140)),
+            ],
+          ),
+          const SizedBox(height: 32),
+          SentinelShimmer.box(height: 40, width: 200),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: SentinelShimmer.box(height: 200)),
+              const SizedBox(width: 24),
+              Expanded(child: SentinelShimmer.box(height: 200)),
+              const SizedBox(width: 24),
+              Expanded(child: SentinelShimmer.box(height: 200)),
+            ],
           ),
         ],
       ),
@@ -149,20 +191,17 @@ class _NotificationBell extends StatelessWidget {
 }
 
 class _MetricOverviewRow extends ConsumerWidget {
+  final HealthSummary health;
+  const _MetricOverviewRow({required this.health});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final healthAsync = ref.watch(healthSummaryProvider);
-    
     return Row(
       children: [
         Expanded(
           child: _MetricCard(
             title: 'Global Uptime',
-            value: healthAsync.when(
-              data: (h) => '${h.healthPercentage.toStringAsFixed(2)}%',
-              loading: () => '...',
-              error: (_, __) => 'N/A',
-            ),
+            value: '${health.healthPercentage.toStringAsFixed(2)}%',
             trend: '+0.02%',
             trendPositive: true,
             icon: Icons.history_rounded,
@@ -185,7 +224,7 @@ class _MetricOverviewRow extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: 24),
-        Expanded(
+        const Expanded(
           child: _MetricCard(
             title: 'System Latency',
             value: '42ms',
@@ -293,6 +332,8 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _OutageGrid extends ConsumerWidget {
+  const _OutageGrid();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final incidentsAsync = ref.watch(activeIncidentsProvider);

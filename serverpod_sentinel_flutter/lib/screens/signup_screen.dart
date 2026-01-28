@@ -41,9 +41,7 @@ class _BrandingPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final bgColor = isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
+    const bgColor = AppTheme.darkBackground;
 
     return Stack(
       children: [
@@ -76,15 +74,15 @@ class _BrandingPanel extends StatelessWidget {
               const Spacer(),
               Text(
                 'Join the Future of DevOps.',
-                style: theme.textTheme.displayMedium?.copyWith(
-                  color: theme.colorScheme.onSurface,
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  color: Colors.white,
                   height: 1.1,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
                 'Create your account to start managing infrastructure securely.',
-                style: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
               ),
               const SizedBox(height: 32),
             ],
@@ -161,8 +159,6 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final authState = ref.watch(authProvider);
     final isDesktop =
         MediaQuery.of(context).size.width >= AppTheme.tabletBreakpoint;
@@ -183,16 +179,16 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                 if (!isDesktop) ...[const SizedBox(height: 20)],
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.person_add,
-                      color: colorScheme.primary,
+                      color: AppTheme.primary,
                       size: 16,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       'CREATE ACCOUNT - STEP ${(_currentStep.index + 1)}/3',
-                      style: TextStyle(
-                        color: colorScheme.primary,
+                      style: const TextStyle(
+                        color: AppTheme.primary,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.1,
@@ -207,7 +203,7 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                       : _currentStep == _SignupStep.code
                       ? 'Verify Email'
                       : 'Set Password',
-                  style: theme.textTheme.headlineMedium,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -216,7 +212,7 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                       : _currentStep == _SignupStep.code
                       ? 'We sent a code to ${_emailController.text}'
                       : 'Create a strong password for your account.',
-                  style: theme.textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
 
                 if (authState.error != null)
@@ -224,7 +220,7 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                     padding: const EdgeInsets.only(top: 16),
                     child: Text(
                       authState.error!,
-                      style: TextStyle(color: colorScheme.error),
+                      style: const TextStyle(color: AppTheme.error),
                     ),
                   ),
 
@@ -291,7 +287,7 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                     children: [
                       Text(
                         'Already have an account?',
-                        style: theme.textTheme.bodyMedium,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       TextButton(
                         onPressed: () => context.go(AppRoutes.login),
@@ -311,7 +307,7 @@ class _SignupFormPanelState extends ConsumerState<_SignupFormPanel> {
                       },
                       child: Text(
                         'Back to start',
-                        style: theme.textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
                   ),

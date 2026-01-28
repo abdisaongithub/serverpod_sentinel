@@ -1,19 +1,23 @@
-facebook:
-  label: Facebook
-  permalink: /facebook
-  description: Facebook tag description
+security:
+  label: Security
+  description: Posts related to hardening and protection.
 
-hello:
-  label: Hello
-  permalink: /hello
-  description: Hello tag description
+architecture:
+  label: Architecture
+  description: Deep dives into the Sentinel system design.
 
-docusaurus:
-  label: Docusaurus
-  permalink: /docusaurus
-  description: Docusaurus tag description
+ai:
+  label: Artificial Intelligence
+  description: LLM and statistical modeling insights.
 
-hola:
-  label: Hola
-  permalink: /hola
-  description: Hola tag description
+automation:
+  label: Automation
+  description: Self-healing and playbook orchestration.
+
+sre:
+  label: SRE
+  description: Site Reliability Engineering best practices.
+
+backend:
+  label: Backend
+  description: Serverpod and database engineering.

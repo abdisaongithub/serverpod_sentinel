@@ -20,6 +20,7 @@ class AppTheme {
   static const Color darkSurfaceVariant = Color(0xFF1E293B);
   static const Color darkSurfaceHighlight = Color(0xFF334155);
   static const Color darkBorder = Color(0xFF1E293B);
+  static const Color darkBorderHighlight = Color(0xFF334155);
   
   static const Color darkText = Color(0xFFF8FAFC);
   static const Color darkTextSecondary = Color(0xFFCBD5E1);
@@ -131,6 +132,7 @@ extension AppThemeExtension on BuildContext {
   Color get textSecondary => AppTheme.darkTextSecondary;
   Color get textMuted => AppTheme.darkTextMuted;
   Color get border => AppTheme.darkBorder;
+  Color get borderHighlight => AppTheme.darkBorderHighlight;
   Color get surfaceVariant => AppTheme.darkSurfaceVariant;
   Color get surfaceHighlight => AppTheme.darkSurfaceHighlight;
 }

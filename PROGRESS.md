@@ -27,8 +27,14 @@ Serverpod Sentinel is an enterprise-grade monitoring and incident management pla
     - **Intelligence:** New "Brain" hero section and structured RCA cards.
     - **Registry:** Premium grid view with mini-metric previews and region awareness.
 
+- **Unified State Management:**
+    - `SentinelStateView`: Centralized handler for AsyncValue (Shimmer/Error/Success).
+    - `StreamingService`: Real-time websocket dispatcher with polling fallback.
+    - Global `OfflineBanner` for connectivity resilience.
+
 ## Recent Updates
 - Completed the core UI design system and motion controller.
+- Implemented the unified `SentinelStateView` architecture for all network-bound screens.
 - Integrated the global Command Palette keyboard listener.
 - Unified the application under a consistent enterprise aesthetic.
 - Cleaned up routing and legacy UI components.

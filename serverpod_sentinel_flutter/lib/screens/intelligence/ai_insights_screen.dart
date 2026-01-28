@@ -4,6 +4,7 @@ import '../../theme/app_theme.dart';
 import '../../theme/sentinel_motion.dart';
 import '../../widgets/sentinel_card.dart';
 import '../../widgets/sentinel_shimmer.dart';
+import '../../widgets/sentinel_state_view.dart';
 import '../../providers/ai_insights_provider.dart';
 import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 
@@ -26,31 +27,29 @@ class AiInsightsScreen extends ConsumerWidget {
           const SizedBox(width: 32),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _AiHeroCard(),
-            const SizedBox(height: 32),
-            _SectionHeader(title: 'Recent Intelligence'),
-            const SizedBox(height: 16),
-            insightsAsync.when(
-              data: (insights) {
-                if (insights.isEmpty) {
-                  return const Center(child: Text('No insights generated yet.'));
-                }
-                return Column(
+      body: SentinelStateView(
+        state: insightsAsync,
+        onRetry: () => ref.refresh(aiInsightsProvider),
+        builder: (insights) => SingleChildScrollView(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _AiHeroCard(),
+              const SizedBox(height: 32),
+              const _SectionHeader(title: 'Recent Intelligence'),
+              const SizedBox(height: 16),
+              if (insights.isEmpty)
+                const Center(child: Text('No insights generated yet.'))
+              else
+                Column(
                   children: insights.map((insight) => Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: _InsightCard(insight: insight),
                   )).toList(),
-                );
-              },
-              loading: () => Column(children: List.generate(3, (_) => SentinelShimmer.box(height: 100))),
-              error: (e, __) => Text('Error: $e'),
-            ),
-          ],
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -138,7 +137,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title.toUpperCase(),
-      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.darkTextMuted, letterSpacing: 1),
+      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.darkTextMuted, letterSpacing: 1),
     );
   }
 }

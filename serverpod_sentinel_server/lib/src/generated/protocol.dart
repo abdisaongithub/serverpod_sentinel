@@ -81,34 +81,38 @@ import 'package:serverpod_sentinel_server/src/generated/security/audit_log.dart'
     as _i64;
 import 'package:serverpod_sentinel_server/src/generated/settings/environment.dart'
     as _i65;
-import 'package:serverpod_sentinel_server/src/generated/incident/incident.dart'
+import 'package:serverpod_sentinel_server/src/generated/governance/remediation_policy.dart'
     as _i66;
-import 'package:serverpod_sentinel_server/src/generated/settings/integration.dart'
+import 'package:serverpod_sentinel_server/src/generated/governance/chaos_experiment.dart'
     as _i67;
-import 'package:serverpod_sentinel_server/src/generated/settings/notification_preference.dart'
+import 'package:serverpod_sentinel_server/src/generated/incident/incident.dart'
     as _i68;
-import 'package:serverpod_sentinel_server/src/generated/settings/outgoing_webhook.dart'
+import 'package:serverpod_sentinel_server/src/generated/settings/integration.dart'
     as _i69;
-import 'package:serverpod_sentinel_server/src/generated/automation/playbook.dart'
+import 'package:serverpod_sentinel_server/src/generated/settings/notification_preference.dart'
     as _i70;
-import 'package:serverpod_sentinel_server/src/generated/reporting/report_snapshot.dart'
+import 'package:serverpod_sentinel_server/src/generated/settings/outgoing_webhook.dart'
     as _i71;
-import 'package:serverpod_sentinel_server/src/generated/enums/incident_severity.dart'
+import 'package:serverpod_sentinel_server/src/generated/automation/playbook.dart'
     as _i72;
-import 'package:serverpod_sentinel_server/src/generated/service/rule.dart'
+import 'package:serverpod_sentinel_server/src/generated/reporting/report_snapshot.dart'
     as _i73;
-import 'package:serverpod_sentinel_server/src/generated/security/sentinel_api_key.dart'
+import 'package:serverpod_sentinel_server/src/generated/enums/incident_severity.dart'
     as _i74;
-import 'package:serverpod_sentinel_server/src/generated/service/service.dart'
+import 'package:serverpod_sentinel_server/src/generated/service/rule.dart'
     as _i75;
-import 'package:serverpod_sentinel_server/src/generated/settings/system_setting.dart'
+import 'package:serverpod_sentinel_server/src/generated/security/sentinel_api_key.dart'
     as _i76;
-import 'package:serverpod_sentinel_server/src/generated/service/health_signal.dart'
+import 'package:serverpod_sentinel_server/src/generated/service/service.dart'
     as _i77;
-import 'package:serverpod_sentinel_server/src/generated/telemetry/metric_point.dart'
+import 'package:serverpod_sentinel_server/src/generated/settings/system_setting.dart'
     as _i78;
-import 'package:serverpod_sentinel_server/src/generated/dtos/team_member.dart'
+import 'package:serverpod_sentinel_server/src/generated/service/health_signal.dart'
     as _i79;
+import 'package:serverpod_sentinel_server/src/generated/telemetry/metric_point.dart'
+    as _i80;
+import 'package:serverpod_sentinel_server/src/generated/dtos/team_member.dart'
+    as _i81;
 export 'agent/agent_task.dart';
 export 'agent/agent_task_status.dart';
 export 'ai/ai_insight.dart';
@@ -3515,41 +3519,53 @@ class Protocol extends _i1.SerializationManagerServer {
               .toList()
           as T;
     }
-    if (t == List<_i66.Incident>) {
-      return (data as List).map((e) => deserialize<_i66.Incident>(e)).toList()
-          as T;
-    }
-    if (t == List<_i67.Integration>) {
-      return (data as List)
-              .map((e) => deserialize<_i67.Integration>(e))
-              .toList()
-          as T;
-    }
     if (t == List<Map<String, dynamic>>) {
       return (data as List)
               .map((e) => deserialize<Map<String, dynamic>>(e))
               .toList()
           as T;
     }
-    if (t == List<_i68.NotificationPreference>) {
+    if (t == List<_i66.RemediationPolicy>) {
       return (data as List)
-              .map((e) => deserialize<_i68.NotificationPreference>(e))
+              .map((e) => deserialize<_i66.RemediationPolicy>(e))
               .toList()
           as T;
     }
-    if (t == List<_i69.OutgoingWebhook>) {
+    if (t == List<_i67.ChaosExperiment>) {
       return (data as List)
-              .map((e) => deserialize<_i69.OutgoingWebhook>(e))
+              .map((e) => deserialize<_i67.ChaosExperiment>(e))
               .toList()
           as T;
     }
-    if (t == List<_i70.Playbook>) {
-      return (data as List).map((e) => deserialize<_i70.Playbook>(e)).toList()
+    if (t == List<_i68.Incident>) {
+      return (data as List).map((e) => deserialize<_i68.Incident>(e)).toList()
           as T;
     }
-    if (t == List<_i71.ReportSnapshot>) {
+    if (t == List<_i69.Integration>) {
       return (data as List)
-              .map((e) => deserialize<_i71.ReportSnapshot>(e))
+              .map((e) => deserialize<_i69.Integration>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i70.NotificationPreference>) {
+      return (data as List)
+              .map((e) => deserialize<_i70.NotificationPreference>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i71.OutgoingWebhook>) {
+      return (data as List)
+              .map((e) => deserialize<_i71.OutgoingWebhook>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i72.Playbook>) {
+      return (data as List).map((e) => deserialize<_i72.Playbook>(e)).toList()
+          as T;
+    }
+    if (t == List<_i73.ReportSnapshot>) {
+      return (data as List)
+              .map((e) => deserialize<_i73.ReportSnapshot>(e))
               .toList()
           as T;
     }
@@ -3562,53 +3578,53 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == List<_i72.IncidentSeverity>) {
+    if (t == List<_i74.IncidentSeverity>) {
       return (data as List)
-              .map((e) => deserialize<_i72.IncidentSeverity>(e))
+              .map((e) => deserialize<_i74.IncidentSeverity>(e))
               .toList()
           as T;
     }
-    if (t == _i1.getType<List<_i72.IncidentSeverity>?>()) {
+    if (t == _i1.getType<List<_i74.IncidentSeverity>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i72.IncidentSeverity>(e))
+                    .map((e) => deserialize<_i74.IncidentSeverity>(e))
                     .toList()
               : null)
           as T;
     }
-    if (t == List<_i73.Rule>) {
-      return (data as List).map((e) => deserialize<_i73.Rule>(e)).toList() as T;
+    if (t == List<_i75.Rule>) {
+      return (data as List).map((e) => deserialize<_i75.Rule>(e)).toList() as T;
     }
-    if (t == List<_i74.SentinelApiKey>) {
+    if (t == List<_i76.SentinelApiKey>) {
       return (data as List)
-              .map((e) => deserialize<_i74.SentinelApiKey>(e))
+              .map((e) => deserialize<_i76.SentinelApiKey>(e))
               .toList()
           as T;
     }
-    if (t == List<_i75.Service>) {
-      return (data as List).map((e) => deserialize<_i75.Service>(e)).toList()
+    if (t == List<_i77.Service>) {
+      return (data as List).map((e) => deserialize<_i77.Service>(e)).toList()
           as T;
     }
-    if (t == List<_i76.SystemSetting>) {
+    if (t == List<_i78.SystemSetting>) {
       return (data as List)
-              .map((e) => deserialize<_i76.SystemSetting>(e))
+              .map((e) => deserialize<_i78.SystemSetting>(e))
               .toList()
           as T;
     }
-    if (t == List<_i77.HealthSignal>) {
+    if (t == List<_i79.HealthSignal>) {
       return (data as List)
-              .map((e) => deserialize<_i77.HealthSignal>(e))
+              .map((e) => deserialize<_i79.HealthSignal>(e))
               .toList()
           as T;
     }
-    if (t == List<_i78.MetricPoint>) {
+    if (t == List<_i80.MetricPoint>) {
       return (data as List)
-              .map((e) => deserialize<_i78.MetricPoint>(e))
+              .map((e) => deserialize<_i80.MetricPoint>(e))
               .toList()
           as T;
     }
-    if (t == List<_i79.TeamMember>) {
-      return (data as List).map((e) => deserialize<_i79.TeamMember>(e)).toList()
+    if (t == List<_i81.TeamMember>) {
+      return (data as List).map((e) => deserialize<_i81.TeamMember>(e)).toList()
           as T;
     }
     try {

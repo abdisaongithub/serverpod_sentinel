@@ -17,7 +17,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.darkBackground,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth >= AppTheme.tabletBreakpoint;
@@ -43,9 +43,10 @@ class _BrandingPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const bgColor = AppTheme.darkBackground;
+
     return Stack(
       children: [
-        // Background Image with Overlays
         Positioned.fill(
           child: Image.network(
             "https://lh3.googleusercontent.com/aida-public/AB6AXuABI9zpB9fT1ReazjGxIMdIZAiMA9xenP5fumclKwPXg5An6Feokbpxc12RB6Z05xwu8exvWRusqNCs8RUoQGe0NvU85HOp4Qxd3S4jbtAyGwc1XdPVyUQEKrMdaRkUO2vTdw1Y4W9yyiCEQJ093RtQILurFQdDcPJ4-oQ_DlXsrivIywvw-0o8Q_oPT3iXuv2FCARgF6BE99itGDXh0-6gjUSVpOyi5CSangGiPtoNV0rELJZy8Hz4ILfNlnRce61WJupeKgRM7W8",
@@ -59,9 +60,9 @@ class _BrandingPanel extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppTheme.background.withOpacity(0.9),
+                  bgColor.withOpacity(0.9),
                   AppTheme.primary.withOpacity(0.3),
-                  AppTheme.background,
+                  bgColor,
                 ],
               ),
             ),
@@ -69,13 +70,11 @@ class _BrandingPanel extends StatelessWidget {
         ),
         Positioned.fill(child: Container(color: Colors.black.withOpacity(0.4))),
 
-        // Content
         Padding(
           padding: const EdgeInsets.all(64.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Logo
               Row(
                 children: [
                   Container(
@@ -88,13 +87,6 @@ class _BrandingPanel extends StatelessWidget {
                         end: Alignment.topRight,
                       ),
                       borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primary.withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: const Icon(
                       Icons.terminal,
@@ -107,7 +99,7 @@ class _BrandingPanel extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'OpsCenter',
+                        'Sentinel',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -127,7 +119,6 @@ class _BrandingPanel extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              // Status Badge
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -147,9 +138,6 @@ class _BrandingPanel extends StatelessWidget {
                       decoration: const BoxDecoration(
                         color: AppTheme.success,
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(color: AppTheme.success, blurRadius: 8),
-                        ],
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -165,7 +153,6 @@ class _BrandingPanel extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              // Main Heading
               ShaderMask(
                 shaderCallback: (bounds) => const LinearGradient(
                   colors: [Colors.white, Colors.white70],
@@ -194,12 +181,11 @@ class _BrandingPanel extends StatelessWidget {
               Text(
                 'Seamlessly manage your infrastructure with real-time observability and automated deployment pipelines securely from anywhere.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: const Color(0xFFCBD5E1), // Slate 300
+                  color: AppTheme.darkTextSecondary,
                   height: 1.6,
                 ),
               ),
               const SizedBox(height: 32),
-              // Stats
               Container(
                 padding: const EdgeInsets.only(top: 24),
                 decoration: BoxDecoration(
@@ -207,12 +193,12 @@ class _BrandingPanel extends StatelessWidget {
                     top: BorderSide(color: Colors.white.withOpacity(0.1)),
                   ),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
                     _StatItem(label: 'Uptime SLA', value: '99.99%'),
-                    const SizedBox(width: 32),
+                    SizedBox(width: 32),
                     _StatItem(label: 'Support Access', value: '24/7'),
-                    const SizedBox(width: 32),
+                    SizedBox(width: 32),
                     _StatItem(label: 'Compliant', value: 'SOC2'),
                   ],
                 ),
@@ -245,7 +231,7 @@ class _StatItem extends StatelessWidget {
         ),
         Text(
           label,
-          style: TextStyle(color: const Color(0xFF94A3B8), fontSize: 13),
+          style: const TextStyle(color: AppTheme.darkTextMuted, fontSize: 13),
         ),
       ],
     );
@@ -301,7 +287,6 @@ class _LoginFormPanelState extends ConsumerState<_LoginFormPanel> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Mobile Logo
                 if (!isDesktop) ...[
                   Row(
                     children: [
@@ -322,7 +307,7 @@ class _LoginFormPanelState extends ConsumerState<_LoginFormPanel> {
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        'OpsCenter',
+                        'Sentinel',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -334,12 +319,11 @@ class _LoginFormPanelState extends ConsumerState<_LoginFormPanel> {
                   const SizedBox(height: 48),
                 ],
 
-                // Header
                 Row(
                   children: [
                     const Icon(Icons.lock, color: AppTheme.primary, size: 16),
                     const SizedBox(width: 8),
-                    Text(
+                    const Text(
                       'SECURE ACCESS',
                       style: TextStyle(
                         color: AppTheme.primary,
@@ -360,7 +344,7 @@ class _LoginFormPanelState extends ConsumerState<_LoginFormPanel> {
                   'Please enter your details to sign in.',
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyLarge?.copyWith(color: AppTheme.textMuted),
+                  ).textTheme.bodyLarge?.copyWith(color: AppTheme.darkTextMuted),
                 ),
                 const SizedBox(height: 24),
 
@@ -369,29 +353,28 @@ class _LoginFormPanelState extends ConsumerState<_LoginFormPanel> {
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 24),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      border: Border.all(color: Colors.red.withOpacity(0.3)),
+                      color: AppTheme.error.withOpacity(0.1),
+                      border: Border.all(color: AppTheme.error.withOpacity(0.3)),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.error_outline,
-                          color: Colors.red[300],
+                          color: AppTheme.error,
                           size: 20,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             authState.error!,
-                            style: TextStyle(color: Colors.red[200]),
+                            style: const TextStyle(color: AppTheme.error),
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                // Form
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -429,7 +412,7 @@ class _LoginFormPanelState extends ConsumerState<_LoginFormPanel> {
                     ),
                     const SizedBox(height: 8),
                     AppTextField(
-                      label: '', // Label handled in Row above
+                      label: '', 
                       controller: _passwordController,
                       hint: '••••••••',
                       prefixIcon: LucideIcons.lock,
@@ -459,9 +442,9 @@ class _LoginFormPanelState extends ConsumerState<_LoginFormPanel> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           'Don\'t have an account?',
-                          style: TextStyle(color: AppTheme.textMuted),
+                          style: TextStyle(color: AppTheme.darkTextMuted),
                         ),
                         TextButton(
                           onPressed: () => context.go(AppRoutes.signup),
@@ -473,28 +456,26 @@ class _LoginFormPanelState extends ConsumerState<_LoginFormPanel> {
                 ),
 
                 const SizedBox(height: 32),
-                // Divider
                 Row(
                   children: [
-                    Expanded(child: Divider(color: AppTheme.surfaceHighlight)),
+                    const Expanded(child: Divider(color: AppTheme.darkBorder)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         'OR CONTINUE WITH',
                         style: TextStyle(
-                          color: AppTheme.textDim,
+                          color: AppTheme.darkTextDim,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.1,
                         ),
                       ),
                     ),
-                    Expanded(child: Divider(color: AppTheme.surfaceHighlight)),
+                    const Expanded(child: Divider(color: AppTheme.darkBorder)),
                   ],
                 ),
                 const SizedBox(height: 24),
 
-                // Social Buttons (Mock)
                 Row(
                   children: [
                     Expanded(
@@ -513,27 +494,26 @@ class _LoginFormPanelState extends ConsumerState<_LoginFormPanel> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _SocialButton(
+                const _SocialButton(
                   label: 'Single Sign-On (SAML)',
                   icon: Icons.admin_panel_settings,
                   isFullWidth: true,
                 ),
 
                 const SizedBox(height: 48),
-                // Footer
                 Center(
                   child: Column(
                     children: [
-                      Text(
+                      const Text(
                         'Protected by reCAPTCHA and subject to the Privacy Policy and Terms of Service.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: AppTheme.textDim, fontSize: 12),
+                        style: TextStyle(color: AppTheme.darkTextDim, fontSize: 12),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'v2.4.0 • OpsCenter Inc.',
+                        'v2.4.0 • Sentinel Inc.',
                         style: TextStyle(
-                          color: AppTheme.surfaceHighlight,
+                          color: AppTheme.darkSurfaceHighlight,
                           fontSize: 12,
                         ),
                       ),
@@ -566,9 +546,9 @@ class _SocialButton extends StatelessWidget {
       height: 48,
       width: isFullWidth ? double.infinity : null,
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: AppTheme.darkSurface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.surfaceHighlight),
+        border: Border.all(color: AppTheme.darkBorderHighlight),
       ),
       child: InkWell(
         onTap: () {},

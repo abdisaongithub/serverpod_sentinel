@@ -19,9 +19,9 @@ class AppRightSidebar extends StatelessWidget {
     return Container(
       width: 320,
       decoration: const BoxDecoration(
-        color: AppTheme.background,
+        color: AppTheme.darkBackground,
         border: Border(
-          left: BorderSide(color: AppTheme.surfaceHighlight, width: 1),
+          left: BorderSide(color: AppTheme.darkBorder, width: 1),
         ),
       ),
       child: Column(
@@ -32,7 +32,7 @@ class AppRightSidebar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             decoration: const BoxDecoration(
               border: Border(
-                bottom: BorderSide(color: AppTheme.surfaceHighlight, width: 1),
+                bottom: BorderSide(color: AppTheme.darkBorder, width: 1),
               ),
             ),
             child: Row(
@@ -52,7 +52,7 @@ class AppRightSidebar extends StatelessWidget {
                     icon: const Icon(
                       LucideIcons.x,
                       size: 18,
-                      color: AppTheme.textDim,
+                      color: AppTheme.darkTextDim,
                     ),
                     onPressed: onClose,
                     visualDensity: VisualDensity.compact,
@@ -84,7 +84,7 @@ class AppRightSidebar extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: AppTheme.textDim,
+            color: AppTheme.darkTextDim,
             fontSize: 11,
             fontWeight: FontWeight.bold,
             letterSpacing: 1,
@@ -120,7 +120,7 @@ class RightSidebarSettingItem extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: isEnabled ? Colors.white : AppTheme.textDim,
+              color: isEnabled ? Colors.white : AppTheme.darkTextDim,
               fontSize: 13,
             ),
           ),

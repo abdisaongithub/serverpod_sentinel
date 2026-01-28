@@ -32,6 +32,11 @@ environment:
   - delete:
   - getActive:
   - setActive:
+governance:
+  - runAudit:
+  - listRemediationPolicies:
+  - listChaosExperiments:
+  - triggerChaos:
 health:
   - ping:
   - check:

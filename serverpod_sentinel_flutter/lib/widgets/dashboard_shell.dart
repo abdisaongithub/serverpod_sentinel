@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 import 'sentinel_sidebar.dart';
+import 'offline_banner.dart';
 
 class DashboardShell extends StatelessWidget {
   final Widget child;
@@ -20,15 +21,22 @@ class DashboardShell extends StatelessWidget {
         if (isDesktop) {
           return Scaffold(
             backgroundColor: AppTheme.darkBackground,
-            body: Row(
+            body: Column(
               children: [
-                SentinelSidebar(
-                  activeRoute: activeRoute,
-                  onRouteSelected: (route) => context.go(route),
-                ),
+                const OfflineBanner(),
                 Expanded(
-                  child: ClipRect(
-                    child: child,
+                  child: Row(
+                    children: [
+                      SentinelSidebar(
+                        activeRoute: activeRoute,
+                        onRouteSelected: (route) => context.go(route),
+                      ),
+                      Expanded(
+                        child: ClipRect(
+                          child: child,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -36,10 +44,15 @@ class DashboardShell extends StatelessWidget {
           );
         }
 
-        // Mobile Layout (Unchanged for now, focusing on Desktop excellence)
+        // Mobile Layout
         return Scaffold(
           backgroundColor: AppTheme.darkBackground,
-          body: child,
+          body: Column(
+            children: [
+              const OfflineBanner(),
+              Expanded(child: child),
+            ],
+          ),
           bottomNavigationBar: BottomNavigationBar(
             backgroundColor: AppTheme.darkSurface,
             selectedItemColor: AppTheme.primary,

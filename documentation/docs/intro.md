@@ -4,29 +4,30 @@ sidebar_position: 1
 
 # Introduction
 
-**Serverpod Sentinel** is an AI-powered, self-hosted incident management and system monitoring platform built on the robust [Serverpod](https://serverpod.dev) framework.
+**Serverpod Sentinel** is an AI-powered, enterprise-grade incident management and system monitoring platform built on the robust [Serverpod](https://serverpod.dev) framework and [Flutter](https://flutter.dev).
 
-It provides a unified interface for tracking service health, managing incidents, and automating remediation via intelligent playbooks.
+It provides a unified interface for tracking service health, managing incidents, and automating remediation via intelligent, self-healing playbooks.
 
-## Key Features
+## 🚀 Key Features
 
-- **Real-time Monitoring**: Track CPU, Memory, and custom health signals across your entire infrastructure.
-- **AI-Driven Insights**: Correlate metrics and audit logs to identify root causes automatically.
-- **Automated Playbooks**: Execute multi-step remediation scripts (SSH, Webhooks, etc.) with optional approval gates.
-- **Incident Lifecycle**: Manage the full lifecycle from detection to resolution with a focus on speed and transparency.
-- **Team Collaboration**: Role-based access control (RBAC) to ensure only authorized personnel can trigger critical actions.
+- **🛡️ Hardened Security**: Granular RBAC with 25+ distinct permissions, AES-256-GCM encryption at rest for secrets, and TOTP-based Multi-Factor Authentication.
+- **🧠 AI-Powered Operations**: Automated Root Cause Analysis (RCA) using GPT-4o or Gemini, correlating telemetry spikes with recent configuration changes in audit logs.
+- **🏗️ Resilient Architecture**: Multi-level caching (Local L1 + Redis L2), distributed advisory locks for cluster-aware background jobs, and circuit breakers for external service integrations.
+- **⚙️ Autonomous Remediation**: "Closed-loop" self-healing policies that automatically trigger playbooks based on system events, reducing Mean Time to Resolve (MTTR).
+- **📊 Interactive Observability**: Real-time streaming metrics via WebSockets with statistical anomaly detection (Z-Score) and Service Level Objective (SLO) tracking.
+- **🔌 Extensible Platform**: Scoped API key management and signed outgoing webhooks (HMAC-SHA256) for seamless integration with Slack, Jira, and custom CI/CD pipelines.
 
 ## The Sentinel Philosophy
 
 We believe that monitoring should be **active**, not just passive. 
 
-Traditional tools tell you when something is broken. **Sentinel** tells you *why* it's broken and offers the **Playbooks** to fix it instantly. By hosting it yourself, you keep control of your telemetry data and remediation logic.
+Traditional tools tell you when something is broken. **Sentinel** tells you *why* it's broken and offers the **Playbooks** to fix it instantly. By hosting it yourself on Serverpod, you keep full control of your telemetry data and remediation logic.
 
 ## Project Structure
 
-Sentinel is composed of four main modules:
+Sentinel is composed of four primary modules:
 
-1.  **Server**: The backend powerhouse handling logic, data persistence (Postgres), and AI integration.
-2.  **Flutter Web UI**: A high-performance, real-time dashboard for operators and admins.
-3.  **Client**: The generated protocol layer that enables seamless communication.
-4.  **Sentinel Agent**: A lightweight Dart CLI tool that runs on your servers to collect data and execute tasks.
+1.  **Backend (Server)**: The hardened powerhouse handling logic, data persistence (Postgres), AI analysis, and orchestration.
+2.  **Dashboard (Flutter)**: A high-fidelity, real-time interface featuring a "Fluid-Utility" design system and a command palette (CMD+K).
+3.  **Client (Dart)**: The generated protocol layer enabling type-safe communication between all components.
+4.  **Agent (CLI)**: A lightweight monitoring agent that runs on remote infrastructure to ingest signals and execute remote tasks.

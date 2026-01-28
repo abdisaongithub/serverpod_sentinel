@@ -7,6 +7,7 @@ import '../../theme/sentinel_motion.dart';
 import '../../widgets/sentinel_card.dart';
 import '../../widgets/status_pulsar.dart';
 import '../../widgets/sentinel_shimmer.dart';
+import '../../widgets/sentinel_state_view.dart';
 import '../../providers/incidents_provider.dart';
 import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 
@@ -15,16 +16,44 @@ class IncidentsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final incidentsAsync = ref.watch(activeIncidentsProvider);
+
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
-      body: CustomScrollView(
-        slivers: [
-          _IncidentsHeader(),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-            sliver: _IncidentList(),
-          ),
-        ],
+      body: SentinelStateView(
+        state: incidentsAsync,
+        onRetry: () => ref.refresh(activeIncidentsProvider),
+        builder: (incidents) => CustomScrollView(
+          slivers: [
+            _IncidentsHeader(),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+              sliver: incidents.isEmpty 
+                ? _EmptyIncidentsView()
+                : _IncidentList(incidents: incidents),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyIncidentsView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.shield_rounded, size: 64, color: AppTheme.darkTextDim.withOpacity(0.2)),
+            const SizedBox(height: 16),
+            const Text('All Systems Clear', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('No active incidents currently tracked.', style: TextStyle(color: AppTheme.darkTextDim)),
+          ],
+        ),
       ),
     );
   }
@@ -61,55 +90,26 @@ class _IncidentsHeader extends StatelessWidget {
   }
 }
 
-class _IncidentList extends ConsumerWidget {
+class _IncidentList extends StatelessWidget {
+  final List<Incident> incidents;
+  const _IncidentList({required this.incidents});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final incidentsAsync = ref.watch(activeIncidentsProvider);
-
-    return incidentsAsync.when(
-      data: (incidents) {
-        if (incidents.isEmpty) {
-          return SliverFillRemaining(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.shield_rounded, size: 64, color: AppTheme.darkTextDim.withOpacity(0.2)),
-                  const SizedBox(height: 16),
-                  const Text('All Systems Clear', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text('No active incidents currently tracked.', style: TextStyle(color: AppTheme.darkTextDim)),
-                ],
-              ),
+  Widget build(BuildContext context) {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final incident = incidents[index];
+          return SentinelMotion.fadeIn(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _IncidentListItem(incident: incident),
             ),
+            delay: Duration(milliseconds: index * 50),
           );
-        }
-
-        return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final incident = incidents[index];
-              return SentinelMotion.fadeIn(
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _IncidentListItem(incident: incident),
-                ),
-                delay: Duration(milliseconds: index * 50),
-              );
-            },
-            childCount: incidents.length,
-          ),
-        );
-      },
-      loading: () => SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: SentinelShimmer.box(height: 100),
-          ),
-          childCount: 5,
-        ),
+        },
+        childCount: incidents.length,
       ),
-      error: (e, __) => SliverToBoxAdapter(child: Center(child: Text('Error: $e'))),
     );
   }
 }

@@ -4,7 +4,10 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/sentinel_motion.dart';
 import '../../routes.dart';
+import '../../widgets/sentinel_card.dart';
+import '../../widgets/status_pulsar.dart';
 import '../../widgets/app_right_sidebar.dart';
 import '../../providers/incidents_provider.dart';
 
@@ -23,7 +26,7 @@ class IncidentDetailScreen extends ConsumerWidget {
         final isLargeDesktop = constraints.maxWidth >= 1400;
 
         return Scaffold(
-          backgroundColor: const Color(0xFF0F172A),
+          backgroundColor: AppTheme.darkBackground,
           body: Column(
             children: [
               _Header(isDesktop: isDesktop, incidentId: incidentId),
@@ -34,7 +37,7 @@ class IncidentDetailScreen extends ConsumerWidget {
                   error: (e, _) => Center(
                     child: Text(
                       'Error loading incident: $e',
-                      style: const TextStyle(color: Colors.red),
+                      style: const TextStyle(color: AppTheme.error),
                     ),
                   ),
                   data: (incident) {
@@ -92,9 +95,9 @@ class _Header extends StatelessWidget {
     return Container(
       height: 64,
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16),
-      decoration: const BoxDecoration(
-        color: Color(0xFF161E2D),
-        border: Border(bottom: BorderSide(color: Color(0xFF2D3748))),
+      decoration: BoxDecoration(
+        color: AppTheme.darkSurface,
+        border: Border(bottom: BorderSide(color: AppTheme.darkBorder)),
       ),
       child: Row(
         children: [
@@ -114,7 +117,7 @@ class _Header extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () => context.go(AppRoutes.incidents),
-                      child: Text(
+                      child: const Text(
                         'Incidents',
                         style: TextStyle(
                           color: AppTheme.primary,
@@ -127,13 +130,13 @@ class _Header extends StatelessWidget {
                     const Icon(
                       LucideIcons.chevronRight,
                       size: 12,
-                      color: Color(0xFF94A3B8),
+                      color: AppTheme.darkTextMuted,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '#INC-$incidentId',
                       style: const TextStyle(
-                        color: Color(0xFF94A3B8),
+                        color: AppTheme.darkTextMuted,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -197,7 +200,7 @@ class _Header extends StatelessWidget {
           IconButton(
             icon: const Icon(
               LucideIcons.share2,
-              color: Color(0xFF94A3B8),
+              color: AppTheme.darkTextMuted,
               size: 20,
             ),
             onPressed: () {},
@@ -224,7 +227,7 @@ class _ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isPrimary ? AppTheme.primary : AppTheme.surfaceHighlight,
+      color: isPrimary ? AppTheme.primary : AppTheme.darkSurfaceVariant,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: onTap,
@@ -294,13 +297,7 @@ class _StatusSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161E2D),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2D3748)),
-      ),
+    return SentinelCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -309,16 +306,16 @@ class _StatusSection extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     LucideIcons.activity,
-                    color: AppTheme.textMuted,
+                    color: AppTheme.darkTextMuted,
                     size: 16,
                   ),
                   const SizedBox(width: 8),
-                  Text(
+                  const Text(
                     'CURRENT STATUS',
                     style: TextStyle(
-                      color: AppTheme.textMuted,
+                      color: AppTheme.darkTextMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1,
@@ -339,7 +336,7 @@ class _StatusSection extends StatelessWidget {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _PulseDot(),
+                    StatusPulsar(color: AppTheme.error, size: 8),
                     SizedBox(width: 8),
                     Text(
                       'LIVE',
@@ -367,12 +364,12 @@ class _StatusSection extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             incident.summary ?? 'No description available',
-            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+            style: const TextStyle(color: AppTheme.darkTextMuted, fontSize: 14),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 24),
-          const Divider(color: Color(0xFF2D3748)),
+          const Divider(color: AppTheme.darkBorder),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -380,10 +377,10 @@ class _StatusSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Duration',
                       style: TextStyle(
-                        color: AppTheme.textMuted,
+                        color: AppTheme.darkTextMuted,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -400,20 +397,20 @@ class _StatusSection extends StatelessWidget {
                   ],
                 ),
               ),
-              Expanded(
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Responders',
                       style: TextStyle(
-                        color: AppTheme.textMuted,
+                        color: AppTheme.darkTextMuted,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    const _AvatarsRow(),
+                    SizedBox(height: 4),
+                    _AvatarsRow(),
                   ],
                 ),
               ),
@@ -432,13 +429,7 @@ class _SummarySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161E2D),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2D3748)),
-      ),
+    return SentinelCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -455,7 +446,7 @@ class _SummarySection extends StatelessWidget {
               ),
               Text(
                 'Edit',
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppTheme.primary,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -467,7 +458,7 @@ class _SummarySection extends StatelessWidget {
           Text(
             incident.summary ?? 'No summary available',
             style: const TextStyle(
-              color: Color(0xFFCBD5E1),
+              color: AppTheme.darkTextSecondary,
               fontSize: 14,
               height: 1.6,
             ),
@@ -477,9 +468,9 @@ class _SummarySection extends StatelessWidget {
             height: 100,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
+              color: AppTheme.darkBackground,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF2D3748)),
+              border: Border.all(color: AppTheme.darkBorder),
             ),
             child: Stack(
               children: [
@@ -535,8 +526,8 @@ class _SummarySection extends StatelessWidget {
                         height: 80,
                         color: AppTheme.primary.withOpacity(0.6),
                       ),
-                      _Bar(height: 95, color: AppTheme.error),
-                      _Bar(height: 85, color: AppTheme.error),
+                      const _Bar(height: 95, color: AppTheme.error),
+                      const _Bar(height: 85, color: AppTheme.error),
                       _Bar(height: 70, color: AppTheme.error.withOpacity(0.7)),
                       _Bar(height: 60, color: AppTheme.error.withOpacity(0.6)),
                     ],
@@ -577,12 +568,12 @@ class _AvatarsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Align(
+        const Align(
           widthFactor: 0.7,
           alignment: Alignment.centerLeft,
           child: _Avatar(url: 'https://i.pravatar.cc/150?img=1'),
         ),
-        Align(
+        const Align(
           widthFactor: 0.7,
           alignment: Alignment.centerLeft,
           child: _Avatar(url: 'https://i.pravatar.cc/150?img=2'),
@@ -591,9 +582,9 @@ class _AvatarsRow extends StatelessWidget {
           width: 24,
           height: 24,
           decoration: BoxDecoration(
-            color: const Color(0xFF334155),
+            color: AppTheme.darkSurfaceHighlight,
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFF161E2D), width: 2),
+            border: Border.all(color: AppTheme.darkSurface, width: 2),
           ),
           child: const Center(
             child: Text(
@@ -622,67 +613,9 @@ class _Avatar extends StatelessWidget {
       height: 24,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFF161E2D), width: 2),
+        border: Border.all(color: AppTheme.darkSurface, width: 2),
         image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
       ),
-    );
-  }
-}
-
-class _PulseDot extends StatefulWidget {
-  const _PulseDot();
-
-  @override
-  State<_PulseDot> createState() => _PulseDotState();
-}
-
-class _PulseDotState extends State<_PulseDot>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: AppTheme.error.withOpacity(1 - _controller.value),
-                shape: BoxShape.circle,
-              ),
-              transform: Matrix4.identity()..scale(1 + _controller.value),
-            ),
-            Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: AppTheme.error,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }
@@ -707,7 +640,6 @@ class _TimelineSection extends StatelessWidget {
   }
 
   String _getAuthorInitials(IncidentTimelineItem item) {
-    // Use authorId to generate initials since OpsUser doesn't have a name field
     return 'U${item.authorId}';
   }
 
@@ -769,20 +701,15 @@ class _TimelineSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        Container(
+        SentinelCard(
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: const Color(0xFF161E2D),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF2D3748)),
-          ),
           child: timeline.isEmpty
               ? const Center(
                   child: Padding(
                     padding: EdgeInsets.all(24),
                     child: Text(
                       'No timeline events yet',
-                      style: TextStyle(color: Color(0xFF94A3B8)),
+                      style: TextStyle(color: AppTheme.darkTextMuted),
                     ),
                   ),
                 )
@@ -835,13 +762,13 @@ class _TimelineFilter extends StatelessWidget {
             : Colors.transparent,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: isActive ? AppTheme.primary : const Color(0xFF2D3748),
+          color: isActive ? AppTheme.primary : AppTheme.darkBorder,
         ),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: isActive ? AppTheme.primary : AppTheme.textMuted,
+          color: isActive ? AppTheme.primary : AppTheme.darkTextMuted,
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -884,7 +811,7 @@ class _TimelineItem extends StatelessWidget {
             top: 32,
             bottom: 0,
             width: 2,
-            child: Container(color: const Color(0xFF2D3748)),
+            child: Container(color: AppTheme.darkBorder),
           ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -903,7 +830,7 @@ class _TimelineItem extends StatelessWidget {
                   ),
                   Text(
                     day,
-                    style: TextStyle(color: AppTheme.textMuted, fontSize: 10),
+                    style: const TextStyle(color: AppTheme.darkTextMuted, fontSize: 10),
                   ),
                 ],
               ),
@@ -915,7 +842,7 @@ class _TimelineItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSystem
                     ? statusColor.withOpacity(0.1)
-                    : const Color(0xFF334155),
+                    : AppTheme.darkSurfaceHighlight,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSystem
@@ -954,8 +881,8 @@ class _TimelineItem extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: TextStyle(
-                        color: AppTheme.textMuted,
+                      style: const TextStyle(
+                        color: AppTheme.darkTextMuted,
                         fontSize: 13,
                         height: 1.5,
                       ),
@@ -968,9 +895,9 @@ class _TimelineItem extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0F172A),
+                          color: AppTheme.darkBackground,
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: const Color(0xFF2D3748)),
+                          border: Border.all(color: AppTheme.darkBorder),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -1078,22 +1005,22 @@ class _ActionItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF161E2D),
+        color: AppTheme.darkSurface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2D3748)),
+        border: Border.all(color: AppTheme.darkBorder),
       ),
       child: Row(
         children: [
           Icon(
             isDone ? LucideIcons.checkCircle : LucideIcons.circle,
-            color: isDone ? AppTheme.success : AppTheme.textMuted,
+            color: isDone ? AppTheme.success : AppTheme.darkTextMuted,
             size: 18,
           ),
           const SizedBox(width: 12),
           Text(
             label,
             style: TextStyle(
-              color: isDone ? Colors.white : AppTheme.textMuted,
+              color: isDone ? Colors.white : AppTheme.darkTextMuted,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -1159,7 +1086,7 @@ class _SuggestedActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFF161E2D),
+      color: AppTheme.darkSurface,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -1168,7 +1095,7 @@ class _SuggestedActionCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF2D3748)),
+            border: Border.all(color: AppTheme.darkBorder),
           ),
           child: Row(
             children: [
@@ -1196,14 +1123,14 @@ class _SuggestedActionCard extends StatelessWidget {
                     ),
                     Text(
                       subtitle,
-                      style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                      style: const TextStyle(color: AppTheme.darkTextMuted, fontSize: 12),
                     ),
                   ],
                 ),
               ),
-              Icon(
+              const Icon(
                 LucideIcons.chevronRight,
-                color: AppTheme.textMuted,
+                color: AppTheme.darkTextMuted,
                 size: 16,
               ),
             ],
@@ -1243,8 +1170,8 @@ class _TeamUpdatesSidebar extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: const BoxDecoration(
-            color: Color(0xFF0F172A),
-            border: Border(top: BorderSide(color: Color(0xFF2D3748))),
+            color: AppTheme.darkBackground,
+            border: Border(top: BorderSide(color: AppTheme.darkBorder)),
           ),
           child: Row(
             children: [
@@ -1252,16 +1179,16 @@ class _TeamUpdatesSidebar extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF161E2D),
+                    color: AppTheme.darkSurface,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFF2D3748)),
+                    border: Border.all(color: AppTheme.darkBorder),
                   ),
                   child: const TextField(
                     style: TextStyle(color: Colors.white, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: 'Type a message...',
                       hintStyle: TextStyle(
-                        color: Color(0xFF64748B),
+                        color: AppTheme.darkTextMuted,
                         fontSize: 13,
                       ),
                       border: InputBorder.none,
@@ -1324,7 +1251,7 @@ class _ChatBubble extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 time,
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 10),
+                style: const TextStyle(color: AppTheme.darkTextMuted, fontSize: 10),
               ),
             ],
           ),
@@ -1334,18 +1261,18 @@ class _ChatBubble extends StatelessWidget {
             decoration: BoxDecoration(
               color: isBot
                   ? AppTheme.primary.withOpacity(0.05)
-                  : const Color(0xFF1E293B),
+                  : AppTheme.darkSurfaceVariant,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isBot
                     ? AppTheme.primary.withOpacity(0.1)
-                    : const Color(0xFF334155).withOpacity(0.3),
+                    : AppTheme.darkSurfaceHighlight.withOpacity(0.3),
               ),
             ),
             child: Text(
               message,
               style: const TextStyle(
-                color: Color(0xFFCBD5E1),
+                color: AppTheme.darkTextSecondary,
                 fontSize: 13,
                 height: 1.4,
               ),

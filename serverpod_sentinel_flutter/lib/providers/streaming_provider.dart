@@ -112,7 +112,21 @@ class StreamingService {
   async.Timer? _pollingTimer;
   final Set<int> _polledAlertIds = {};
 
-  StreamingService(this.client, this.sessionManager);
+  StreamingService(this.client, this.sessionManager) {
+    _listenToServerpodStream();
+  }
+
+  void _listenToServerpodStream() {
+    client.streaming.stream.listen((message) {
+      if (message is protocol.StreamAlert) {
+        _alertController.add(message);
+      } else if (message is protocol.StreamServiceStatus) {
+        _serviceStatusController.add(message);
+      } else if (message is protocol.StreamMetric) {
+        _metricController.add(message);
+      }
+    });
+  }
 
   async.Stream<protocol.StreamAlert> get alertStream => _alertController.stream;
   async.Stream<protocol.StreamServiceStatus> get serviceStatusStream =>

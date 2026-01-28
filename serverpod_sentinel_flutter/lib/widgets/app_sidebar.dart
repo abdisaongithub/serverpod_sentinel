@@ -13,29 +13,18 @@ class AppSidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       width: 260,
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        border: Border(
-          right: BorderSide(color: colorScheme.outlineVariant, width: 1),
+        color: AppTheme.darkSurface,
+        border: const Border(
+          right: BorderSide(color: AppTheme.darkBorder, width: 1),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.15),
-            blurRadius: 25,
-            offset: const Offset(5, 0),
-          ),
-        ],
       ),
       child: Column(
         children: [
-          // Logo Section
           _buildHeader(context),
-
-          // Navigation Items
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -113,8 +102,6 @@ class AppSidebar extends StatelessWidget {
               ),
             ),
           ),
-
-          // User Profile Section
           _buildUserProfile(context),
         ],
       ),
@@ -122,15 +109,12 @@ class AppSidebar extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Container(
       height: 80,
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: colorScheme.outlineVariant, width: 1),
+          bottom: BorderSide(color: AppTheme.darkBorder, width: 1),
         ),
       ),
       child: Row(
@@ -138,24 +122,24 @@ class AppSidebar extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.1),
+              color: AppTheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
+            child: const Icon(
               LucideIcons.shield,
-              color: colorScheme.primary,
+              color: AppTheme.primary,
               size: 24,
             ),
           ),
           const SizedBox(width: 12),
-          Column(
+          const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'SENTINEL',
                 style: TextStyle(
-                  color: colorScheme.onSurface,
+                  color: AppTheme.darkText,
                   fontWeight: FontWeight.w900,
                   fontSize: 18,
                   letterSpacing: 1,
@@ -163,7 +147,8 @@ class AppSidebar extends StatelessWidget {
               ),
               Text(
                 'OPS BUTLER',
-                style: theme.textTheme.bodySmall?.copyWith(
+                style: TextStyle(
+                  color: AppTheme.darkTextMuted,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
@@ -178,7 +163,6 @@ class AppSidebar extends StatelessWidget {
 
   Widget _buildSection(BuildContext context, String title, List<Widget> items) {
     if (items.isEmpty) return const SizedBox.shrink();
-    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,7 +171,8 @@ class AppSidebar extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
           child: Text(
             title,
-            style: theme.textTheme.bodySmall?.copyWith(
+            style: const TextStyle(
+              color: AppTheme.darkTextMuted,
               fontSize: 11,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.5,
@@ -200,32 +185,29 @@ class AppSidebar extends StatelessWidget {
   }
 
   Widget _buildUserProfile(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         border: Border(
-          top: BorderSide(color: colorScheme.outlineVariant, width: 1),
+          top: BorderSide(color: AppTheme.darkBorder, width: 1),
         ),
       ),
       child: Row(
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 18,
-            backgroundColor: colorScheme.outlineVariant,
+            backgroundColor: AppTheme.darkSurfaceVariant,
             child: Text(
               'AM',
               style: TextStyle(
-                color: colorScheme.onSurface,
+                color: AppTheme.darkText,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
           const SizedBox(width: 12),
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -233,21 +215,21 @@ class AppSidebar extends StatelessWidget {
                 Text(
                   'Alex Morgan',
                   style: TextStyle(
-                    color: colorScheme.onSurface,
+                    color: AppTheme.darkText,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
                 ),
                 Text(
                   'Admin Role',
-                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 11),
+                  style: TextStyle(color: AppTheme.darkTextMuted, fontSize: 11),
                 ),
               ],
             ),
           ),
-          Icon(
+          const Icon(
             LucideIcons.logOut,
-            color: theme.textTheme.bodySmall?.color,
+            color: AppTheme.darkTextMuted,
             size: 18,
           ),
         ],
@@ -280,14 +262,8 @@ class _SidebarItemState extends State<_SidebarItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-
-    final activeColor = colorScheme.primary;
-    final inactiveColor = isDark
-        ? AppTheme.darkTextMuted
-        : AppTheme.lightTextMuted;
+    const activeColor = AppTheme.primary;
+    const inactiveColor = AppTheme.darkTextMuted;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
@@ -303,32 +279,16 @@ class _SidebarItemState extends State<_SidebarItem> {
                 }
               : null,
           borderRadius: BorderRadius.circular(8),
-          hoverColor: colorScheme.outlineVariant.withValues(alpha: 0.3),
-          splashColor: activeColor.withValues(alpha: 0.1),
-          highlightColor: activeColor.withValues(alpha: 0.05),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: widget.isActive
-                  ? activeColor.withValues(alpha: 0.1)
+                  ? activeColor.withOpacity(0.1)
                   : (_isHovered
-                        ? colorScheme.outlineVariant.withValues(alpha: 0.2)
+                        ? AppTheme.darkSurfaceVariant.withOpacity(0.5)
                         : Colors.transparent),
               borderRadius: BorderRadius.circular(8),
-              boxShadow: (widget.isActive || _isHovered)
-                  ? [
-                      BoxShadow(
-                        color: widget.isActive
-                            ? activeColor.withValues(alpha: 0.4)
-                            : Colors.black.withValues(
-                                alpha: isDark ? 0.4 : 0.15,
-                              ),
-                        blurRadius: widget.isActive ? 12 : 6,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : null,
             ),
             child: Row(
               children: [
@@ -343,7 +303,7 @@ class _SidebarItemState extends State<_SidebarItem> {
                     widget.label,
                     style: TextStyle(
                       color: widget.isActive
-                          ? colorScheme.onSurface
+                          ? AppTheme.darkText
                           : inactiveColor,
                       fontSize: 14,
                       fontWeight: widget.isActive
