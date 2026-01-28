@@ -27,7 +27,10 @@ class ServiceEndpoint extends Endpoint {
         if (tier != null) conditions = conditions & t.tier.equals(tier);
         return conditions;
       },
-      include: Service.include(owner: OpsUser.include()),
+      include: Service.include(
+        owner: OpsUser.include(),
+        signals: HealthSignal.includeList(),
+      ),
     );
   }
 

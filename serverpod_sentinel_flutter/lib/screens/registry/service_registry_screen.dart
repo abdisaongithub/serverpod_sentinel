@@ -130,7 +130,7 @@ class _ServiceRegistryCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const Spacer(),
-          _MetricPreview(),
+          _MetricPreview(service: service),
         ],
       ),
     );
@@ -148,18 +148,31 @@ class _ServiceRegistryCard extends StatelessWidget {
 }
 
 class _MetricPreview extends StatelessWidget {
+  final Service service;
+  const _MetricPreview({required this.service});
+
   @override
   Widget build(BuildContext context) {
+    final signals = service.signals ?? [];
+    final cpuSignal = signals.where((s) => s.identifier.contains('cpu')).firstOrNull;
+    final memSignal = signals.where((s) => s.identifier.contains('memory')).firstOrNull;
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          const Expanded(
-            child: _MiniMetric(label: 'Uptime', value: '99.9%'),
+          Expanded(
+            child: _MiniMetric(
+              label: 'CPU', 
+              value: cpuSignal?.currentValue != null ? '${cpuSignal!.currentValue!.toStringAsFixed(1)}%' : 'N/A',
+            ),
           ),
           Container(width: 1, height: 24, color: AppTheme.darkBorder),
-          const Expanded(
-            child: _MiniMetric(label: 'P99', value: '124ms'),
+          Expanded(
+            child: _MiniMetric(
+              label: 'Memory', 
+              value: memSignal?.currentValue != null ? '${memSignal!.currentValue!.toStringAsFixed(1)}%' : 'N/A',
+            ),
           ),
         ],
       ),

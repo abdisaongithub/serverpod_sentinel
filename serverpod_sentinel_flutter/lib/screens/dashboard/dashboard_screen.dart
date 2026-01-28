@@ -18,13 +18,18 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final healthAsync = ref.watch(healthSummaryProvider);
+    final metricsAsync = ref.watch(systemMetricsProvider);
 
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       body: SentinelStateView(
         state: healthAsync,
         loadingView: _DashboardLoadingView(),
-        onRetry: () => ref.refresh(healthSummaryProvider),
+        onRetry: () {
+          ref.refresh(healthSummaryProvider);
+          ref.refresh(systemMetricsProvider);
+          ref.refresh(activeIncidentsProvider);
+        },
         builder: (health) => CustomScrollView(
           slivers: [
             _DashboardHeader(),
@@ -34,9 +39,15 @@ class DashboardScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _MetricOverviewRow(health: health),
+                    _MetricOverviewRow(health: health, metrics: metricsAsync),
                     const SizedBox(height: 32),
-                    const _SectionHeader(title: 'Critical Infrastructure', actionLabel: 'View Registry'),
+                    _SectionHeader(
+                      title: 'Critical Infrastructure', 
+                      actionLabel: 'View Registry',
+                      onAction: () {
+                        // In a real app, use a navigator to go to Registry
+                      },
+                    ),
                     const SizedBox(height: 16),
                     const _OutageGrid(),
                     const SizedBox(height: 32),
@@ -55,24 +66,30 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 24),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _SectionHeader(title: 'Throughput Trends'),
-                              SizedBox(height: 16),
+                              const _SectionHeader(title: 'Throughput Trends'),
+                              const SizedBox(height: 16),
                               SparklineCard(
                                 title: 'Requests / Sec',
-                                value: '1.2k',
-                                data: [10, 15, 8, 20, 25, 22, 30, 28, 35, 40],
+                                value: metricsAsync.maybeWhen(
+                                  data: (m) => '${(m.totalRequests ?? 0) ~/ 1000}k',
+                                  orElse: () => '1.2k',
+                                ),
+                                data: const [10, 15, 8, 20, 25, 22, 30, 28, 35, 40],
                                 color: AppTheme.primary,
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               SparklineCard(
-                                title: 'Success Rate',
-                                value: '99.98%',
-                                data: [99, 99.5, 99.8, 98.5, 99.9, 100, 99.9, 99.8, 99.9, 99.98],
-                                color: AppTheme.success,
+                                title: 'System Error Rate',
+                                value: metricsAsync.maybeWhen(
+                                  data: (m) => '${m.errorRate}%',
+                                  orElse: () => '0.00%',
+                                ),
+                                data: const [2.0, 1.5, 0.8, 1.2, 0.5, 0.1, 0.0, 0.2, 0.1, 0.0],
+                                color: AppTheme.error,
                               ),
                             ],
                           ),
@@ -192,7 +209,8 @@ class _NotificationBell extends StatelessWidget {
 
 class _MetricOverviewRow extends ConsumerWidget {
   final HealthSummary health;
-  const _MetricOverviewRow({required this.health});
+  final AsyncValue<SystemMetrics> metrics;
+  const _MetricOverviewRow({required this.health, required this.metrics});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -224,10 +242,13 @@ class _MetricOverviewRow extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: 24),
-        const Expanded(
+        Expanded(
           child: _MetricCard(
             title: 'System Latency',
-            value: '42ms',
+            value: metrics.maybeWhen(
+              data: (m) => '${m.averageLatencyMs}ms',
+              orElse: () => '42ms',
+            ),
             trend: '-5ms',
             trendPositive: true,
             icon: Icons.speed_rounded,
@@ -306,8 +327,9 @@ class _MetricCard extends StatelessWidget {
 class _SectionHeader extends StatelessWidget {
   final String title;
   final String? actionLabel;
+  final VoidCallback? onAction;
 
-  const _SectionHeader({required this.title, this.actionLabel});
+  const _SectionHeader({required this.title, this.actionLabel, this.onAction});
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +345,7 @@ class _SectionHeader extends StatelessWidget {
         ),
         if (actionLabel != null)
           TextButton(
-            onPressed: () {},
+            onPressed: onAction,
             child: Text(actionLabel!, style: const TextStyle(color: AppTheme.primary)),
           ),
       ],

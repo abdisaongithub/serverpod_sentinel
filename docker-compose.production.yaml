@@ -31,7 +31,7 @@ services:
   # Serverpod Server
   server:
     build:
-      context: .
+      context: ./serverpod_sentinel_server
       dockerfile: Dockerfile
     restart: always
     depends_on:
