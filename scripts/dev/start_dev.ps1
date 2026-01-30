@@ -10,13 +10,20 @@ Write-Host ">>> Checking for existing processes on ports $($Ports -join ', ')...
 foreach ($Port in $Ports) {
     $Connection = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue
     if ($Connection) {
-        $Pid = $Connection.OwningProcess | Select-Object -Unique
-        Write-Host "Killing process $Pid running on port $Port" -ForegroundColor Red
-        Stop-Process -Id $Pid -Force -ErrorAction SilentlyContinue
+        $TargetPid = $Connection.OwningProcess | Select-Object -Unique
+        Write-Host "Killing process $TargetPid running on port $Port" -ForegroundColor Red
+        Stop-Process -Id $TargetPid -Force -ErrorAction SilentlyContinue
     }
 }
 
 # 1. Start Docker Dependencies (Postgres & Redis)
+Write-Host ">>> Checking Docker status..." -ForegroundColor Cyan
+docker info > $null 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error: Docker is not running or unreachable. Please start Docker Desktop." -ForegroundColor Red
+    exit 1
+}
+
 Write-Host ">>> Starting Docker containers..." -ForegroundColor Cyan
 Set-Location "$ProjectRoot\serverpod_sentinel_server"
 docker compose up -d

@@ -7,7 +7,6 @@ import 'package:serverpod_sentinel_server/src/generated/endpoints.dart';
 import 'package:serverpod_sentinel_server/src/utils/security_config.dart';
 
 Future<void> main(List<String> args) async {
-
   final pod = Serverpod(
     args,
     Protocol(),
@@ -112,7 +111,6 @@ Future<void> main(List<String> args) async {
         }
       }
     }
-
 
     // ==========================================
     // 2. Environments

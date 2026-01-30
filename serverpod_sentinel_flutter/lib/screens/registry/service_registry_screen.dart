@@ -8,6 +8,7 @@ import '../../widgets/sentinel_shimmer.dart';
 import '../../widgets/sentinel_state_view.dart';
 import '../../providers/services_provider.dart';
 import 'package:serverpod_sentinel_client/serverpod_sentinel_client.dart';
+import 'create_service_dialog.dart';
 
 class ServiceRegistryScreen extends ConsumerWidget {
   const ServiceRegistryScreen({super.key});
@@ -36,23 +37,37 @@ class ServiceRegistryScreen extends ConsumerWidget {
   }
 }
 
-class _RegistryHeader extends StatelessWidget {
+class _RegistryHeader extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SliverAppBar(
       floating: true,
       pinned: true,
       expandedHeight: 100,
       backgroundColor: AppTheme.darkBackground.withOpacity(0.8),
-      title: const Text('Service Registry', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+      title: const Text(
+        'Service Registry',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
       actions: [
         IconButton(
           onPressed: () {},
-          icon: const Icon(Icons.filter_list_rounded, color: AppTheme.darkTextMuted),
+          icon: const Icon(
+            Icons.filter_list_rounded,
+            color: AppTheme.darkTextMuted,
+          ),
         ),
         const SizedBox(width: 8),
         ElevatedButton.icon(
-          onPressed: () {},
+          onPressed: () async {
+            final created = await showDialog<Service>(
+              context: context,
+              builder: (context) => const CreateServiceDialog(),
+            );
+            if (created != null) {
+              ref.invalidate(servicesProvider);
+            }
+          },
           icon: const Icon(Icons.add_rounded),
           label: const Text('Register Service'),
         ),
@@ -75,16 +90,13 @@ class _ServiceGrid extends StatelessWidget {
         mainAxisSpacing: 24,
         childAspectRatio: 1.2,
       ),
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final service = services[index];
-          return SentinelMotion.fadeIn(
-            _ServiceRegistryCard(service: service),
-            delay: Duration(milliseconds: index * 50),
-          );
-        },
-        childCount: services.length,
-      ),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final service = services[index];
+        return SentinelMotion.fadeIn(
+          _ServiceRegistryCard(service: service),
+          delay: Duration(milliseconds: index * 50),
+        );
+      }, childCount: services.length),
     );
   }
 }
@@ -100,6 +112,7 @@ class _ServiceRegistryCard extends StatelessWidget {
     return SentinelCard(
       padding: const EdgeInsets.all(24),
       footer: _CardFooter(service: service),
+      mainAxisSize: MainAxisSize.max,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -138,11 +151,15 @@ class _ServiceRegistryCard extends StatelessWidget {
 
   Color _getStatusColor(ServiceStatus status) {
     switch (status) {
-      case ServiceStatus.OPERATIONAL: return AppTheme.success;
-      case ServiceStatus.DEGRADED: return AppTheme.warning;
+      case ServiceStatus.OPERATIONAL:
+        return AppTheme.success;
+      case ServiceStatus.DEGRADED:
+        return AppTheme.warning;
       case ServiceStatus.MAJOR_OUTAGE:
-      case ServiceStatus.PARTIAL_OUTAGE: return AppTheme.error;
-      case ServiceStatus.MAINTENANCE: return AppTheme.info;
+      case ServiceStatus.PARTIAL_OUTAGE:
+        return AppTheme.error;
+      case ServiceStatus.MAINTENANCE:
+        return AppTheme.info;
     }
   }
 }
@@ -154,8 +171,12 @@ class _MetricPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final signals = service.signals ?? [];
-    final cpuSignal = signals.where((s) => s.identifier.contains('cpu')).firstOrNull;
-    final memSignal = signals.where((s) => s.identifier.contains('memory')).firstOrNull;
+    final cpuSignal = signals
+        .where((s) => s.identifier.contains('cpu'))
+        .firstOrNull;
+    final memSignal = signals
+        .where((s) => s.identifier.contains('memory'))
+        .firstOrNull;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -163,15 +184,19 @@ class _MetricPreview extends StatelessWidget {
         children: [
           Expanded(
             child: _MiniMetric(
-              label: 'CPU', 
-              value: cpuSignal?.currentValue != null ? '${cpuSignal!.currentValue!.toStringAsFixed(1)}%' : 'N/A',
+              label: 'CPU',
+              value: cpuSignal?.currentValue != null
+                  ? '${cpuSignal!.currentValue!.toStringAsFixed(1)}%'
+                  : 'N/A',
             ),
           ),
           Container(width: 1, height: 24, color: AppTheme.darkBorder),
           Expanded(
             child: _MiniMetric(
-              label: 'Memory', 
-              value: memSignal?.currentValue != null ? '${memSignal!.currentValue!.toStringAsFixed(1)}%' : 'N/A',
+              label: 'Memory',
+              value: memSignal?.currentValue != null
+                  ? '${memSignal!.currentValue!.toStringAsFixed(1)}%'
+                  : 'N/A',
             ),
           ),
         ],
@@ -190,8 +215,14 @@ class _MiniMetric extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.darkTextDim)),
+        Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 10, color: AppTheme.darkTextDim),
+        ),
       ],
     );
   }
@@ -210,14 +241,28 @@ class _CardFooter extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.public_rounded, size: 14, color: AppTheme.darkTextMuted),
+              const Icon(
+                Icons.public_rounded,
+                size: 14,
+                color: AppTheme.darkTextMuted,
+              ),
               const SizedBox(width: 6),
-              Text(service.region, style: const TextStyle(fontSize: 11, color: AppTheme.darkTextMuted)),
+              Text(
+                service.region,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.darkTextMuted,
+                ),
+              ),
             ],
           ),
           Text(
             service.tier.name,
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primary),
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.primary,
+            ),
           ),
         ],
       ),

@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:serverpod/serverpod.dart';
+import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
 
 class AgentEndpoint extends Endpoint {
@@ -6,7 +8,9 @@ class AgentEndpoint extends Endpoint {
   Future<AgentTask?> pollTask(Session session, int serviceId) async {
     return await AgentTask.db.findFirstRow(
       session,
-      where: (t) => t.serviceId.equals(serviceId) & t.status.equals(AgentTaskStatus.pending),
+      where: (t) =>
+          t.serviceId.equals(serviceId) &
+          t.status.equals(AgentTaskStatus.pending),
       orderBy: (t) => t.timestamp,
     );
   }
@@ -46,5 +50,50 @@ class AgentEndpoint extends Endpoint {
       status: AgentTaskStatus.pending,
     );
     return await AgentTask.db.insertRow(session, task);
+  }
+
+  /// Generates a JWT token for the agent and updates the agent's config file.
+  Future<bool> generateConnection(Session session, int serviceId) async {
+    // 1. Create/Find User
+    final email = 'agent_$serviceId@sentinel.system';
+    var userInfo = await Users.findUserByEmail(session, email);
+    if (userInfo == null) {
+      userInfo = UserInfo(
+        userIdentifier: email,
+        userName: 'Agent $serviceId',
+        email: email,
+        created: DateTime.now(),
+        scopeNames: ['agent'],
+        blocked: false,
+      );
+      userInfo = await Users.createUser(session, userInfo);
+    }
+    if (userInfo == null) return false;
+
+    // 2. Sign In
+    final authInfo = await UserAuthentication.signInUser(
+      session,
+      userInfo.id!,
+      'agent',
+    );
+    final token = authInfo.key;
+
+    // 3. Update File
+    // Try to find the file relative to the server execution directory
+    final configFile = File('../sentinel_agent/config.yaml');
+    if (!await configFile.exists()) {
+      session.log(
+        'Config file not found at ${configFile.path}',
+        level: LogLevel.error,
+      );
+      return false;
+    }
+
+    var content = await configFile.readAsString();
+    // Regex replace to update api_key
+    content = content.replaceAll(RegExp(r'api_key: .*'), 'api_key: $token');
+    await configFile.writeAsString(content);
+
+    return true;
   }
 }

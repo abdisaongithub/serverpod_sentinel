@@ -1,0 +1,8 @@
+class: ButlerMessage
+table: butler_messages
+fields:
+  conversation: ButlerConversation?, relation
+  role: String
+  content: String
+  metadata: String?
+  createdAt: DateTime

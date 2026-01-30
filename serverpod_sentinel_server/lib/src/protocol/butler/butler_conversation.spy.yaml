@@ -1,0 +1,7 @@
+class: ButlerConversation
+table: butler_conversations
+fields:
+  userId: int
+  title: String
+  createdAt: DateTime
+  updatedAt: DateTime

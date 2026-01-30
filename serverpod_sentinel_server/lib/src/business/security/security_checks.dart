@@ -2,15 +2,16 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_sentinel_server/src/generated/protocol.dart';
 import 'package:serverpod_sentinel_server/src/exceptions/app_exceptions.dart';
 import 'package:serverpod_sentinel_server/src/business/extensibility/api_key_service.dart';
+import 'package:serverpod_sentinel_server/src/utils/security_config.dart';
 
 class SecurityChecks {
   /// Verifies the user is authenticated and has the specified role.
   static Future<void> requireRole(Session session, String roleName) async {
     final userId = await requireAuthentication(session);
-    
+
     if (userId == 0) {
       // API Keys/Service Tokens bypass role checks but are subject to permission checks.
-      return; 
+      return;
     }
 
     final userRoles = await UserRole.db.find(
@@ -26,9 +27,12 @@ class SecurityChecks {
   }
 
   /// Verifies the user has the specified permission.
-  static Future<void> requirePermission(Session session, AppPermission permission) async {
+  static Future<void> requirePermission(
+    Session session,
+    AppPermission permission,
+  ) async {
     final authResult = await _authenticate(session);
-    
+
     if (authResult is OpsUser) {
       final userRoles = await UserRole.db.find(
         session,
@@ -45,12 +49,15 @@ class SecurityChecks {
         throw ForbiddenException('Permission "${permission.name}" required');
       }
     } else if (authResult is SentinelApiKey) {
-      if (!authResult.scopes.contains(permission.name) && !authResult.scopes.contains('all')) {
-        throw ForbiddenException('API Key does not have scope "${permission.name}"');
+      if (!authResult.scopes.contains(permission.name) &&
+          !authResult.scopes.contains('all')) {
+        throw ForbiddenException(
+          'API Key does not have scope "${permission.name}"',
+        );
       }
     } else if (authResult == 0) {
-       // Service Token (Agent) - currently broad access for telemetry
-       return;
+      // Service Token (Agent) - currently broad access for telemetry
+      return;
     } else {
       throw UnauthorizedException('Authentication required');
     }
@@ -68,9 +75,17 @@ class SecurityChecks {
   }
 
   static Future<dynamic> _authenticate(Session session) async {
+    // Bypass all authentication when auth is disabled (dev mode)
+    if (SecurityConfig.disableAuth) {
+      return 0; // Treat as service token with full access
+    }
+
     final userId = await _getUserId(session);
     if (userId != null) {
-      return await OpsUser.db.findFirstRow(session, where: (t) => t.userInfoId.equals(userId));
+      return await OpsUser.db.findFirstRow(
+        session,
+        where: (t) => t.userInfoId.equals(userId),
+      );
     }
 
     final token = session.authenticationKey;
@@ -85,8 +100,10 @@ class SecurityChecks {
       session,
       where: (t) => t.token.equals(token),
     );
-    if (validToken != null && (validToken.expiresAt == null || validToken.expiresAt!.isAfter(DateTime.now()))) {
-      return 0; 
+    if (validToken != null &&
+        (validToken.expiresAt == null ||
+            validToken.expiresAt!.isAfter(DateTime.now()))) {
+      return 0;
     }
 
     return null;

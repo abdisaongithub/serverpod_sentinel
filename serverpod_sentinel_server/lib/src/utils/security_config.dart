@@ -9,9 +9,12 @@ class SecurityConfig {
   static const String roleDeveloper = 'Developer';
   static const String roleViewer = 'Viewer';
 
+  // TOGGLE: Set this to false to enable authentication
+  static const bool disableAuth = true;
+
   static Map<String, List<AppPermission>> get defaultRolePermissions => {
     roleSuperAdmin: AppPermission.values,
-    
+
     roleSecurityAdmin: [
       AppPermission.user_manage,
       AppPermission.role_manage,
@@ -21,7 +24,7 @@ class SecurityConfig {
       AppPermission.service_view,
       AppPermission.incident_view,
     ],
-    
+
     roleIncidentManager: [
       AppPermission.incident_view,
       AppPermission.incident_create,
@@ -35,7 +38,7 @@ class SecurityConfig {
       AppPermission.report_view_snapshots,
       AppPermission.report_generate,
     ],
-    
+
     roleSRE: [
       AppPermission.service_view,
       AppPermission.service_create,
@@ -54,7 +57,7 @@ class SecurityConfig {
       AppPermission.ai_insight_view,
       AppPermission.integration_manage,
     ],
-    
+
     roleDeveloper: [
       AppPermission.service_view,
       AppPermission.incident_view,
@@ -62,7 +65,7 @@ class SecurityConfig {
       AppPermission.telemetry_view,
       AppPermission.ai_insight_view,
     ],
-    
+
     roleViewer: [
       AppPermission.service_view,
       AppPermission.incident_view,

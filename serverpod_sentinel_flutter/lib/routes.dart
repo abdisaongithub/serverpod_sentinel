@@ -31,6 +31,7 @@ class AppRoutes {
 
   // Intelligence & Reports
   static const String aiInsights = '/ai-insights';
+  static const String butler = '/butler';
   static const String reports = '/reports';
   static const String incidentReport = '/reports/incident';
 

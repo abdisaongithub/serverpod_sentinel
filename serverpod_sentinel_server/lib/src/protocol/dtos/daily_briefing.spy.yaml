@@ -1,0 +1,8 @@
+class: DailyBriefing
+fields:
+  summary: String
+  incidentCount: int
+  alertCount: int
+  automatedActionsCount: int
+  topIssue: String?
+  generatedAt: DateTime

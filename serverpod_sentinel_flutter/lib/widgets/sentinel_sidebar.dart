@@ -19,7 +19,7 @@ class SentinelSidebar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isCollapsed = ref.watch(sidebarCollapsedProvider);
-    
+
     return AnimatedContainer(
       duration: SentinelMotion.slow,
       curve: SentinelMotion.curveLayout,
@@ -63,10 +63,18 @@ class SentinelSidebar extends ConsumerWidget {
                 _SidebarItem(
                   icon: Icons.insights_rounded,
                   label: 'Intelligence',
-                  route: '/intelligence',
-                  isActive: activeRoute.startsWith('/intelligence'),
+                  route: '/ai-insights',
+                  isActive: activeRoute.startsWith('/ai-insights'),
                   isCollapsed: isCollapsed,
-                  onTap: () => onRouteSelected('/intelligence'),
+                  onTap: () => onRouteSelected('/ai-insights'),
+                ),
+                _SidebarItem(
+                  icon: Icons.psychology_rounded,
+                  label: 'Ask Sentinel',
+                  route: '/butler',
+                  isActive: activeRoute.startsWith('/butler'),
+                  isCollapsed: isCollapsed,
+                  onTap: () => onRouteSelected('/butler'),
                 ),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
@@ -99,7 +107,9 @@ class _SidebarHeader extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.only(top: 24, left: 16, right: 16),
       child: Row(
-        mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: isCollapsed
+            ? MainAxisAlignment.center
+            : MainAxisAlignment.spaceBetween,
         children: [
           if (!isCollapsed)
             Row(
@@ -111,7 +121,11 @@ class _SidebarHeader extends ConsumerWidget {
                     color: AppTheme.primary,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.security, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.security,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -124,7 +138,8 @@ class _SidebarHeader extends ConsumerWidget {
               ],
             ),
           IconButton(
-            onPressed: () => ref.read(sidebarCollapsedProvider.notifier).state = !isCollapsed,
+            onPressed: () => ref.read(sidebarCollapsedProvider.notifier).state =
+                !isCollapsed,
             icon: Icon(
               isCollapsed ? Icons.menu_open_rounded : Icons.menu_rounded,
               color: AppTheme.darkTextMuted,
@@ -167,14 +182,20 @@ class _SidebarItem extends StatelessWidget {
             vertical: 12,
           ),
           decoration: BoxDecoration(
-            color: isActive ? AppTheme.primary.withOpacity(0.1) : Colors.transparent,
+            color: isActive
+                ? AppTheme.primary.withOpacity(0.1)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isActive ? AppTheme.primary.withOpacity(0.2) : Colors.transparent,
+              color: isActive
+                  ? AppTheme.primary.withOpacity(0.2)
+                  : Colors.transparent,
             ),
           ),
           child: Row(
-            mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
+            mainAxisAlignment: isCollapsed
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.start,
             children: [
               Icon(
                 icon,
@@ -186,7 +207,9 @@ class _SidebarItem extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    color: isActive ? AppTheme.darkText : AppTheme.darkTextSecondary,
+                    color: isActive
+                        ? AppTheme.darkText
+                        : AppTheme.darkTextSecondary,
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                   ),
                 ),
@@ -207,37 +230,50 @@ class _SidebarFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      child: isCollapsed 
-        ? const CircleAvatar(radius: 16, backgroundColor: AppTheme.darkSurfaceVariant, child: Icon(Icons.person, size: 16))
-        : Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.darkSurfaceVariant.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const CircleAvatar(radius: 16, backgroundColor: AppTheme.darkSurfaceVariant, child: Icon(Icons.person, size: 16)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Ops Admin',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'SuperAdmin',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
+      child: isCollapsed
+          ? const CircleAvatar(
+              radius: 16,
+              backgroundColor: AppTheme.darkSurfaceVariant,
+              child: Icon(Icons.person, size: 16),
+            )
+          : Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.darkSurfaceVariant.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const CircleAvatar(
+                    radius: 16,
+                    backgroundColor: AppTheme.darkSurfaceVariant,
+                    child: Icon(Icons.person, size: 16),
                   ),
-                ),
-                Icon(Icons.more_vert_rounded, color: AppTheme.darkTextMuted, size: 18),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ops Admin',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'SuperAdmin',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.more_vert_rounded,
+                    color: AppTheme.darkTextMuted,
+                    size: 18,
+                  ),
+                ],
+              ),
             ),
-          ),
     );
   }
 }

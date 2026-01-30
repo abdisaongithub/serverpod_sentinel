@@ -9,6 +9,7 @@ class SentinelCard extends StatelessWidget {
   final EdgeInsets padding;
   final Color? color;
   final List<BoxShadow>? shadows;
+  final MainAxisSize mainAxisSize;
 
   const SentinelCard({
     super.key,
@@ -18,6 +19,7 @@ class SentinelCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(24),
     this.color,
     this.shadows,
+    this.mainAxisSize = MainAxisSize.min,
   });
 
   @override
@@ -30,17 +32,14 @@ class SentinelCard extends StatelessWidget {
         boxShadow: shadows ?? AppTheme.shadowLow,
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: mainAxisSize,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (header != null) ...[
             header!,
             Divider(color: AppTheme.darkBorder, height: 1),
           ],
-          Padding(
-            padding: padding,
-            child: child,
-          ),
+          Padding(padding: padding, child: child),
           if (footer != null) ...[
             Divider(color: AppTheme.darkBorder, height: 1),
             footer!,

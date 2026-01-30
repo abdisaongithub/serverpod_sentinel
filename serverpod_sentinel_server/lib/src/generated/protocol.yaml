@@ -12,6 +12,7 @@ agent:
   - pollTask:
   - updateTaskStatus:
   - createTask:
+  - generateConnection:
 aiInsights:
   - getInsights:
   - analyzeIncident:
@@ -24,6 +25,14 @@ auditLog:
   - getForEntity:
   - getActionTypes:
   - getEntityTypes:
+briefing:
+  - getDailyBriefing:
+butler:
+  - startConversation:
+  - getConversations:
+  - getMessages:
+  - sendMessage:
+  - greet:
 environment:
   - list:
   - get:

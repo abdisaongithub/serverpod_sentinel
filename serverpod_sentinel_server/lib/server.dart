@@ -13,27 +13,45 @@ import 'src/future_calls/incident_evaluation_call.dart';
 import 'src/future_calls/step_executor_call.dart';
 import 'src/future_calls/data_retention.dart';
 
+import 'src/utils/security_config.dart';
+
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
   // Initialize Serverpod and connect it with your generated code.
-  final pod = Serverpod(args, Protocol(), Endpoints());
-
-  // Initialize authentication services for the server.
-  // Token managers will be used to validate and issue authentication keys,
-  // and the identity providers will be the authentication options available for users.
-  pod.initializeAuthServices(
-    tokenManagerBuilders: [
-      // Use JWT for authentication keys towards the server.
-      JwtConfigFromPasswords(),
-    ],
-    identityProviderBuilders: [
-      // Configure the email identity provider for email/password authentication.
-      EmailIdpConfigFromPasswords(
-        sendRegistrationVerificationCode: _sendRegistrationCode,
-        sendPasswordResetVerificationCode: _sendPasswordResetCode,
-      ),
-    ],
+  final pod = Serverpod(
+    args,
+    Protocol(),
+    Endpoints(),
+    authenticationHandler: (session, token) async {
+      if (SecurityConfig.disableAuth) {
+        // Bypass authentication: Return Super Admin access
+        return AuthenticationInfo('admin@sentinel.com', {
+          Scope('admin'),
+        }, authId: 'dev_auth_bypass');
+      }
+      return null;
+    },
   );
+
+  // Initialize authentication services for the server ONLY if auth is enabled.
+  // When auth is disabled, we skip JWT token validation to allow unrestricted access.
+  if (!SecurityConfig.disableAuth) {
+    // Token managers will be used to validate and issue authentication keys,
+    // and the identity providers will be the authentication options available for users.
+    pod.initializeAuthServices(
+      tokenManagerBuilders: [
+        // Use JWT for authentication keys towards the server.
+        JwtConfigFromPasswords(),
+      ],
+      identityProviderBuilders: [
+        // Configure the email identity provider for email/password authentication.
+        EmailIdpConfigFromPasswords(
+          sendRegistrationVerificationCode: _sendRegistrationCode,
+          sendPasswordResetVerificationCode: _sendPasswordResetCode,
+        ),
+      ],
+    );
+  }
 
   // Register Future Calls
   pod.registerFutureCall(IncidentEvaluationCall(), 'incidentEvaluation');

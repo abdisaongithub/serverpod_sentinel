@@ -26,70 +26,76 @@ import 'package:serverpod_sentinel_client/src/protocol/streaming/stream_alert.da
     as _i8;
 import 'package:serverpod_sentinel_client/src/protocol/security/audit_log.dart'
     as _i9;
-import 'package:serverpod_sentinel_client/src/protocol/settings/environment.dart'
+import 'package:serverpod_sentinel_client/src/protocol/dtos/daily_briefing.dart'
     as _i10;
-import 'package:serverpod_sentinel_client/src/protocol/governance/remediation_policy.dart'
+import 'package:serverpod_sentinel_client/src/protocol/butler/butler_conversation.dart'
     as _i11;
-import 'package:serverpod_sentinel_client/src/protocol/governance/chaos_experiment.dart'
+import 'package:serverpod_sentinel_client/src/protocol/butler/butler_message.dart'
     as _i12;
-import 'package:serverpod_sentinel_client/src/protocol/incident/incident.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/environment.dart'
     as _i13;
-import 'package:serverpod_sentinel_client/src/protocol/enums/incident_status.dart'
+import 'package:serverpod_sentinel_client/src/protocol/governance/remediation_policy.dart'
     as _i14;
-import 'package:serverpod_sentinel_client/src/protocol/enums/incident_severity.dart'
+import 'package:serverpod_sentinel_client/src/protocol/governance/chaos_experiment.dart'
     as _i15;
-import 'package:serverpod_sentinel_client/src/protocol/incident/incident_timeline_item.dart'
+import 'package:serverpod_sentinel_client/src/protocol/incident/incident.dart'
     as _i16;
-import 'package:serverpod_sentinel_client/src/protocol/settings/integration.dart'
+import 'package:serverpod_sentinel_client/src/protocol/enums/incident_status.dart'
     as _i17;
-import 'package:serverpod_sentinel_client/src/protocol/settings/notification_preference.dart'
+import 'package:serverpod_sentinel_client/src/protocol/enums/incident_severity.dart'
     as _i18;
-import 'package:serverpod_sentinel_client/src/protocol/settings/outgoing_webhook.dart'
+import 'package:serverpod_sentinel_client/src/protocol/incident/incident_timeline_item.dart'
     as _i19;
-import 'package:serverpod_sentinel_client/src/protocol/automation/playbook.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/integration.dart'
     as _i20;
-import 'package:serverpod_sentinel_client/src/protocol/enums/playbook_type.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/notification_preference.dart'
     as _i21;
-import 'package:serverpod_sentinel_client/src/protocol/automation/playbook_execution.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/outgoing_webhook.dart'
     as _i22;
-import 'package:serverpod_sentinel_client/src/protocol/reporting/report_snapshot.dart'
+import 'package:serverpod_sentinel_client/src/protocol/automation/playbook.dart'
     as _i23;
-import 'package:serverpod_sentinel_client/src/protocol/service/rule.dart'
+import 'package:serverpod_sentinel_client/src/protocol/enums/playbook_type.dart'
     as _i24;
-import 'package:serverpod_sentinel_client/src/protocol/security/sentinel_api_key.dart'
+import 'package:serverpod_sentinel_client/src/protocol/automation/playbook_execution.dart'
     as _i25;
-import 'package:serverpod_sentinel_client/src/protocol/service/service.dart'
+import 'package:serverpod_sentinel_client/src/protocol/reporting/report_snapshot.dart'
     as _i26;
-import 'package:serverpod_sentinel_client/src/protocol/enums/service_status.dart'
+import 'package:serverpod_sentinel_client/src/protocol/service/rule.dart'
     as _i27;
-import 'package:serverpod_sentinel_client/src/protocol/enums/service_tier.dart'
+import 'package:serverpod_sentinel_client/src/protocol/security/sentinel_api_key.dart'
     as _i28;
-import 'package:serverpod_sentinel_client/src/protocol/dtos/health_summary.dart'
+import 'package:serverpod_sentinel_client/src/protocol/service/service.dart'
     as _i29;
-import 'package:serverpod_sentinel_client/src/protocol/dtos/system_metrics.dart'
+import 'package:serverpod_sentinel_client/src/protocol/enums/service_status.dart'
     as _i30;
-import 'package:serverpod_sentinel_client/src/protocol/settings/system_setting.dart'
+import 'package:serverpod_sentinel_client/src/protocol/enums/service_tier.dart'
     as _i31;
-import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_signal_payload.dart'
+import 'package:serverpod_sentinel_client/src/protocol/dtos/health_summary.dart'
     as _i32;
-import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_signal_batch.dart'
+import 'package:serverpod_sentinel_client/src/protocol/dtos/system_metrics.dart'
     as _i33;
-import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_heartbeat.dart'
+import 'package:serverpod_sentinel_client/src/protocol/settings/system_setting.dart'
     as _i34;
-import 'package:serverpod_sentinel_client/src/protocol/service/health_signal.dart'
+import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_signal_payload.dart'
     as _i35;
-import 'package:serverpod_sentinel_client/src/protocol/telemetry/metric_point.dart'
+import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_signal_batch.dart'
     as _i36;
-import 'package:serverpod_sentinel_client/src/protocol/dtos/team_member.dart'
+import 'package:serverpod_sentinel_client/src/protocol/telemetry/telemetry_heartbeat.dart'
     as _i37;
-import 'package:serverpod_sentinel_client/src/protocol/security/ops_user.dart'
+import 'package:serverpod_sentinel_client/src/protocol/service/health_signal.dart'
     as _i38;
-import 'package:serverpod_sentinel_client/src/protocol/security/user_role.dart'
+import 'package:serverpod_sentinel_client/src/protocol/telemetry/metric_point.dart'
     as _i39;
-import 'package:serverpod_sentinel_client/src/protocol/greetings/greeting.dart'
+import 'package:serverpod_sentinel_client/src/protocol/dtos/team_member.dart'
     as _i40;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i41;
-import 'protocol.dart' as _i42;
+import 'package:serverpod_sentinel_client/src/protocol/security/ops_user.dart'
+    as _i41;
+import 'package:serverpod_sentinel_client/src/protocol/security/user_role.dart'
+    as _i42;
+import 'package:serverpod_sentinel_client/src/protocol/greetings/greeting.dart'
+    as _i43;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i44;
+import 'protocol.dart' as _i45;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -353,6 +359,14 @@ class EndpointAgent extends _i2.EndpointRef {
       'timeoutSeconds': timeoutSeconds,
     },
   );
+
+  /// Generates a JWT token for the agent and updates the agent's config file.
+  _i3.Future<bool> generateConnection(int serviceId) =>
+      caller.callServerEndpoint<bool>(
+        'agent',
+        'generateConnection',
+        {'serviceId': serviceId},
+      );
 }
 
 /// AI Insights Endpoint
@@ -486,6 +500,78 @@ class EndpointAuditLog extends _i2.EndpointRef {
       );
 }
 
+/// Briefing Endpoint - Daily summary generation
+/// {@category Endpoint}
+class EndpointBriefing extends _i2.EndpointRef {
+  EndpointBriefing(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'briefing';
+
+  /// Gets a daily briefing summary for the current user.
+  _i3.Future<_i10.DailyBriefing> getDailyBriefing() =>
+      caller.callServerEndpoint<_i10.DailyBriefing>(
+        'briefing',
+        'getDailyBriefing',
+        {},
+      );
+}
+
+/// Butler Endpoint - Conversational AI for DevOps
+///
+/// Provides a chat interface for interacting with Sentinel as a "DevOps Butler".
+/// {@category Endpoint}
+class EndpointButler extends _i2.EndpointRef {
+  EndpointButler(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'butler';
+
+  /// Starts a new conversation thread.
+  _i3.Future<_i11.ButlerConversation> startConversation() =>
+      caller.callServerEndpoint<_i11.ButlerConversation>(
+        'butler',
+        'startConversation',
+        {},
+      );
+
+  /// Gets all conversations for the current user.
+  _i3.Future<List<_i11.ButlerConversation>> getConversations({int? limit}) =>
+      caller.callServerEndpoint<List<_i11.ButlerConversation>>(
+        'butler',
+        'getConversations',
+        {'limit': limit},
+      );
+
+  /// Gets all messages in a conversation.
+  _i3.Future<List<_i12.ButlerMessage>> getMessages(int conversationId) =>
+      caller.callServerEndpoint<List<_i12.ButlerMessage>>(
+        'butler',
+        'getMessages',
+        {'conversationId': conversationId},
+      );
+
+  /// Sends a message and gets an AI response.
+  _i3.Future<_i12.ButlerMessage> sendMessage(
+    int conversationId,
+    String userMessage,
+  ) => caller.callServerEndpoint<_i12.ButlerMessage>(
+    'butler',
+    'sendMessage',
+    {
+      'conversationId': conversationId,
+      'userMessage': userMessage,
+    },
+  );
+
+  /// Quick greeting for the Butler (no conversation needed).
+  _i3.Future<String> greet() => caller.callServerEndpoint<String>(
+    'butler',
+    'greet',
+    {},
+  );
+}
+
 /// {@category Endpoint}
 class EndpointEnvironment extends _i2.EndpointRef {
   EndpointEnvironment(_i2.EndpointCaller caller) : super(caller);
@@ -494,32 +580,32 @@ class EndpointEnvironment extends _i2.EndpointRef {
   String get name => 'environment';
 
   /// List all environments
-  _i3.Future<List<_i10.Environment>> list() =>
-      caller.callServerEndpoint<List<_i10.Environment>>(
+  _i3.Future<List<_i13.Environment>> list() =>
+      caller.callServerEndpoint<List<_i13.Environment>>(
         'environment',
         'list',
         {},
       );
 
   /// Get single environment by ID
-  _i3.Future<_i10.Environment?> get(int id) =>
-      caller.callServerEndpoint<_i10.Environment?>(
+  _i3.Future<_i13.Environment?> get(int id) =>
+      caller.callServerEndpoint<_i13.Environment?>(
         'environment',
         'get',
         {'id': id},
       );
 
   /// Create new environment
-  _i3.Future<_i10.Environment> create(_i10.Environment environment) =>
-      caller.callServerEndpoint<_i10.Environment>(
+  _i3.Future<_i13.Environment> create(_i13.Environment environment) =>
+      caller.callServerEndpoint<_i13.Environment>(
         'environment',
         'create',
         {'environment': environment},
       );
 
   /// Update environment
-  _i3.Future<_i10.Environment> update(_i10.Environment environment) =>
-      caller.callServerEndpoint<_i10.Environment>(
+  _i3.Future<_i13.Environment> update(_i13.Environment environment) =>
+      caller.callServerEndpoint<_i13.Environment>(
         'environment',
         'update',
         {'environment': environment},
@@ -533,16 +619,16 @@ class EndpointEnvironment extends _i2.EndpointRef {
   );
 
   /// Get active environment
-  _i3.Future<_i10.Environment?> getActive() =>
-      caller.callServerEndpoint<_i10.Environment?>(
+  _i3.Future<_i13.Environment?> getActive() =>
+      caller.callServerEndpoint<_i13.Environment?>(
         'environment',
         'getActive',
         {},
       );
 
   /// Set active environment
-  _i3.Future<_i10.Environment> setActive(int id) =>
-      caller.callServerEndpoint<_i10.Environment>(
+  _i3.Future<_i13.Environment> setActive(int id) =>
+      caller.callServerEndpoint<_i13.Environment>(
         'environment',
         'setActive',
         {'id': id},
@@ -565,16 +651,16 @@ class EndpointGovernance extends _i2.EndpointRef {
       );
 
   /// Lists all remediation policies.
-  _i3.Future<List<_i11.RemediationPolicy>> listRemediationPolicies() =>
-      caller.callServerEndpoint<List<_i11.RemediationPolicy>>(
+  _i3.Future<List<_i14.RemediationPolicy>> listRemediationPolicies() =>
+      caller.callServerEndpoint<List<_i14.RemediationPolicy>>(
         'governance',
         'listRemediationPolicies',
         {},
       );
 
   /// Lists chaos experiments.
-  _i3.Future<List<_i12.ChaosExperiment>> listChaosExperiments() =>
-      caller.callServerEndpoint<List<_i12.ChaosExperiment>>(
+  _i3.Future<List<_i15.ChaosExperiment>> listChaosExperiments() =>
+      caller.callServerEndpoint<List<_i15.ChaosExperiment>>(
         'governance',
         'listChaosExperiments',
         {},
@@ -636,13 +722,13 @@ class EndpointIncident extends _i2.EndpointRef {
   String get name => 'incident';
 
   /// List incidents with filtering
-  _i3.Future<List<_i13.Incident>> list({
-    _i14.IncidentStatus? status,
-    _i15.IncidentSeverity? severity,
+  _i3.Future<List<_i16.Incident>> list({
+    _i17.IncidentStatus? status,
+    _i18.IncidentSeverity? severity,
     int? serviceId,
     int? limit,
     int? offset,
-  }) => caller.callServerEndpoint<List<_i13.Incident>>(
+  }) => caller.callServerEndpoint<List<_i16.Incident>>(
     'incident',
     'list',
     {
@@ -655,18 +741,18 @@ class EndpointIncident extends _i2.EndpointRef {
   );
 
   /// Get single incident with full details
-  _i3.Future<_i13.Incident?> get(int id) =>
-      caller.callServerEndpoint<_i13.Incident?>(
+  _i3.Future<_i16.Incident?> get(int id) =>
+      caller.callServerEndpoint<_i16.Incident?>(
         'incident',
         'get',
         {'id': id},
       );
 
   /// Update incident status
-  _i3.Future<_i13.Incident> updateStatus(
+  _i3.Future<_i16.Incident> updateStatus(
     int id,
-    _i14.IncidentStatus status,
-  ) => caller.callServerEndpoint<_i13.Incident>(
+    _i17.IncidentStatus status,
+  ) => caller.callServerEndpoint<_i16.Incident>(
     'incident',
     'updateStatus',
     {
@@ -676,10 +762,10 @@ class EndpointIncident extends _i2.EndpointRef {
   );
 
   /// Assign incident commander
-  _i3.Future<_i13.Incident> assignCommander(
+  _i3.Future<_i16.Incident> assignCommander(
     int id,
     int commanderId,
-  ) => caller.callServerEndpoint<_i13.Incident>(
+  ) => caller.callServerEndpoint<_i16.Incident>(
     'incident',
     'assignCommander',
     {
@@ -689,9 +775,9 @@ class EndpointIncident extends _i2.EndpointRef {
   );
 
   /// Add timeline item (comment, action, etc.)
-  _i3.Future<_i16.IncidentTimelineItem> addTimelineItem(
-    _i16.IncidentTimelineItem item,
-  ) => caller.callServerEndpoint<_i16.IncidentTimelineItem>(
+  _i3.Future<_i19.IncidentTimelineItem> addTimelineItem(
+    _i19.IncidentTimelineItem item,
+  ) => caller.callServerEndpoint<_i19.IncidentTimelineItem>(
     'incident',
     'addTimelineItem',
     {'item': item},
@@ -706,26 +792,26 @@ class EndpointIncident extends _i2.EndpointRef {
       );
 
   /// Create a new incident manually
-  _i3.Future<_i13.Incident> create(_i13.Incident incident) =>
-      caller.callServerEndpoint<_i13.Incident>(
+  _i3.Future<_i16.Incident> create(_i16.Incident incident) =>
+      caller.callServerEndpoint<_i16.Incident>(
         'incident',
         'create',
         {'incident': incident},
       );
 
   /// Close an incident
-  _i3.Future<_i13.Incident> close(int id) =>
-      caller.callServerEndpoint<_i13.Incident>(
+  _i3.Future<_i16.Incident> close(int id) =>
+      caller.callServerEndpoint<_i16.Incident>(
         'incident',
         'close',
         {'id': id},
       );
 
   /// Acknowledge an incident
-  _i3.Future<_i13.Incident> acknowledge(
+  _i3.Future<_i16.Incident> acknowledge(
     int id,
     int userId,
-  ) => caller.callServerEndpoint<_i13.Incident>(
+  ) => caller.callServerEndpoint<_i16.Incident>(
     'incident',
     'acknowledge',
     {
@@ -742,8 +828,8 @@ class EndpointIncident extends _i2.EndpointRef {
   );
 
   /// Update incident details
-  _i3.Future<_i13.Incident> update(_i13.Incident incident) =>
-      caller.callServerEndpoint<_i13.Incident>(
+  _i3.Future<_i16.Incident> update(_i16.Incident incident) =>
+      caller.callServerEndpoint<_i16.Incident>(
         'incident',
         'update',
         {'incident': incident},
@@ -765,32 +851,32 @@ class EndpointIntegration extends _i2.EndpointRef {
   String get name => 'integration';
 
   /// List all integrations
-  _i3.Future<List<_i17.Integration>> list({String? type}) =>
-      caller.callServerEndpoint<List<_i17.Integration>>(
+  _i3.Future<List<_i20.Integration>> list({String? type}) =>
+      caller.callServerEndpoint<List<_i20.Integration>>(
         'integration',
         'list',
         {'type': type},
       );
 
   /// Get single integration by ID
-  _i3.Future<_i17.Integration?> get(int id) =>
-      caller.callServerEndpoint<_i17.Integration?>(
+  _i3.Future<_i20.Integration?> get(int id) =>
+      caller.callServerEndpoint<_i20.Integration?>(
         'integration',
         'get',
         {'id': id},
       );
 
   /// Create new integration
-  _i3.Future<_i17.Integration> create(_i17.Integration integration) =>
-      caller.callServerEndpoint<_i17.Integration>(
+  _i3.Future<_i20.Integration> create(_i20.Integration integration) =>
+      caller.callServerEndpoint<_i20.Integration>(
         'integration',
         'create',
         {'integration': integration},
       );
 
   /// Update integration
-  _i3.Future<_i17.Integration> update(_i17.Integration integration) =>
-      caller.callServerEndpoint<_i17.Integration>(
+  _i3.Future<_i20.Integration> update(_i20.Integration integration) =>
+      caller.callServerEndpoint<_i20.Integration>(
         'integration',
         'update',
         {'integration': integration},
@@ -804,10 +890,10 @@ class EndpointIntegration extends _i2.EndpointRef {
   );
 
   /// Toggle integration enabled/disabled
-  _i3.Future<_i17.Integration> toggleEnabled(
+  _i3.Future<_i20.Integration> toggleEnabled(
     int id,
     bool enabled,
-  ) => caller.callServerEndpoint<_i17.Integration>(
+  ) => caller.callServerEndpoint<_i20.Integration>(
     'integration',
     'toggleEnabled',
     {
@@ -825,8 +911,8 @@ class EndpointIntegration extends _i2.EndpointRef {
       );
 
   /// Sync integration data
-  _i3.Future<_i17.Integration> sync(int id) =>
-      caller.callServerEndpoint<_i17.Integration>(
+  _i3.Future<_i20.Integration> sync(int id) =>
+      caller.callServerEndpoint<_i20.Integration>(
         'integration',
         'sync',
         {'id': id},
@@ -857,18 +943,18 @@ class EndpointNotificationPreferences extends _i2.EndpointRef {
   String get name => 'notificationPreferences';
 
   /// Get notification preferences for a user
-  _i3.Future<List<_i18.NotificationPreference>> getForUser(int userId) =>
-      caller.callServerEndpoint<List<_i18.NotificationPreference>>(
+  _i3.Future<List<_i21.NotificationPreference>> getForUser(int userId) =>
+      caller.callServerEndpoint<List<_i21.NotificationPreference>>(
         'notificationPreferences',
         'getForUser',
         {'userId': userId},
       );
 
   /// Get or create a preference for a user and channel
-  _i3.Future<_i18.NotificationPreference> getOrCreate(
+  _i3.Future<_i21.NotificationPreference> getOrCreate(
     int userId,
     String channel,
-  ) => caller.callServerEndpoint<_i18.NotificationPreference>(
+  ) => caller.callServerEndpoint<_i21.NotificationPreference>(
     'notificationPreferences',
     'getOrCreate',
     {
@@ -878,20 +964,20 @@ class EndpointNotificationPreferences extends _i2.EndpointRef {
   );
 
   /// Update notification preference
-  _i3.Future<_i18.NotificationPreference> update(
-    _i18.NotificationPreference preference,
-  ) => caller.callServerEndpoint<_i18.NotificationPreference>(
+  _i3.Future<_i21.NotificationPreference> update(
+    _i21.NotificationPreference preference,
+  ) => caller.callServerEndpoint<_i21.NotificationPreference>(
     'notificationPreferences',
     'update',
     {'preference': preference},
   );
 
   /// Toggle a preference enabled/disabled
-  _i3.Future<_i18.NotificationPreference> toggleEnabled(
+  _i3.Future<_i21.NotificationPreference> toggleEnabled(
     int userId,
     String channel,
     bool enabled,
-  ) => caller.callServerEndpoint<_i18.NotificationPreference>(
+  ) => caller.callServerEndpoint<_i21.NotificationPreference>(
     'notificationPreferences',
     'toggleEnabled',
     {
@@ -931,24 +1017,24 @@ class EndpointOutgoingWebhook extends _i2.EndpointRef {
   String get name => 'outgoingWebhook';
 
   /// List all outgoing webhooks
-  _i3.Future<List<_i19.OutgoingWebhook>> list() =>
-      caller.callServerEndpoint<List<_i19.OutgoingWebhook>>(
+  _i3.Future<List<_i22.OutgoingWebhook>> list() =>
+      caller.callServerEndpoint<List<_i22.OutgoingWebhook>>(
         'outgoingWebhook',
         'list',
         {},
       );
 
   /// Create a new outgoing webhook
-  _i3.Future<_i19.OutgoingWebhook> create(_i19.OutgoingWebhook webhook) =>
-      caller.callServerEndpoint<_i19.OutgoingWebhook>(
+  _i3.Future<_i22.OutgoingWebhook> create(_i22.OutgoingWebhook webhook) =>
+      caller.callServerEndpoint<_i22.OutgoingWebhook>(
         'outgoingWebhook',
         'create',
         {'webhook': webhook},
       );
 
   /// Update a webhook
-  _i3.Future<_i19.OutgoingWebhook> update(_i19.OutgoingWebhook webhook) =>
-      caller.callServerEndpoint<_i19.OutgoingWebhook>(
+  _i3.Future<_i22.OutgoingWebhook> update(_i22.OutgoingWebhook webhook) =>
+      caller.callServerEndpoint<_i22.OutgoingWebhook>(
         'outgoingWebhook',
         'update',
         {'webhook': webhook},
@@ -970,32 +1056,32 @@ class EndpointPlaybook extends _i2.EndpointRef {
   String get name => 'playbook';
 
   /// List all playbooks
-  _i3.Future<List<_i20.Playbook>> list({_i21.PlaybookType? type}) =>
-      caller.callServerEndpoint<List<_i20.Playbook>>(
+  _i3.Future<List<_i23.Playbook>> list({_i24.PlaybookType? type}) =>
+      caller.callServerEndpoint<List<_i23.Playbook>>(
         'playbook',
         'list',
         {'type': type},
       );
 
   /// Get playbook by ID
-  _i3.Future<_i20.Playbook?> get(int id) =>
-      caller.callServerEndpoint<_i20.Playbook?>(
+  _i3.Future<_i23.Playbook?> get(int id) =>
+      caller.callServerEndpoint<_i23.Playbook?>(
         'playbook',
         'get',
         {'id': id},
       );
 
   /// Create playbook
-  _i3.Future<_i20.Playbook> create(_i20.Playbook playbook) =>
-      caller.callServerEndpoint<_i20.Playbook>(
+  _i3.Future<_i23.Playbook> create(_i23.Playbook playbook) =>
+      caller.callServerEndpoint<_i23.Playbook>(
         'playbook',
         'create',
         {'playbook': playbook},
       );
 
   /// Update playbook
-  _i3.Future<_i20.Playbook> update(_i20.Playbook playbook) =>
-      caller.callServerEndpoint<_i20.Playbook>(
+  _i3.Future<_i23.Playbook> update(_i23.Playbook playbook) =>
+      caller.callServerEndpoint<_i23.Playbook>(
         'playbook',
         'update',
         {'playbook': playbook},
@@ -1009,11 +1095,11 @@ class EndpointPlaybook extends _i2.EndpointRef {
   );
 
   /// Trigger playbook execution for an incident
-  _i3.Future<_i22.PlaybookExecution> execute(
+  _i3.Future<_i25.PlaybookExecution> execute(
     int playbookId,
     int incidentId,
     int initiatorId,
-  ) => caller.callServerEndpoint<_i22.PlaybookExecution>(
+  ) => caller.callServerEndpoint<_i25.PlaybookExecution>(
     'playbook',
     'execute',
     {
@@ -1024,8 +1110,8 @@ class EndpointPlaybook extends _i2.EndpointRef {
   );
 
   /// Get execution status
-  _i3.Future<_i22.PlaybookExecution?> getExecution(int executionId) =>
-      caller.callServerEndpoint<_i22.PlaybookExecution?>(
+  _i3.Future<_i25.PlaybookExecution?> getExecution(int executionId) =>
+      caller.callServerEndpoint<_i25.PlaybookExecution?>(
         'playbook',
         'getExecution',
         {'executionId': executionId},
@@ -1040,12 +1126,12 @@ class EndpointReport extends _i2.EndpointRef {
   String get name => 'report';
 
   /// List all report snapshots
-  _i3.Future<List<_i23.ReportSnapshot>> listSnapshots({
+  _i3.Future<List<_i26.ReportSnapshot>> listSnapshots({
     int? incidentId,
     int? generatedById,
     int? limit,
     int? offset,
-  }) => caller.callServerEndpoint<List<_i23.ReportSnapshot>>(
+  }) => caller.callServerEndpoint<List<_i26.ReportSnapshot>>(
     'report',
     'listSnapshots',
     {
@@ -1057,16 +1143,16 @@ class EndpointReport extends _i2.EndpointRef {
   );
 
   /// Get a single report snapshot by ID
-  _i3.Future<_i23.ReportSnapshot?> getSnapshot(int id) =>
-      caller.callServerEndpoint<_i23.ReportSnapshot?>(
+  _i3.Future<_i26.ReportSnapshot?> getSnapshot(int id) =>
+      caller.callServerEndpoint<_i26.ReportSnapshot?>(
         'report',
         'getSnapshot',
         {'id': id},
       );
 
   /// Save a new report snapshot
-  _i3.Future<_i23.ReportSnapshot> saveSnapshot(_i23.ReportSnapshot snapshot) =>
-      caller.callServerEndpoint<_i23.ReportSnapshot>(
+  _i3.Future<_i26.ReportSnapshot> saveSnapshot(_i26.ReportSnapshot snapshot) =>
+      caller.callServerEndpoint<_i26.ReportSnapshot>(
         'report',
         'saveSnapshot',
         {'snapshot': snapshot},
@@ -1084,7 +1170,7 @@ class EndpointReport extends _i2.EndpointRef {
     required DateTime from,
     required DateTime to,
     List<int>? serviceIds,
-    List<_i15.IncidentSeverity>? severities,
+    List<_i18.IncidentSeverity>? severities,
   }) => caller.callServerEndpoint<Map<String, dynamic>>(
     'report',
     'generateIncidentReport',
@@ -1114,11 +1200,11 @@ class EndpointReport extends _i2.EndpointRef {
       );
 
   /// Save a generated report as a snapshot
-  _i3.Future<_i23.ReportSnapshot> saveGeneratedReport({
+  _i3.Future<_i26.ReportSnapshot> saveGeneratedReport({
     required Map<String, dynamic> reportData,
     required int incidentId,
     required int generatedById,
-  }) => caller.callServerEndpoint<_i23.ReportSnapshot>(
+  }) => caller.callServerEndpoint<_i26.ReportSnapshot>(
     'report',
     'saveGeneratedReport',
     {
@@ -1137,49 +1223,49 @@ class EndpointRule extends _i2.EndpointRef {
   String get name => 'rule';
 
   /// List all rules
-  _i3.Future<List<_i24.Rule>> list() =>
-      caller.callServerEndpoint<List<_i24.Rule>>(
+  _i3.Future<List<_i27.Rule>> list() =>
+      caller.callServerEndpoint<List<_i27.Rule>>(
         'rule',
         'list',
         {},
       );
 
   /// List rules for a service
-  _i3.Future<List<_i24.Rule>> listForService(int serviceId) =>
-      caller.callServerEndpoint<List<_i24.Rule>>(
+  _i3.Future<List<_i27.Rule>> listForService(int serviceId) =>
+      caller.callServerEndpoint<List<_i27.Rule>>(
         'rule',
         'listForService',
         {'serviceId': serviceId},
       );
 
   /// Get rule by ID
-  _i3.Future<_i24.Rule?> get(int id) => caller.callServerEndpoint<_i24.Rule?>(
+  _i3.Future<_i27.Rule?> get(int id) => caller.callServerEndpoint<_i27.Rule?>(
     'rule',
     'get',
     {'id': id},
   );
 
   /// Create rule
-  _i3.Future<_i24.Rule> create(_i24.Rule rule) =>
-      caller.callServerEndpoint<_i24.Rule>(
+  _i3.Future<_i27.Rule> create(_i27.Rule rule) =>
+      caller.callServerEndpoint<_i27.Rule>(
         'rule',
         'create',
         {'rule': rule},
       );
 
   /// Update rule
-  _i3.Future<_i24.Rule> update(_i24.Rule rule) =>
-      caller.callServerEndpoint<_i24.Rule>(
+  _i3.Future<_i27.Rule> update(_i27.Rule rule) =>
+      caller.callServerEndpoint<_i27.Rule>(
         'rule',
         'update',
         {'rule': rule},
       );
 
   /// Toggle rule enabled/disabled
-  _i3.Future<_i24.Rule> toggleEnabled(
+  _i3.Future<_i27.Rule> toggleEnabled(
     int id,
     bool enabled,
-  ) => caller.callServerEndpoint<_i24.Rule>(
+  ) => caller.callServerEndpoint<_i27.Rule>(
     'rule',
     'toggleEnabled',
     {
@@ -1204,8 +1290,8 @@ class EndpointSentinelApiKey extends _i2.EndpointRef {
   String get name => 'sentinelApiKey';
 
   /// List all API keys for the current user (or all if SuperAdmin)
-  _i3.Future<List<_i25.SentinelApiKey>> list() =>
-      caller.callServerEndpoint<List<_i25.SentinelApiKey>>(
+  _i3.Future<List<_i28.SentinelApiKey>> list() =>
+      caller.callServerEndpoint<List<_i28.SentinelApiKey>>(
         'sentinelApiKey',
         'list',
         {},
@@ -1265,10 +1351,10 @@ class EndpointService extends _i2.EndpointRef {
   String get name => 'service';
 
   /// Get all services with optional filtering
-  _i3.Future<List<_i26.Service>> list({
-    _i27.ServiceStatus? status,
-    _i28.ServiceTier? tier,
-  }) => caller.callServerEndpoint<List<_i26.Service>>(
+  _i3.Future<List<_i29.Service>> list({
+    _i30.ServiceStatus? status,
+    _i31.ServiceTier? tier,
+  }) => caller.callServerEndpoint<List<_i29.Service>>(
     'service',
     'list',
     {
@@ -1278,24 +1364,24 @@ class EndpointService extends _i2.EndpointRef {
   );
 
   /// Get a single service by ID with full relations
-  _i3.Future<_i26.Service?> get(int id) =>
-      caller.callServerEndpoint<_i26.Service?>(
+  _i3.Future<_i29.Service?> get(int id) =>
+      caller.callServerEndpoint<_i29.Service?>(
         'service',
         'get',
         {'id': id},
       );
 
   /// Create a new service
-  _i3.Future<_i26.Service> create(_i26.Service service) =>
-      caller.callServerEndpoint<_i26.Service>(
+  _i3.Future<_i29.Service> create(_i29.Service service) =>
+      caller.callServerEndpoint<_i29.Service>(
         'service',
         'create',
         {'service': service},
       );
 
   /// Update an existing service
-  _i3.Future<_i26.Service> update(_i26.Service service) =>
-      caller.callServerEndpoint<_i26.Service>(
+  _i3.Future<_i29.Service> update(_i29.Service service) =>
+      caller.callServerEndpoint<_i29.Service>(
         'service',
         'update',
         {'service': service},
@@ -1309,16 +1395,16 @@ class EndpointService extends _i2.EndpointRef {
   );
 
   /// Get health status summary for dashboard
-  _i3.Future<_i29.HealthSummary> getHealthSummary() =>
-      caller.callServerEndpoint<_i29.HealthSummary>(
+  _i3.Future<_i32.HealthSummary> getHealthSummary() =>
+      caller.callServerEndpoint<_i32.HealthSummary>(
         'service',
         'getHealthSummary',
         {},
       );
 
   /// Get system metrics (uptime, latency, etc.)
-  _i3.Future<_i30.SystemMetrics> getSystemMetrics() =>
-      caller.callServerEndpoint<_i30.SystemMetrics>(
+  _i3.Future<_i33.SystemMetrics> getSystemMetrics() =>
+      caller.callServerEndpoint<_i33.SystemMetrics>(
         'service',
         'getSystemMetrics',
         {},
@@ -1380,16 +1466,16 @@ class EndpointSystemSettings extends _i2.EndpointRef {
   String get name => 'systemSettings';
 
   /// List all system settings
-  _i3.Future<List<_i31.SystemSetting>> list({String? category}) =>
-      caller.callServerEndpoint<List<_i31.SystemSetting>>(
+  _i3.Future<List<_i34.SystemSetting>> list({String? category}) =>
+      caller.callServerEndpoint<List<_i34.SystemSetting>>(
         'systemSettings',
         'list',
         {'category': category},
       );
 
   /// Get a single setting by key
-  _i3.Future<_i31.SystemSetting?> getByKey(String key) =>
-      caller.callServerEndpoint<_i31.SystemSetting?>(
+  _i3.Future<_i34.SystemSetting?> getByKey(String key) =>
+      caller.callServerEndpoint<_i34.SystemSetting?>(
         'systemSettings',
         'getByKey',
         {'key': key},
@@ -1404,13 +1490,13 @@ class EndpointSystemSettings extends _i2.EndpointRef {
       );
 
   /// Update or create a setting
-  _i3.Future<_i31.SystemSetting> upsert(
+  _i3.Future<_i34.SystemSetting> upsert(
     String key,
     String value, {
     String? description,
     required String category,
     required bool isSecret,
-  }) => caller.callServerEndpoint<_i31.SystemSetting>(
+  }) => caller.callServerEndpoint<_i34.SystemSetting>(
     'systemSettings',
     'upsert',
     {
@@ -1438,17 +1524,17 @@ class EndpointSystemSettings extends _i2.EndpointRef {
       );
 
   /// Bulk update settings
-  _i3.Future<List<_i31.SystemSetting>> bulkUpdate(
-    List<_i31.SystemSetting> settings,
-  ) => caller.callServerEndpoint<List<_i31.SystemSetting>>(
+  _i3.Future<List<_i34.SystemSetting>> bulkUpdate(
+    List<_i34.SystemSetting> settings,
+  ) => caller.callServerEndpoint<List<_i34.SystemSetting>>(
     'systemSettings',
     'bulkUpdate',
     {'settings': settings},
   );
 
   /// Get public settings (non-secret)
-  _i3.Future<List<_i31.SystemSetting>> getPublic() =>
-      caller.callServerEndpoint<List<_i31.SystemSetting>>(
+  _i3.Future<List<_i34.SystemSetting>> getPublic() =>
+      caller.callServerEndpoint<List<_i34.SystemSetting>>(
         'systemSettings',
         'getPublic',
         {},
@@ -1465,7 +1551,7 @@ class EndpointTelemetry extends _i2.EndpointRef {
   /// Ingest health signal from agent
   _i3.Future<void> ingestSignal(
     int serviceId,
-    _i32.TelemetrySignalPayload payload,
+    _i35.TelemetrySignalPayload payload,
   ) => caller.callServerEndpoint<void>(
     'telemetry',
     'ingestSignal',
@@ -1478,7 +1564,7 @@ class EndpointTelemetry extends _i2.EndpointRef {
   /// Ingest batch of signals
   _i3.Future<void> ingestBatch(
     int serviceId,
-    _i33.TelemetrySignalBatch batch,
+    _i36.TelemetrySignalBatch batch,
   ) => caller.callServerEndpoint<void>(
     'telemetry',
     'ingestBatch',
@@ -1491,7 +1577,7 @@ class EndpointTelemetry extends _i2.EndpointRef {
   /// Record heartbeat from agent
   _i3.Future<void> heartbeat(
     int serviceId,
-    _i34.TelemetryHeartbeat heartbeat,
+    _i37.TelemetryHeartbeat heartbeat,
   ) => caller.callServerEndpoint<void>(
     'telemetry',
     'heartbeat',
@@ -1502,19 +1588,19 @@ class EndpointTelemetry extends _i2.EndpointRef {
   );
 
   /// Get signals for a service
-  _i3.Future<List<_i35.HealthSignal>> getSignals(int serviceId) =>
-      caller.callServerEndpoint<List<_i35.HealthSignal>>(
+  _i3.Future<List<_i38.HealthSignal>> getSignals(int serviceId) =>
+      caller.callServerEndpoint<List<_i38.HealthSignal>>(
         'telemetry',
         'getSignals',
         {'serviceId': serviceId},
       );
 
   /// Get historical metric points for a signal
-  _i3.Future<List<_i36.MetricPoint>> getHistory(
+  _i3.Future<List<_i39.MetricPoint>> getHistory(
     int signalId, {
     int? limit,
     DateTime? after,
-  }) => caller.callServerEndpoint<List<_i36.MetricPoint>>(
+  }) => caller.callServerEndpoint<List<_i39.MetricPoint>>(
     'telemetry',
     'getHistory',
     {
@@ -1533,8 +1619,8 @@ class EndpointUser extends _i2.EndpointRef {
   String get name => 'user';
 
   /// Get current authenticated user profile
-  _i3.Future<_i37.TeamMember?> getCurrentUser() =>
-      caller.callServerEndpoint<_i37.TeamMember?>(
+  _i3.Future<_i40.TeamMember?> getCurrentUser() =>
+      caller.callServerEndpoint<_i40.TeamMember?>(
         'user',
         'getCurrentUser',
         {},
@@ -1561,34 +1647,34 @@ class EndpointUser extends _i2.EndpointRef {
   );
 
   /// List team members
-  _i3.Future<List<_i37.TeamMember>> listTeamMembers() =>
-      caller.callServerEndpoint<List<_i37.TeamMember>>(
+  _i3.Future<List<_i40.TeamMember>> listTeamMembers() =>
+      caller.callServerEndpoint<List<_i40.TeamMember>>(
         'user',
         'listTeamMembers',
         {},
       );
 
   /// Get user by ID
-  _i3.Future<_i37.TeamMember?> get(int id) =>
-      caller.callServerEndpoint<_i37.TeamMember?>(
+  _i3.Future<_i40.TeamMember?> get(int id) =>
+      caller.callServerEndpoint<_i40.TeamMember?>(
         'user',
         'get',
         {'id': id},
       );
 
   /// Update user profile
-  _i3.Future<_i38.OpsUser> update(_i38.OpsUser user) =>
-      caller.callServerEndpoint<_i38.OpsUser>(
+  _i3.Future<_i41.OpsUser> update(_i41.OpsUser user) =>
+      caller.callServerEndpoint<_i41.OpsUser>(
         'user',
         'update',
         {'user': user},
       );
 
   /// Assign role to user
-  _i3.Future<_i39.UserRole> assignRole(
+  _i3.Future<_i42.UserRole> assignRole(
     int userId,
     int roleId,
-  ) => caller.callServerEndpoint<_i39.UserRole>(
+  ) => caller.callServerEndpoint<_i42.UserRole>(
     'user',
     'assignRole',
     {
@@ -1621,8 +1707,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i40.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i40.Greeting>(
+  _i3.Future<_i43.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i43.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -1632,13 +1718,13 @@ class EndpointGreeting extends _i2.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
-    auth = _i41.Caller(client);
+    auth = _i44.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
-  late final _i41.Caller auth;
+  late final _i44.Caller auth;
 
   late final _i4.Caller serverpod_auth_core;
 }
@@ -1663,7 +1749,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i42.Protocol(),
+         _i45.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -1678,6 +1764,8 @@ class Client extends _i2.ServerpodClientShared {
     aiInsights = EndpointAiInsights(this);
     alert = EndpointAlert(this);
     auditLog = EndpointAuditLog(this);
+    briefing = EndpointBriefing(this);
+    butler = EndpointButler(this);
     environment = EndpointEnvironment(this);
     governance = EndpointGovernance(this);
     health = EndpointHealth(this);
@@ -1712,6 +1800,10 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointAlert alert;
 
   late final EndpointAuditLog auditLog;
+
+  late final EndpointBriefing briefing;
+
+  late final EndpointButler butler;
 
   late final EndpointEnvironment environment;
 
@@ -1763,6 +1855,8 @@ class Client extends _i2.ServerpodClientShared {
     'aiInsights': aiInsights,
     'alert': alert,
     'auditLog': auditLog,
+    'briefing': briefing,
+    'butler': butler,
     'environment': environment,
     'governance': governance,
     'health': health,

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/app_theme.dart';
-import '../../theme/sentinel_motion.dart';
 import '../../widgets/sentinel_card.dart';
-import '../../widgets/status_pulsar.dart';
 import '../../widgets/sentinel_shimmer.dart';
 import '../../widgets/sparkline_card.dart';
 import '../../widgets/sentinel_state_view.dart';
@@ -35,14 +33,17 @@ class DashboardScreen extends ConsumerWidget {
             _DashboardHeader(),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 24,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _MetricOverviewRow(health: health, metrics: metricsAsync),
                     const SizedBox(height: 32),
                     _SectionHeader(
-                      title: 'Critical Infrastructure', 
+                      title: 'Critical Infrastructure',
                       actionLabel: 'View Registry',
                       onAction: () {
                         // In a real app, use a navigator to go to Registry
@@ -59,7 +60,9 @@ class DashboardScreen extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const _SectionHeader(title: 'Service Health Heatmap'),
+                              const _SectionHeader(
+                                title: 'Service Health Heatmap',
+                              ),
                               const SizedBox(height: 16),
                               _HealthHeatmap(),
                             ],
@@ -75,10 +78,22 @@ class DashboardScreen extends ConsumerWidget {
                               SparklineCard(
                                 title: 'Requests / Sec',
                                 value: metricsAsync.maybeWhen(
-                                  data: (m) => '${(m.totalRequests ?? 0) ~/ 1000}k',
+                                  data: (m) =>
+                                      '${(m.totalRequests ?? 0) ~/ 1000}k',
                                   orElse: () => '1.2k',
                                 ),
-                                data: const [10, 15, 8, 20, 25, 22, 30, 28, 35, 40],
+                                data: const [
+                                  10,
+                                  15,
+                                  8,
+                                  20,
+                                  25,
+                                  22,
+                                  30,
+                                  28,
+                                  35,
+                                  40,
+                                ],
                                 color: AppTheme.primary,
                               ),
                               const SizedBox(height: 16),
@@ -88,7 +103,18 @@ class DashboardScreen extends ConsumerWidget {
                                   data: (m) => '${m.errorRate}%',
                                   orElse: () => '0.00%',
                                 ),
-                                data: const [2.0, 1.5, 0.8, 1.2, 0.5, 0.1, 0.0, 0.2, 0.1, 0.0],
+                                data: const [
+                                  2.0,
+                                  1.5,
+                                  0.8,
+                                  1.2,
+                                  0.5,
+                                  0.1,
+                                  0.0,
+                                  0.2,
+                                  0.1,
+                                  0.0,
+                                ],
                                 color: AppTheme.error,
                               ),
                             ],
@@ -189,7 +215,10 @@ class _NotificationBell extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        const Icon(Icons.notifications_none_rounded, color: AppTheme.darkTextMuted),
+        const Icon(
+          Icons.notifications_none_rounded,
+          color: AppTheme.darkTextMuted,
+        ),
         Positioned(
           top: 12,
           right: 4,
@@ -230,11 +259,13 @@ class _MetricOverviewRow extends ConsumerWidget {
         Expanded(
           child: _MetricCard(
             title: 'Active Incidents',
-            value: ref.watch(activeIncidentsProvider).when(
-              data: (i) => i.length.toString(),
-              loading: () => '...',
-              error: (_, __) => '!',
-            ),
+            value: ref
+                .watch(activeIncidentsProvider)
+                .when(
+                  data: (i) => i.length.toString(),
+                  loading: () => '...',
+                  error: (_, __) => '!',
+                ),
             trend: 'Last 24h',
             trendPositive: false,
             icon: Icons.warning_amber_rounded,
@@ -303,7 +334,9 @@ class _MetricCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                trendPositive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+                trendPositive
+                    ? Icons.arrow_upward_rounded
+                    : Icons.arrow_downward_rounded,
                 size: 14,
                 color: trendPositive ? AppTheme.success : AppTheme.error,
               ),
@@ -346,7 +379,10 @@ class _SectionHeader extends StatelessWidget {
         if (actionLabel != null)
           TextButton(
             onPressed: onAction,
-            child: Text(actionLabel!, style: const TextStyle(color: AppTheme.primary)),
+            child: Text(
+              actionLabel!,
+              style: const TextStyle(color: AppTheme.primary),
+            ),
           ),
       ],
     );
@@ -358,42 +394,73 @@ class _OutageGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final incidentsAsync = ref.watch(activeIncidentsProvider);
+    final servicesAsync = ref.watch(servicesProvider);
 
-    return incidentsAsync.when(
-      data: (incidents) {
-        if (incidents.isEmpty) {
-          return SentinelCard(
-            child: Center(
-              child: Column(
-                children: [
-                  const Icon(Icons.check_circle_outline_rounded, color: AppTheme.success, size: 48),
-                  const SizedBox(height: 16),
-                  Text('All Systems Operational', style: Theme.of(context).textTheme.titleLarge),
-                  Text('No active critical incidents detected.', style: Theme.of(context).textTheme.bodySmall),
-                ],
+    return servicesAsync.when(
+      data: (services) {
+        if (services.isEmpty) {
+          return SizedBox(
+            height: 200,
+            child: SentinelCard(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.dns_outlined,
+                      color: AppTheme.darkTextMuted,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No Services Registered',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Text(
+                      'Add services in the Registry to monitor them.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
               ),
             ),
           );
         }
 
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 24,
-            mainAxisSpacing: 24,
-            childAspectRatio: 2.2,
-          ),
-          itemCount: incidents.length,
-          itemBuilder: (context, index) {
-            final incident = incidents[index];
-            return SentinelMotion.fadeIn(
-              _OutageCard(incident: incident),
-              delay: Duration(milliseconds: index * 100),
+        // Show up to 6 services, prioritizing unhealthy ones
+        final sortedServices = List<Service>.from(services)
+          ..sort((a, b) {
+            // Prioritize: MAJOR_OUTAGE > PARTIAL_OUTAGE > DEGRADED > rest
+            int getScore(ServiceStatus s) {
+              switch (s) {
+                case ServiceStatus.MAJOR_OUTAGE:
+                  return 0;
+                case ServiceStatus.PARTIAL_OUTAGE:
+                  return 1;
+                case ServiceStatus.DEGRADED:
+                  return 2;
+                case ServiceStatus.MAINTENANCE:
+                  return 3;
+                case ServiceStatus.OPERATIONAL:
+                  return 4;
+              }
+            }
+
+            return getScore(a.status).compareTo(getScore(b.status));
+          });
+
+        final displayServices = sortedServices.take(6).toList();
+
+        return Wrap(
+          spacing: 24,
+          runSpacing: 24,
+          children: displayServices.map((service) {
+            return SizedBox(
+              width: 350, // Fixed width for consistent card size
+              height: 180, // Fixed height for consistent card size
+              child: _ServiceHealthCard(service: service),
             );
-          },
+          }).toList(),
         );
       },
       loading: () => GridView.count(
@@ -402,19 +469,53 @@ class _OutageGrid extends ConsumerWidget {
         crossAxisSpacing: 24,
         children: List.generate(3, (_) => SentinelShimmer.box(height: 120)),
       ),
-      error: (_, __) => const Text('Failed to load outages'),
+      error: (_, __) => const Text('Failed to load services'),
     );
   }
 }
 
-class _OutageCard extends StatelessWidget {
-  final Incident incident;
-  const _OutageCard({required this.incident});
+class _ServiceHealthCard extends StatelessWidget {
+  final Service service;
+  const _ServiceHealthCard({required this.service});
 
   @override
   Widget build(BuildContext context) {
-    final color = incident.severity == IncidentSeverity.CRITICAL ? AppTheme.error : AppTheme.warning;
-    
+    Color statusColor;
+    IconData statusIcon;
+    String statusLabel;
+
+    switch (service.status) {
+      case ServiceStatus.OPERATIONAL:
+        statusColor = AppTheme.success;
+        statusIcon = Icons.check_circle_outline_rounded;
+        statusLabel = 'Operational';
+        break;
+      case ServiceStatus.DEGRADED:
+        statusColor = AppTheme.warning;
+        statusIcon = Icons.warning_amber_rounded;
+        statusLabel = 'Degraded';
+        break;
+      case ServiceStatus.PARTIAL_OUTAGE:
+        statusColor = AppTheme.warning;
+        statusIcon = Icons.error_outline_rounded;
+        statusLabel = 'Partial';
+        break;
+      case ServiceStatus.MAJOR_OUTAGE:
+        statusColor = AppTheme.error;
+        statusIcon = Icons.error_rounded;
+        statusLabel = 'Major Outage';
+        break;
+      case ServiceStatus.MAINTENANCE:
+        statusColor = AppTheme.primary;
+        statusIcon = Icons.build_rounded;
+        statusLabel = 'Maintenance';
+        break;
+      default:
+        statusColor = AppTheme.success;
+        statusIcon = Icons.check_circle_outline_rounded;
+        statusLabel = 'Unknown';
+    }
+
     return SentinelCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -422,34 +523,57 @@ class _OutageCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              StatusPulsar(color: color),
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  incident.title,
+                  service.name,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              Icon(statusIcon, color: statusColor, size: 20),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
-            incident.summary ?? 'No details provided',
+            service.description ?? service.tier.name,
             style: Theme.of(context).textTheme.bodySmall,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const Spacer(),
+          const SizedBox(height: 24), // Fixed spacing instead of Spacer
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Started 12m ago',
-                style: TextStyle(fontSize: 10, color: AppTheme.darkTextDim),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  statusLabel.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppTheme.darkTextMuted),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 12,
+                color: AppTheme.darkTextMuted,
+              ),
             ],
           ),
         ],
@@ -479,9 +603,9 @@ class _HealthHeatmap extends StatelessWidget {
                 final isStable = index % 15 != 0;
                 return Container(
                   decoration: BoxDecoration(
-                    color: isStable 
-                      ? AppTheme.success.withOpacity(0.1 + (index % 5) * 0.1)
-                      : AppTheme.error.withOpacity(0.4),
+                    color: isStable
+                        ? AppTheme.success.withOpacity(0.1 + (index % 5) * 0.1)
+                        : AppTheme.error.withOpacity(0.4),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 );
@@ -492,19 +616,28 @@ class _HealthHeatmap extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text('UNSTABLE', style: TextStyle(fontSize: 10, color: AppTheme.darkTextDim)),
+              Text(
+                'UNSTABLE',
+                style: TextStyle(fontSize: 10, color: AppTheme.darkTextDim),
+              ),
               const SizedBox(width: 8),
-              ...List.generate(5, (i) => Container(
-                width: 12,
-                height: 12,
-                margin: const EdgeInsets.only(left: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.success.withOpacity(0.2 * (i + 1)),
-                  borderRadius: BorderRadius.circular(2),
+              ...List.generate(
+                5,
+                (i) => Container(
+                  width: 12,
+                  height: 12,
+                  margin: const EdgeInsets.only(left: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.success.withOpacity(0.2 * (i + 1)),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              )),
+              ),
               const SizedBox(width: 8),
-              Text('STABLE', style: TextStyle(fontSize: 10, color: AppTheme.darkTextDim)),
+              Text(
+                'STABLE',
+                style: TextStyle(fontSize: 10, color: AppTheme.darkTextDim),
+              ),
             ],
           ),
         ],

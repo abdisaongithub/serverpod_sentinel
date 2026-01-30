@@ -23,6 +23,7 @@ import 'screens/livestream/live_stream_screen.dart';
 import 'screens/automation/playbooks_screen.dart';
 import 'screens/automation/playbook_execution_screen.dart';
 import 'screens/intelligence/ai_insights_screen.dart';
+import 'screens/butler/butler_chat_screen.dart';
 import 'screens/reports/reports_screen.dart';
 import 'screens/reports/incident_report_screen.dart';
 import 'screens/settings/settings_screen.dart';
@@ -212,8 +213,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.playbookExecution,
             builder: (context, state) {
               final id =
-                  int.tryParse(state.uri.queryParameters['execId'] ?? 
-                               state.uri.queryParameters['id'] ?? '') ?? 0;
+                  int.tryParse(
+                    state.uri.queryParameters['execId'] ??
+                        state.uri.queryParameters['id'] ??
+                        '',
+                  ) ??
+                  0;
               return PlaybookExecutionScreen(executionId: id);
             },
           ),
@@ -221,6 +226,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.aiInsights,
             builder: (context, state) => const AiInsightsScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.butler,
+            builder: (context, state) => const ButlerChatScreen(),
           ),
 
           GoRoute(
